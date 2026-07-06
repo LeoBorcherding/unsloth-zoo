@@ -216,7 +216,10 @@ def left_pack_padding(tensor: torch.Tensor, pad_id: int) -> torch.Tensor:
     """Move all padding tokens in each sequence to the right."""
     mask = (tensor != pad_id)
     # stable=True since the binary mask is unordered.
-    sorted_indices = torch.argsort(mask, dim=1, descending=True, stable=True)
+    # Cast bool -> int32: torch.argsort does not support bool dtype on ROCm/HIP
+    # ("Sort currently does not support bool dtype"); CUDA tolerates it. int32
+    # preserves the sort order and works on both backends.
+    sorted_indices = torch.argsort(mask.to(torch.int32), dim=1, descending=True, stable=True)
     packed_tensor = torch.gather(tensor, 1, sorted_indices)
     return packed_tensor
 pass

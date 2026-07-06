@@ -588,10 +588,23 @@ def time_limit(seconds: float, *, strict: bool = True, leeway: float = 0.05):
     """
     if seconds <= 0:
         raise ValueError("seconds must be > 0")
-    if not hasattr(signal, "setitimer"):
-        raise NotImplementedError("time_limit requires Unix setitimer/SIGALRM support")
-    if threading.current_thread() is not threading.main_thread():
-        raise RuntimeError("time_limit must be used from the main thread")
+    # SIGALRM/ITIMER_REAL is Unix-only and main-thread only. On Windows (no
+    # setitimer) or off the main thread, fall back to a best-effort post-hoc
+    # wall-clock check: the body is not interrupted mid-run, but a TimeoutError
+    # is raised on exit if it overran. This keeps RL/env code working
+    # cross-platform instead of hard-failing with NotImplementedError.
+    if not hasattr(signal, "setitimer") or \
+       threading.current_thread() is not threading.main_thread():
+        _start = time.monotonic()
+        try:
+            yield
+        finally:
+            if strict and time.monotonic() > _start + seconds + leeway:
+                raise TimeoutError(
+                    f"Exceeded time limit ({seconds:g}s); elapsed "
+                    f"~{time.monotonic() - _start:.3f}s (no SIGALRM on this platform)."
+                )
+        return
 
     start = time.monotonic()
     deadline_at = start + seconds
