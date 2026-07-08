@@ -2636,6 +2636,44 @@ def load_lora_directly(model):
 pass
 
 
+@torch.inference_mode
+def merge_lora_into_vllm(model):
+    # All Unsloth Zoo code licensed under LGPLv3
+    # ================= UNTESTED PROTOTYPE — see DESIGN_lora_merge_no_drift.md ==============
+    # Clean LoRA merge into vLLM's base weights (no drift). Alternative to the live-adapter
+    # path (load_lora_directly): instead of updating vLLM's LoRA slots, OVERWRITE vLLM's base
+    # weights each step with (frozen_base + scale*B@A), computed from the UNTOUCHED training
+    # base -> nothing drifts. Run vLLM with enable_lora=False so it decodes plain merged
+    # weights (faster: no per-token adapter math).
+    #
+    # Needs a one-time setup pass (analogous to prepare_vllm_lora_loading) that captures,
+    # aligned per target module (q,k,v,o,gate,up,down):
+    #   model.vllm_base_weights   : vLLM base tensor/slice (use get_vllm_state_dict() so the
+    #                               FUSED qkv_proj q=0/k=1/v=2 and gate_up_proj offsets + fp8
+    #                               handling are correct)
+    #   model.train_base_weights  : the frozen HF base weight (READ-ONLY source)
+    #   model.model_loras_A / _B  : current LoRA factors
+    #   model.model_loras_scaling : lora_alpha / r per module
+    # 4-bit base needs dequant->merge->requant; gate this whole path on not load_in_4bit.
+    vllm_base  = model.vllm_base_weights       # TODO(setup): populate via get_vllm_state_dict
+    train_base = model.train_base_weights       # TODO(setup): frozen HF base, read-only
+    loras_A    = model.model_loras_A
+    loras_B    = model.model_loras_B
+    scaling    = model.model_loras_scaling
+
+    for wv, wb, A, B, s in zip(vllm_base, train_base, loras_A, loras_B, scaling):
+        # delta = scaling * (B @ A). Accumulate in fp32 to minimise rounding, then cast once.
+        delta  = torch.mm(B.float(), A.float()).mul_(s)
+        merged = wb.float().add_(delta)
+        wv.copy_(merged.to(wv.dtype), non_blocking = True)  # OVERWRITE vLLM base (never +=)
+        # wb (training base) is only READ here -> the frozen base can never drift.
+    pass
+    torch.cuda.synchronize()
+    # VALIDATE ON GPU before trusting: (1) merged vLLM logits == HF+adapter logits within
+    # fp tol; (2) train base norm identical before/after N steps; (3) GRPO sec/step vs adapter.
+pass
+
+
 from peft import PeftType
 
 @torch.inference_mode
