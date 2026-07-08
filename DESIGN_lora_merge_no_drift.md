@@ -58,3 +58,28 @@ crash). MUST be validated on GPU:
 Prototype `merge_lora_into_vllm` scaffold added to `vllm_utils.py` (clearly marked
 UNTESTED). It reuses the existing mapping but the fused-offset writes need live GPU
 verification before trusting. Not wired into the GRPO step yet.
+
+## VERIFIED FINDING (MI300X, Llama-3.2-3B, 2026-07-08) — the merge idea does NOT work as-is
+The whole premise ("merge into vLLM's own buffer, leave the training base untouched")
+assumed vLLM has a **separate** base weight buffer. It does not.
+
+Measured on a live fast_inference model:
+- `HF q_proj.base_layer.weight.data_ptr()` == `vLLM qkv_proj base q-slice.data_ptr()`
+  (identical address), and writing a sentinel into vLLM's slice changed the HF base value.
+- The merge-correctness test also showed it: writing merged weights into vLLM's base moved
+  the HF training-base norms (only my *reads* of HF should have happened) — because the two
+  are the same tensor.
+
+**Conclusion:** Unsloth stores the base model **once** and shares it between the training
+model and vLLM (a deliberate memory optimization). Therefore:
+- You cannot merge LoRA into "vLLM's base" without merging into the **training** base — which
+  corrupts the frozen weights and drifts (you'd re-merge on top of the already-merged shared
+  tensor every step).
+- The only way to feed vLLM merged weights is to **un-share** — give vLLM its own base copy —
+  which costs **a full extra base model in VRAM** (~6 GB @ 3B, ~40 GB @ 20B).
+
+So Unsloth's live-adapter approach is optimal: sharing the base + applying LoRA as an adapter
+avoids **both** TRL's numerical drift **and** the second-copy memory cost. The merge trick
+buys ~0.4 s/step of decode at the price of a whole base model of VRAM — not worth it,
+especially at scale. This branch stands as the record of *why*; the prototype is left in place
+but should not be wired in.
