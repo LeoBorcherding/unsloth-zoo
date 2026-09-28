@@ -435,7 +435,8 @@ def find_decoder_layers(model):
 
 
 def build_host_layers(make_layer, first_idx, count, tensors, device, compute_dtype,
-                      quantize_4bit = False, skip_modules = (), prefix = "model.layers."):
+                      quantize_4bit = False, skip_modules = (), prefix = "model.layers.",
+                      reference_layers = (), keep_fp32 = ()):
     """Build decoder layers [first_idx, first_idx + count) with their frozen
     weights in pinned host RAM, so a model larger than the card can load.
 
@@ -443,13 +444,26 @@ def build_host_layers(make_layer, first_idx, count, tensors, device, compute_dty
     `tensors` maps checkpoint keys to a zero-arg loader. bnb-prequantized weights
     are rebuilt as they are; with `quantize_4bit`, plain weights are quantized one
     at a time on `device` and only the packed blob comes back. quant_state stays
-    on `device`, the same split BlockSwap keeps for a layer it evicts."""
+    on `device`, the same split BlockSwap keeps for a layer it evicts.
+
+    `reference_layers` are already-loaded layers of the same model; where one has
+    the same submodule, its 4-bit/plain choice and parameter dtypes are copied, so
+    the tail matches what the standard load would have built. `keep_fp32` names the
+    modules the standard load keeps in float32 (a model's `_keep_in_fp32_modules`)."""
     import bitsandbytes as bnb
     device = torch.device(device)
     # A bnb-prequantized checkpoint stores the weights it chose not to quantize
     # (Unsloth's dynamic quants) as plain tensors; those stay plain.
     if any(".quant_state." in k for k in tensors):
         quantize_4bit = False
+    ref_quant, ref_dtype = {}, {}
+    for ref in reference_layers:
+        for mname, mod in ref.named_modules():
+            if isinstance(mod, torch.nn.Linear):
+                ref_quant.setdefault(mname, isinstance(mod, bnb.nn.Linear4bit))
+        for pname, p in ref.named_parameters():
+            if p.is_floating_point():
+                ref_dtype.setdefault(pname, p.dtype)
     out = []
     for idx in range(first_idx, first_idx + count):
         with torch.device("meta"):
@@ -465,7 +479,7 @@ def build_host_layers(make_layer, first_idx, count, tensors, device, compute_dty
                 bias = torch.nn.Parameter(_to_pinned_host(tensors[base + mname + ".bias"]().to(compute_dtype)),
                                           requires_grad = False)
             skipped = any(s in mname.split(".") for s in skip_modules)
-            if stats or (quantize_4bit and not skipped):
+            if stats or (quantize_4bit and ref_quant.get(mname, not skipped)):
                 if stats:
                     w = bnb.nn.Params4bit.from_prequantized(
                         tensors[key](), {k: v() for k, v in stats.items()}, requires_grad = False, device = device)
@@ -483,18 +497,29 @@ def build_host_layers(make_layer, first_idx, count, tensors, device, compute_dty
                 torch.cuda.empty_cache()
             else:
                 new = torch.nn.Linear(mod.in_features, mod.out_features, bias = bias is not None, device = "meta")
-                new.weight = torch.nn.Parameter(_to_pinned_host(tensors[key]().to(compute_dtype)),
+                dtype = ref_dtype.get(mname + ".weight", compute_dtype)
+                new.weight = torch.nn.Parameter(_to_pinned_host(tensors[key]().to(dtype)),
                                                 requires_grad = False)
             if bias is not None:
                 new.bias = bias
             parent_name, _, child = mname.rpartition(".")
             setattr(layer.get_submodule(parent_name) if parent_name else layer, child, new)
         for pname, p in list(layer.named_parameters()):
-            if p.device.type != "meta":
+            if p.device.type == "cpu":  # already built above
+                continue
+            # Some modules create their weight on a real device even under meta, so
+            # device alone does not say whether it was loaded.
+            if base + pname not in tensors:
+                if p.device.type == "meta":
+                    raise RuntimeError(f"block_swap: {base}{pname} has no checkpoint value")
                 continue
             t = tensors[base + pname]()
             if t.is_floating_point():
-                t = t.to(compute_dtype)
+                # The standard load reads at compute_dtype and upcasts afterwards, so
+                # round the same way unless the model keeps this module in fp32.
+                if not any(k in pname.split(".") for k in keep_fp32):
+                    t = t.to(compute_dtype)
+                t = t.to(ref_dtype.get(pname, compute_dtype))
             parent_name, _, child = pname.rpartition(".")
             parent = layer.get_submodule(parent_name) if parent_name else layer
             setattr(parent, child, torch.nn.Parameter(_to_pinned_host(t), requires_grad = False))
