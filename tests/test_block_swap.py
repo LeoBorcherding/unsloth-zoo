@@ -1,3 +1,19 @@
+# Unsloth Zoo - Utilities for Unsloth
+# Copyright 2023-present Daniel Han-Chen, Michael Han-Chen & the Unsloth team. All rights reserved.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 """Tests unsloth_zoo.block_swap. The scheduling is driven through fake blocks so it
 runs on a CPU-only runner; the one case that needs a real Params4bit round trip
 skips without a GPU.
@@ -81,7 +97,6 @@ def test_forward_arm_prefetches_leading_blocks():
 
 def test_pool_never_exceeds_depth_plus_one_live():
     sw = _scheduler(8, depth = 2)
-    # Walk the forward sweep under no_grad: pre fetches ahead, post evicts.
     with torch.no_grad():
         for i in range(8):
             sw._pre(i)(None, None)
@@ -107,9 +122,7 @@ def test_prefetch_direction_flips_with_grad_mode():
 
 
 def test_post_hook_evicts_only_under_no_grad():
-    # Block 2, not 0: block 0's backward hook also re-arms the next step, which
-    # would fetch it straight back and hide what this test is checking. Depth 3
-    # so the look-ahead and look-behind fetches never contend for block 2's slot.
+    # Not block 0: its backward hook re-arms and refetches it.
     sw = _scheduler(6, depth = 3)
     for b in sw.blocks:
         sw._release(b)
@@ -187,6 +200,24 @@ def test_enter_leave_ignore_layers_on_the_card():
     assert [b.resident for b in sw.blocks] == before
 
 
+def test_interrupted_step_never_evicts_the_block_about_to_run():
+    sw = _scheduler(8, depth = 2)
+    for i in range(8):
+        with torch.no_grad():
+            sw._pre(i)(None, None)
+            sw._post(i)(None, None, None)
+    # Recompute of the top blocks starts, then backward dies: their slots stay held.
+    with torch.enable_grad():
+        sw._pre(7)(None, None)
+        sw._pre(6)(None, None)
+    assert not sw.free["a"]
+    with torch.no_grad():
+        for i in range(8):
+            sw._pre(i)(None, None)
+            assert sw.blocks[i].resident, i
+            sw._post(i)(None, None, None)
+
+
 def test_find_decoder_layers_through_common_wrappers():
     class Inner(nn.Module):
         def __init__(self):
@@ -217,13 +248,40 @@ def test_state_dict_substitutes_host_copies_for_evicted_blocks():
     for p in layers.parameters():
         p.requires_grad_(False)
     sw = BlockSwap(layers, 4, prefetch_depth = 1)
-    # Most blocks are evicted now (empty p.data), yet state_dict must still see
-    # the real base weights via the pinned host copies.
     sd = layers.state_dict()
     for k, v in ref.items():
         assert sd[k].shape == v.shape, k
         assert torch.equal(sd[k].to(v.device), v), k
     sw.remove()
+
+
+def test_state_dict_follows_weights_renamed_after_install():
+    # from_pretrained(block_swap_layers = N) installs before PEFT wraps each Linear in a base_layer.
+    if not torch.cuda.is_available():
+        print("[SKIP] CUDA not available")
+        return
+
+    class Wrap(nn.Module):
+        def __init__(self, base):
+            super().__init__()
+            self.base_layer = base
+
+    torch.manual_seed(0)
+    layers = nn.ModuleList([nn.Sequential(nn.Linear(8, 8, bias = False)) for _ in range(4)]).to("cuda")
+    for p in layers.parameters():
+        p.requires_grad_(False)
+    sw = BlockSwap(layers, 4, prefetch_depth = 1)
+    for layer in layers:
+        layer[0] = Wrap(layer[0])
+    ref = [layer[0].base_layer.weight for layer in layers]
+    sd = layers.state_dict()
+    for i, b in enumerate(sw.blocks):
+        v = sd[f"{i}.0.base_layer.weight"]
+        assert v.numel() == 64, i
+        assert torch.equal(v, b.host[0]), i
+    sw.remove()
+    for i, w in enumerate(ref):
+        assert w.numel() == 64, i
 
 
 def test_params4bit_round_trip_is_bitwise():
