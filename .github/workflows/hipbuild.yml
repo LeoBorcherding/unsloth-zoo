@@ -13,11 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { label: base,       sha: e758382, gfx: "gfx1151" }
-          - { label: pre-PIC,    sha: 74dc209, gfx: "gfx1151" }
           - { label: PR head,    sha: 0a49268, gfx: "gfx1151" }
-          - { label: pre-PIC,    sha: 74dc209, gfx: "gfx1100" }
-          - { label: PR head,    sha: 0a49268, gfx: "gfx1100" }
           - { label: PR head,    sha: 0a49268, gfx: "gfx1100,gfx1030" }
           - { label: mirror fix, sha: 5586b67, gfx: "gfx1100,gfx1030" }
     steps:

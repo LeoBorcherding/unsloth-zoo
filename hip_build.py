@@ -51,12 +51,17 @@ for name in ("llama-quantize", "llama-cli", "llama-server", "llama-gguf-split", 
         continue
     p = hits[0]
     ldd = subprocess.run(["ldd", p], capture_output = True, text = True).stdout
-    objs = subprocess.run(["/opt/rocm/bin/roc-obj-ls", p], capture_output = True, text = True).stdout
+    fat = p + ".fatbin"
+    subprocess.run(["objcopy", "-O", "binary", "--only-section=.hip_fatbin", p, fat], capture_output = True)
+    raw = open(fat, "rb").read() if os.path.exists(fat) else b""
+    objs = raw.decode("latin-1")
+    bins_extra = {"fatbin_bytes": len(raw), "compressed_bundles": raw.count(b"CCOB")}
     bins[name] = {
         "path": os.path.relpath(p, folder),
         "links_amdhip64": bool(re.search(r"libamdhip64", ldd)),
         "links_hipblas": bool(re.search(r"libhipblas", ldd)),
-        "code_objects": sorted(set(re.findall(r"gfx\d+[a-z]?", objs))),
+        "code_objects": sorted(set(re.findall(r"amdgcn-amd-amdhsa--(gfx[0-9a-z]+)", objs))),
+        **bins_extra,
     }
 result["binaries"] = bins
 print("HIPBUILD_RESULT " + json.dumps(result))
