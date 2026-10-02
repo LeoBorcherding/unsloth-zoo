@@ -1,0 +1,65 @@
+name: zoo PR 512 real HIP build (no GPU)
+on:
+  push:
+    branches: [night-shift-tester/512-hipbuild]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.label }} @ ${{ matrix.sha }} (${{ matrix.gfx }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { label: base,       sha: e758382, gfx: "gfx1151" }
+          - { label: pre-PIC,    sha: 74dc209, gfx: "gfx1151" }
+          - { label: PR head,    sha: 0a49268, gfx: "gfx1151" }
+          - { label: pre-PIC,    sha: 74dc209, gfx: "gfx1100" }
+          - { label: PR head,    sha: 0a49268, gfx: "gfx1100" }
+          - { label: PR head,    sha: 0a49268, gfx: "gfx1100,gfx1030" }
+          - { label: mirror fix, sha: 5586b67, gfx: "gfx1100,gfx1030" }
+    steps:
+      - uses: actions/checkout@v4
+        with: { path: harness }
+      - uses: actions/checkout@v4
+        with:
+          repository: LeoBorcherding/unsloth-zoo
+          ref: night-shift-tester/512
+          fetch-depth: 0
+          path: zoo
+      - run: git -C zoo checkout --detach ${{ matrix.sha }} && git -C zoo log --oneline -1
+      - name: Free disk
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
+      - name: Install the ROCm 7.0 SDK (compiler and libraries only, no driver)
+        run: |
+          sudo mkdir -p /etc/apt/keyrings
+          wget -qO- https://repo.radeon.com/rocm/rocm.gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/rocm.gpg > /dev/null
+          echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/7.0 noble main" | sudo tee /etc/apt/sources.list.d/rocm.list
+          printf 'Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600\n' | sudo tee /etc/apt/preferences.d/rocm-pin-600
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends hipcc hip-dev rocm-llvm rocm-device-libs rocm-cmake hipblas-dev rocblas-dev rocm-core rocminfo rocm-hip-runtime-dev build-essential cmake libcurl4-openssl-dev
+          ls /opt/rocm/llvm/bin/clang && /opt/rocm/llvm/bin/clang --version | head -1
+          cat /opt/rocm/.info/version || true
+          df -h /
+      - name: Python deps for unsloth_zoo/llama_cpp.py
+        run: pip install --break-system-packages -q requests tqdm psutil
+      - name: Real install_llama_cpp(gpu_support=True)
+        env:
+          FAKE_GFX: ${{ matrix.gfx }}
+          ROCM_PATH: /opt/rocm
+          UNSLOTH_LLAMA_FORCE_COMPILE: "1"
+          UNSLOTH_AUTO_INSTALL: "1"
+        run: |
+          python3 harness/hip_build.py zoo "$RUNNER_TEMP/llama.cpp" 2>&1 | tee build.log
+          echo "== link/compile errors"
+          grep -nE "relocation R_X86_64|recompile with -fPIE|-fPIC|undefined reference|error:|CUDA Toolkit not found|Could not find" build.log | head -40 || true
+          grep HIPBUILD_RESULT build.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hipbuild-${{ matrix.sha }}-${{ strategy.job-index }}
+          path: build.log
