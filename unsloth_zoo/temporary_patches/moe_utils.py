@@ -899,6 +899,19 @@ def _check_torch_grouped_mm_supported():
     return _run_probe_eagerly(_probe_torch_grouped_mm_supported)
 
 
+# Run by a bare interpreter, not multiprocessing: spawn pickles its target by name and re-runs the
+# caller's __main__ in the child, which an unguarded training script or notebook does not survive.
+_ROCM_GROUPED_MM_PROBE = (
+    "import sys, torch\n"
+    "d = torch.device('cuda', int(sys.argv[1]))\n"
+    "x = torch.ones((1, 8), device=d, dtype=torch.float16)\n"
+    "w = torch.ones((1, 8, 8), device=d, dtype=torch.float16)\n"
+    "offs = torch.tensor([1], device=d, dtype=torch.int32)\n"
+    "torch._grouped_mm(x, w, offs=offs)\n"
+    "torch.cuda.synchronize(d)\n"
+)
+
+
 def _probe_torch_grouped_mm_supported():
     global _TORCH_GROUPED_MM_SUPPORTED
     if _TORCH_GROUPED_MM_SUPPORTED is not None: return _TORCH_GROUPED_MM_SUPPORTED
@@ -911,20 +924,18 @@ def _probe_torch_grouped_mm_supported():
     # Short-circuit on ROCm: torch._grouped_mm segfaults the process on some AMD hardware
     # (e.g., gfx1030) rather than raising a Python exception, which crashes the import eagerly.
     if getattr(torch.version, "hip", None) is not None:
-        import multiprocessing as mp
-        def _rocm_probe(device_id):
-            import torch
-            device = torch.device("cuda", device_id)
-            x = torch.ones((1, 8), device=device, dtype=torch.float16)
-            w = torch.ones((1, 8, 8), device=device, dtype=torch.float16)
-            offs = torch.tensor([1], device=device, dtype=torch.int32)
-            torch._grouped_mm(x, w, offs=offs)
+        import subprocess, sys
 
-        ctx = mp.get_context("spawn")
-        p = ctx.Process(target=_rocm_probe, args=(device.index if device.index is not None else 0,))
-        p.start()
-        p.join()
-        _TORCH_GROUPED_MM_SUPPORTED = (p.exitcode == 0)
+        try:
+            probe = subprocess.run(
+                [sys.executable, "-c", _ROCM_GROUPED_MM_PROBE, str(device.index or 0)],
+                stdout = subprocess.DEVNULL,
+                stderr = subprocess.DEVNULL,
+                timeout = 300,
+            )
+            _TORCH_GROUPED_MM_SUPPORTED = probe.returncode == 0
+        except Exception:
+            _TORCH_GROUPED_MM_SUPPORTED = False
         return _TORCH_GROUPED_MM_SUPPORTED
 
     try:
