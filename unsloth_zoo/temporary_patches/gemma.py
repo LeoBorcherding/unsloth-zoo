@@ -306,6 +306,17 @@ def _fix_double_bos_and_pad(
 pass
 
 
+def _group_num_crops(num_crops, batched_images):
+    # transformers 4.5x returns num_crops grouped per row, newer ones flat with one entry per image.
+    if isinstance(num_crops, int):
+        num_crops = [num_crops] + [0] * (sum(len(x) for x in batched_images) - 1)
+    num_crops = list(num_crops)
+    if len(num_crops) == len(batched_images) and all(isinstance(x, (list, tuple)) for x in num_crops):
+        return [list(x) for x in num_crops]
+    return [[num_crops.pop(0) for _ in images] for images in batched_images]
+pass
+
+
 def patch_Gemma3Processor():
     import re
     try:
@@ -343,6 +354,9 @@ def patch_Gemma3Processor():
         batched_images = None
         if images is not None:
             try:
+                # Paths and URLs; with no text a string may be the text passed positionally, so leave it.
+                if text is not None and hasattr(self.image_processor, "fetch_images"):
+                    images = self.image_processor.fetch_images(images)
                 batched_images = make_nested_list_of_images(images)
             except ValueError as e:
                 # Maybe it's texts and not images? Gemma3 defaults to images
@@ -372,7 +386,7 @@ def patch_Gemma3Processor():
                 )
 
             # Replace image tokens by the full expanded sequence
-            batch_num_crops = to_py_obj(image_inputs.pop("num_crops"))
+            batch_num_crops = _group_num_crops(to_py_obj(image_inputs.pop("num_crops")), batched_images)
             text_with_crops = text
             for batch_idx, (prompt, images_for_item, num_crops_for_item) in enumerate(zip(text, batched_images, batch_num_crops)):
                 image_indexes = [m.start() for m in re.finditer(self.boi_token, prompt)]
@@ -382,16 +396,8 @@ def patch_Gemma3Processor():
                         f"Prompt contained {len(image_indexes)} image tokens but received {len(images_for_item)} images."
                     )
 
-                iterable_num_crops = num_crops_for_item
-
-                if isinstance(num_crops_for_item, int):
-                    if len(image_indexes) > 0:
-                        iterable_num_crops = [num_crops_for_item] + [0] * (len(image_indexes) - 1)
-                    else:
-                        iterable_num_crops = []
-
                 # Insert additional image tokens for Pan-and-Scan crops
-                for num, idx in reversed(list(zip(iterable_num_crops, image_indexes))):
+                for num, idx in reversed(list(zip(num_crops_for_item, image_indexes))):
                     if isinstance(num, int) and num > 0:
                         formatted_image_text = (
                             f"Here is the original image {self.boi_token} and here are some crops to help you see better "
@@ -418,6 +424,9 @@ def patch_Gemma3Processor():
         output_kwargs["text_kwargs"]["truncation"] = _resolve_truncation(
             padding, output_kwargs["text_kwargs"].get("truncation", None), max_length)
         text_inputs = self.tokenizer(text=text, **output_kwargs["text_kwargs"])
+        # Before the BOS strip, which never touches image tokens: a truncation that cuts the image block must raise.
+        if hasattr(self, "_check_special_mm_tokens"):
+            self._check_special_mm_tokens(text, text_inputs, modalities=["image"])
         # ignore the tokenizer's uninitialised model_max_length sentinel (~1e30) for "max_length" padding
         _mml = getattr(self.tokenizer, "model_max_length", None)
         if not (isinstance(_mml, int) and 0 < _mml < int(1e15)): _mml = None
