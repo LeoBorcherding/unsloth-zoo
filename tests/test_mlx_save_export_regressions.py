@@ -910,6 +910,70 @@ def test_bound_save_pretrained_defaults_to_full_save_without_lora(
     }
 
 
+def test_bound_push_to_hub_merged_accepts_save_method(monkeypatch):
+    """The usual last notebook cell; the shim used to forward save_method into a closed signature."""
+    import unsloth_zoo.mlx.loader as loader
+    import unsloth_zoo.mlx.utils as mutils
+
+    calls = {}
+
+    def fake_save_pretrained_merged(model, tokenizer, save_directory, **kwargs):
+        calls["tokenizer"] = tokenizer
+        calls["save_directory"] = save_directory
+        calls["kwargs"] = kwargs
+
+    monkeypatch.setattr(mutils, "save_pretrained_merged", fake_save_pretrained_merged)
+    tokenizer = object()
+    model = types.SimpleNamespace(_tokenizer=object())
+
+    with pytest.warns(UserWarning, match="push_to_hub_merged ignored .*maximum_memory_usage"):
+        loader._mlx_push_to_hub_merged(
+            model,
+            "org/model",
+            tokenizer,
+            save_method="merged_4bit",
+            token="hf_token",
+            maximum_memory_usage=0.5,
+        )
+
+    assert calls == {
+        "tokenizer": tokenizer,
+        "save_directory": "org/model",
+        "kwargs": {
+            "save_method": "merged_4bit",
+            "push_to_hub": True,
+            "repo_id": "org/model",
+            "token": "hf_token",
+        },
+    }
+
+
+def test_bound_push_to_hub_merged_saves_over_a_previous_runs_index(monkeypatch, tmp_path):
+    """A rerun pushing to the same repo found the last run's index and uploaded its weights."""
+    import unsloth_zoo.mlx.loader as loader
+    import unsloth_zoo.mlx.utils as mutils
+
+    (tmp_path / "model.safetensors.index.json").write_text("{}", encoding="utf-8")
+    events = []
+
+    def fake_save_merged_model(model, tokenizer, path, dequantize=False, **kwargs):
+        events.append(("save", Path(path), dequantize))
+
+    def fake_push_to_hub_merged(model, tokenizer, save_directory, **kwargs):
+        events.append(("push", Path(save_directory), kwargs["repo_id"]))
+
+    monkeypatch.setattr(mutils, "save_merged_model", fake_save_merged_model)
+    monkeypatch.setattr(mutils, "push_to_hub_merged", fake_push_to_hub_merged)
+    model = types.SimpleNamespace(_tokenizer=object())
+
+    loader._mlx_push_to_hub_merged(model, "org/model", save_directory=str(tmp_path))
+
+    assert events == [
+        ("save", tmp_path, True),
+        ("push", tmp_path, "org/model"),
+    ]
+
+
 def test_adapter_bnb_base_remap_defaults_to_mlx_4bit_quantization(
     monkeypatch,
     tmp_path,

@@ -7101,13 +7101,27 @@ def _mlx_save_pretrained_gguf(self, save_directory, tokenizer=None,
                          quantization_method=quantization_method, **kwargs)
 
 
-def _mlx_push_to_hub_merged(self, repo_id, tokenizer=None, save_directory=None, **kwargs):
-    from .utils import push_to_hub_merged
-    tokenizer = tokenizer or self._tokenizer
-    # Default save_directory to repo_id; callers that already saved locally
-    # should pass save_directory= to avoid a re-save.
-    save_directory = save_directory or repo_id
-    push_to_hub_merged(self, tokenizer, save_directory, repo_id=repo_id, **kwargs)
+def _mlx_push_to_hub_merged(self, repo_id, tokenizer=None, save_directory=None,
+                            save_method="merged_16bit", **kwargs):
+    kwargs = _mlx_supported_kwargs(
+        kwargs,
+        (
+            "token", "private", "tags", "commit_message",
+            "commit_description", "create_pr", "revision",
+        ),
+        context="push_to_hub_merged",
+    )
+    # Always save first: save_directory defaults to repo_id in the cwd, so an
+    # index left there by an earlier run would otherwise be uploaded as-is.
+    _mlx_save_pretrained_merged(
+        self,
+        save_directory or repo_id,
+        tokenizer=tokenizer,
+        save_method=save_method,
+        push_to_hub=True,
+        repo_id=repo_id,
+        **kwargs,
+    )
 
 
 def _mlx_push_to_hub_gguf(self, repo_id, tokenizer=None,
