@@ -1,3 +1,4 @@
+import contextlib
 import types
 
 import pytest
@@ -30,6 +31,7 @@ def _nax_available():
 nax_only = pytest.mark.skipif(not _nax_available(), reason="requires an Apple GPU with neural accelerators")
 MODEL = "mlx-community/SmolLM-135M-Instruct-4bit"
 VLM_MODEL = "mlx-community/FastVLM-0.5B-bf16"
+QWEN_VLM_MODEL = "mlx-community/Qwen3.5-0.8B-bf16"
 
 class _CompileBlock(nn.Module):
     def __init__(self):
@@ -542,6 +544,83 @@ def test_vlm_stream_prefills_a_short_arrival_ahead_of_a_long_prefill_bitwise():
     assert got_long.prompt_token_count > 3 * 2048 and order == [1, 0]
     for got, alone in ((got_long, alone_long), (got_short, alone_short)):
         assert (got.token_ids[0], got.logprobs[0]) == (alone.token_ids[0], alone.logprobs[0])
+
+
+@metal_only
+@pytest.mark.parametrize("disagreement", [None, "output", "cache"])
+def test_vlm_stream_row_left_alone_decodes_bitwise_without_the_single_row_shortcut(monkeypatch, disagreement):
+    from mlx.utils import tree_flatten
+    from mlx_vlm import load
+    from mlx_vlm.models.qwen3_5 import language
+    from mlx_vlm.prompt_utils import apply_chat_template
+    from unsloth_zoo.mlx import generate as engine
+    from unsloth_zoo.mlx.generate import BatchStream, GenerationDefaults, GenerationRequest
+    model, processor = load(QWEN_VLM_MODEL)
+    model._is_vlm_model = True
+    rules = " ".join(f"Rule {i}: answer at length." for i in range(300))
+    story = GenerationRequest(prompt=apply_chat_template(processor, model.config, f"{rules} Tell a story.", num_images=0))
+    poem = GenerationRequest(prompt=apply_chat_template(processor, model.config, "Write a poem.", num_images=0), max_tokens=6)
+    extracted, native_extract, scope = [], language._extract_row_cache, engine.single_row_batch_decode
+    monkeypatch.setattr(language, "_extract_row_cache", lambda entry, row: extracted.append(row) or native_extract(entry, row))
+    if disagreement:
+        # A batched step that disagrees with the shortcut in its output or its cache alone.
+        native_bypass = engine._bypassing_single_row
+
+        def disagreeing(call, cache):
+            out = native_bypass(call, cache)
+            for entry in cache if disagreement == "cache" else ():
+                if isinstance(getattr(entry, "keys", None), mx.array):
+                    entry.keys = entry.keys + 1
+            return out + 1 if disagreement == "output" else out
+
+        monkeypatch.setattr(engine, "_bypassing_single_row", disagreeing)
+    engine._single_row_decode_class.cache_clear()
+
+    def run(single_row_scope):
+        monkeypatch.setattr(engine, "single_row_batch_decode", single_row_scope)
+        extracted.clear()
+        defaults = GenerationDefaults(max_tokens=24, prefill_batch_size=1, completion_batch_size=4)
+        results, state = {}, None
+        with BatchStream(model, processor, defaults=defaults) as stream:
+            row = stream.add(story)
+            stream.add(poem)
+            while row not in results:
+                results.update((e.index, e.result) for e in stream.step() if e.result is not None)
+                batch = stream._session.generator._generation_batch
+                if row not in results and len(batch.uids) == 1:
+                    state = [mx.array(v) for e in batch.prompt_cache for _, v in tree_flatten(e.state) if isinstance(v, mx.array)]
+                    mx.eval(state)
+        return results[row], state, len(extracted)
+
+    stock_scope = lambda model: contextlib.nullcontext(model)
+    stock, stock_state, stock_extracted = run(stock_scope)
+    # The story decodes alone once the poem ends, and each such step went through the shortcut.
+    assert stock_extracted > 10 and stock_state is not None
+    for again in (False, True):
+        scoped, state, scoped_extracted = run(scope)
+        assert (scoped.token_ids, scoped.logprobs) == (stock.token_ids, stock.logprobs)
+        assert len(state) == len(stock_state)
+        assert all(a.dtype == b.dtype and a.shape == b.shape and mx.array_equal(
+            mx.contiguous(a).view(mx.uint8), mx.contiguous(b).view(mx.uint8)).item() for a, b in zip(state, stock_state))
+        if disagreement:
+            # The disagreeing step is replaced by the shortcut's, which the batch then keeps taking.
+            assert scoped_extracted == stock_extracted
+        elif again:
+            assert scoped_extracted == 0
+        else:
+            # One step runs both paths to compare them; the batch stays on its own path after that.
+            assert 0 < scoped_extracted < stock_extracted
+    if not disagreement:
+        # generate_batch enters the scope too. It batches only prompts of one length, so the
+        # story runs twice and the batch shrinks to one row when the shorter copy ends.
+        rows, short_story = {}, GenerationRequest(prompt=story.prompt, max_tokens=6)
+        for name, single_row_scope in (("stock", stock_scope), ("scoped", scope)):
+            monkeypatch.setattr(engine, "single_row_batch_decode", single_row_scope)
+            extracted.clear()
+            rows[name] = engine.generate_batch(model, processor, [story, short_story], defaults=GenerationDefaults(max_tokens=24))
+            rows[name + " extracted"] = len(extracted)
+        assert [(r.token_ids, r.logprobs) for r in rows["scoped"]] == [(r.token_ids, r.logprobs) for r in rows["stock"]]
+        assert rows["stock extracted"] > 10 and rows["scoped extracted"] == 0
 
 
 @metal_only
@@ -1552,8 +1631,8 @@ def test_nax_int8_prefill_routes_dense_and_expert_calls_from_their_row_minimum(m
     monkeypatch.delenv("UNSLOTH_MLX_INT8_PREFILL")
     for scope, packed in ((inference.nax_quantized_linear, False), (generation_mode, True)):
         with scope(model, True):   # alone, and with the gate and up projections packed into one gathered call
-            assert not type(model.odd).__name__.startswith("_NaxInt8Prefill")
-            assert type(model.moe.down_proj).__name__.startswith("_NaxInt8Prefill")
+            assert not type(model.odd).__name__.startswith("_NaxGather")
+            assert type(model.moe.down_proj).__name__.startswith("_NaxGather")
             assert (type(model.moe).__name__ != "SwitchGLU") is packed
             for rows, native in natives.items():
                 routed = run(rows)
@@ -1597,7 +1676,7 @@ def test_nax_int8_prefill_packs_moe_gate_and_up_in_either_scope_order(monkeypatc
     indices = mx.random.randint(0, 8, (1, 100, 2), key = mx.random.key(1)).astype(mx.uint32)
     int8 = lambda m: inference.nax_quantized_linear(m, True)
     with int8(model):   # swapped ahead of a pack, but unpacked calls stay native
-        assert type(model.moe.gate_proj).__name__.startswith("_NaxInt8Prefill")
+        assert type(model.moe.gate_proj).__name__.startswith("_NaxGather")
         mx.eval(model.moe(x, indices))
         assert not calls
     outputs = []
@@ -1737,22 +1816,121 @@ def test_nax_int8_prefill_differentiates_through_the_stock_op(monkeypatch):
     assert all(mx.array_equal(a, b).item() for (_, a), (_, b) in zip(after, state))
 
 
+@nax_only
+def test_nax_sorted_gather_reproduces_stock_bitwise():
+    from unsloth_zoo.mlx import nax
+
+    nax.probe_sorted_gather_qmm()
+
+
+@nax_only
+def test_nax_sorted_gather_routes_sorted_expert_calls_in_its_row_range(monkeypatch):
+    from unsloth_zoo.mlx import inference, nax
+    from unsloth_zoo.mlx.generate import generation_mode
+
+    model = _QuantizedMoE()
+    calls = []
+    kernel = nax.sorted_gather_qmm
+    monkeypatch.setattr(nax, "sorted_gather_qmm", lambda *a: calls.append(
+        (a[0].shape[0], a[1].shape[1], len(a) > 6 and a[6] is not None)) or kernel(*a))
+    monkeypatch.setattr(nax, "kernel_probe_passed", lambda *args: True)
+    monkeypatch.setattr(nax, "_SORTED_GATHER_ROWS_BY_GPU", {nax._gpu_generation(): {8: (16, 100)}})
+    monkeypatch.setattr(nax, "_QMM_ROWS_BY_GPU", {})
+    monkeypatch.setattr(nax, "_INT8_PREFILL_EXPERT_ROWS", {8: (20, 30)})
+    monkeypatch.setattr(inference, "_NAX_SORTED_GATHER_VERIFIED", {})
+    monkeypatch.setattr(inference, "_NAX_INT8_QMM_VERIFIED", {})
+
+    def run(rows):
+        calls.clear()
+        x = mx.random.normal((1, rows, 256), key = mx.random.key(rows)).astype(mx.bfloat16)
+        indices = mx.random.randint(0, 8, (1, rows, 2), key = mx.random.key(rows + 1)).astype(mx.uint32)
+        return model.moe(x, indices)
+
+    natives = {rows: run(rows) for rows in (40, 100, 600)}   # 2 * rows sorted rows; 8 experts route 128 to 800
+    packed, down = (100, 256, True), (200, 256, False)
+    for scope, expected in ((generation_mode, [packed, down]),   # the packed gate/up reads its token rows in place
+                            (inference.nax_quantized_linear, [(200, 128, False)] * 2 + [down])):
+        with scope(model):
+            assert type(model.moe.down_proj).__name__.startswith("_NaxGather")
+            for rows, native in natives.items():
+                assert mx.array_equal(run(rows), native).item()
+                assert calls == (expected if rows == 100 else [])
+            model.train()
+            run(100)
+            assert not calls
+            model.eval()
+        assert type(model.moe.down_proj).__name__ == "QuantizedSwitchLinear"
+        assert "_unsloth_nax_sorted_gather" not in model.moe.down_proj.__dict__
+    assert len(inference._NAX_SORTED_GATHER_VERIFIED) == 3 and all(inference._NAX_SORTED_GATHER_VERIFIED.values())
+    with generation_mode(model, True):   # int8 keeps priority
+        run(100)
+        assert calls == [down]
+        monkeypatch.setattr(nax, "_INT8_PREFILL_EXPERT_ROWS", {8: (20, 20)})
+        run(100)
+        assert not calls
+    monkeypatch.setenv("UNSLOTH_MLX_NAX_SORTED_GATHER", "0")
+    with generation_mode(model):
+        assert mx.array_equal(run(100), natives[100]).item() and not calls
+
+
+@nax_only
+def test_nax_sorted_gather_first_use_check_rejects_a_wrong_kernel(monkeypatch):
+    from unsloth_zoo.mlx import inference, nax
+
+    model = _QuantizedMoE()
+    kernel = nax.sorted_gather_qmm
+    monkeypatch.setattr(nax, "sorted_gather_qmm", lambda *a: kernel(*a) * (1 + 2.0 ** -7))
+    monkeypatch.setattr(nax, "kernel_probe_passed", lambda *args: True)
+    monkeypatch.setattr(inference, "_NAX_SORTED_GATHER_VERIFIED", {})
+    x = mx.random.normal((1, 100, 256), key = mx.random.key(0)).astype(mx.bfloat16)
+    indices = mx.random.randint(0, 8, (1, 100, 2), key = mx.random.key(1)).astype(mx.uint32)
+    native = model.moe(x, indices)
+    with inference.nax_quantized_linear(model):
+        assert mx.array_equal(model.moe(x, indices), native).item()
+    assert list(inference._NAX_SORTED_GATHER_VERIFIED.values()) == [False] * 2
+
+
+@metal_only
+def test_nax_sorted_gather_stays_off_unmeasured_gpu_generations(monkeypatch):
+    from unsloth_zoo.mlx import inference, nax
+
+    model = _QuantizedMoE()
+    monkeypatch.setattr(nax, "nax_available", lambda: True)
+    monkeypatch.setattr(nax, "kernel_probe_passed", lambda *args: True)
+    monkeypatch.setattr(nax, "_QMM_ROWS_BY_GPU", {})
+    monkeypatch.setattr(nax, "_gpu_generation", lambda: 17)
+    assert nax.sorted_gather_row_range(256, 8) == (1024, 32768) and nax.sorted_gather_row_range(2, 4) == (16, 256)
+    assert nax.sorted_gather_row_range(256, 5) == (1024, -256)
+    assert nax.sorted_gather_row_range(512, 8) == (2048, 32768)
+    assert nax.sorted_gather_qmm_supported(1024, 2048, 64, 8, "affine")
+    for shape in ((1024, 2080, 32, 8, "affine"), (1056, 2048, 64, 8, "affine"), (1024, 2048, 64, 6, "affine"),
+                  (1024, 2048, 32, 4, "mxfp4")):
+        assert not nax.sorted_gather_qmm_supported(*shape)
+    monkeypatch.setattr(nax, "_gpu_generation", lambda: 18)
+    assert nax.sorted_gather_row_range(256, 8) == (1024, -256)
+    with inference.nax_quantized_linear(model):
+        assert type(model.moe.down_proj).__name__ == "QuantizedSwitchLinear"
+
+
 @metal_only
 def test_nax_int8_prefill_probes_gate_their_own_route(monkeypatch):
     from unsloth_zoo.mlx import inference, nax
 
     model = _QuantizedMoE()
     monkeypatch.setattr(nax, "nax_available", lambda: True)
+    monkeypatch.setattr(nax, "_gpu_generation", lambda: 17)
     _int8_prefill_dense_from_64_rows(monkeypatch)
     monkeypatch.setattr(nax, "_QMM_ROWS_BY_GPU", {nax._gpu_generation(): _EVERY_ROW})
     monkeypatch.setattr(nax, "_INT8_PREFILL_EXPERT_ROWS", {8: (20, 20)})
-    for failed in (nax.QMM_PROBE_KEY, nax.INT8_QMM_PROBE_KEY):
+    for failed in (nax.QMM_PROBE_KEY, nax.INT8_QMM_PROBE_KEY, nax.SORTED_GATHER_PROBE_KEY):
         monkeypatch.setattr(nax, "kernel_probe_passed", lambda key, *args: key != failed)
         with inference.nax_quantized_linear(model, True):
             assert (model.proj._unsloth_nax_qmm_rows != (0, -1)) is (failed != nax.QMM_PROBE_KEY)
             assert bool(model.proj._unsloth_nax_int8_prefill_rows) is (failed != nax.INT8_QMM_PROBE_KEY)
-            assert (type(model.moe.down_proj).__name__.startswith("_NaxInt8Prefill")
+            assert (("_unsloth_nax_int8_prefill" in model.moe.down_proj.__dict__)
                     is (failed != nax.INT8_QMM_PROBE_KEY))
+            assert (("_unsloth_nax_sorted_gather" in model.moe.down_proj.__dict__)
+                    is (failed != nax.SORTED_GATHER_PROBE_KEY))
 
 
 @metal_only
@@ -1878,9 +2056,9 @@ def test_generation_mode_discovers_fusion_modules_once_per_entry(monkeypatch):
         mx.eval(expected)
         before = len(walks)
         with generation_mode(root):
-            assert len(walks) - before == 2  # Training flags, then post-eval fusion discovery.
+            assert len(walks) - before == 1  # Training flags and fusion discovery share it.
             with generation_mode(root):
-                assert len(walks) - before == 4
+                assert len(walks) - before == 2
                 for layer, native in zip(root.layers, expected):
                     assert type(layer) is not ResidualNormBlock
                     _residual_equal(layer(x)[0], native)

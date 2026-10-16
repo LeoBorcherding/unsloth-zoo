@@ -396,6 +396,15 @@ def test_accepted_switch_glu_bodies_cover_the_installed_packages():
         assert fusion._ast_fingerprint(native.SwitchGLU.__call__) in accepted
 
 
+def test_routing_bodies_cover_the_installed_packages():
+    # an unlisted routing body keeps its native call without a word, so it has to fail here
+    from mlx_vlm.models.gemma4_text import language as vlm_gemma_text
+    from mlx_vlm.models.qwen3_next import language as vlm_next
+    for router in (vlm_qwen.Qwen3_5MoeSparseMoeBlock, vlm_next.Qwen3NextSparseMoeBlock,
+                   lm_qwen.Qwen3NextSparseMoeBlock, vlm_gemma.Router, vlm_gemma_text.Router, lm_gemma.Router):
+        assert fusion._moe_router_class(router) is not None, router.__module__
+
+
 @pytest.mark.skipif("weights" not in vlm.SwitchGLU.__call__.__code__.co_varnames,
                     reason = "Requires an mlx-vlm that combines routing weights")
 @pytest.mark.parametrize("with_shared", [False, True])
@@ -528,7 +537,8 @@ def test_unnormalized_top_k_and_subclass_bodies_are_fused(monkeypatch):
             return 2 * super()._shared_expert_scale(x)
 
     partitions = _counting_argpartition(monkeypatch)
-    for block in (_block(lm_qwen, norm_topk_prob = False), _block(vlm_qwen, cls = Scaled)):
+    for block in (_block(lm_qwen, norm_topk_prob = False), _block(vlm_qwen, norm_topk_prob = False),
+                  _block(vlm_qwen, cls = Scaled)):
         samples = _routing_samples(block)
         base = type(block)
         with fusion.fused_moe_router(block):
@@ -638,6 +648,34 @@ def test_routed_experts_run_on_the_decode_kernels_bitwise(native, dtype, quantiz
         assert "_unsloth_moe_routed" not in block.__dict__
 
 
+def test_verify_blocks_run_their_routed_experts_on_the_decode_kernels_bitwise(monkeypatch):
+    from mlx_vlm.models.qwen3_5.speculative_verifier import Qwen3_5BatchInvariantForward as native
+    block = _expert_block(vlm_qwen, (8, "affine", 64), mx.bfloat16)
+    xs = [mx.random.normal(shape).astype(mx.bfloat16) for shape in ((2, 5, 512), (1, 9, 512))]
+    expected = [native()._feed_forward(block, x) for x in xs]
+    verifier = fusion._exact_verify_class(native, *(vars(native)[name] for name in fusion._VERIFY_METHODS))()
+    monkeypatch.setattr(fusion, "_VERIFY_VERDICTS", {})
+    gathers = _counting_gather_qmm(monkeypatch)
+    with fusion.fused_moe_routed_experts(block):
+        for serving in (False, True):
+            monkeypatch.setattr(fusion._VERIFY_STATE, "serving", serving, raising = False)
+            for x, out in zip(xs, expected):
+                mx.eval(verifier._feed_forward(block, x))  # a served shape's first block is compared and returned native
+                gathers.clear()
+                _identical(verifier._feed_forward(block, x), out)
+                assert len(gathers) == (1 if serving else 4)  # mlx-vlm gathers for the shared gate, then per expert projection
+        assert len(fusion._VERIFY_VERDICTS) >= 2 and all(fusion._VERIFY_VERDICTS.values())
+        block.switch_mlp.down_proj.unfreeze()
+        gathers.clear()
+        _identical(verifier._feed_forward(block, xs[0]), expected[0])
+        assert len(gathers) == 4
+        # A projection swapped for one the kernels were not built for takes the native call as well.
+        block.switch_mlp.down_proj = vlm.SwitchLinear(512, 512, 32, bias = False)
+        block.switch_mlp.down_proj.set_dtype(mx.bfloat16)
+        block.eval().freeze()
+        _identical(verifier._feed_forward(block, xs[0]), native()._feed_forward(block, xs[0]))
+
+
 def test_routed_experts_kill_switch_keeps_native(monkeypatch):
     block = _expert_block(vlm_qwen, (8, "affine", 64), mx.bfloat16)
     x = mx.random.normal((2, 1, 512)).astype(mx.bfloat16)
@@ -666,7 +704,7 @@ def test_routed_experts_run_under_the_int8_prefill_scope(int8_prefill_first, mon
     with contextlib.ExitStack() as stack:
         for scope in scopes if int8_prefill_first else scopes[::-1]:
             stack.enter_context(scope(block))
-        assert type(block.switch_mlp.down_proj).__name__.startswith("_NaxInt8Prefill")
+        assert type(block.switch_mlp.down_proj).__name__.startswith("_NaxGather")
         mx.eval(block(x))
         gathers.clear()
         _identical(block(x), expected)
