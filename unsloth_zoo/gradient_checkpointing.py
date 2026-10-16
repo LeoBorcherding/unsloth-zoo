@@ -1037,6 +1037,16 @@ def _free_gpu_buffers_b():
 pass
 
 
+def _shrink_gpu_buffer(buffer):
+    # resize_ alone only shrinks the view; the storage keeps its training peak.
+    buffer.resize_(INITIAL_GPU_BUFFER_SIZE)
+    nbytes = INITIAL_GPU_BUFFER_SIZE * buffer.element_size()
+    if _storage_bytes(buffer) <= nbytes: return
+    try: buffer.untyped_storage().resize_(nbytes)
+    except Exception: pass  # a backend without storage resize keeps the peak, as before
+pass
+
+
 def _new_gpu_buffer(device_index):
     with _no_inference_mode():
         return torch.empty(INITIAL_GPU_BUFFER_SIZE, dtype = GPU_BUFFER_DTYPE, device = f"{DEVICE_TYPE_TORCH}:{device_index}")
@@ -1978,10 +1988,17 @@ def reset_unsloth_gradient_checkpointing_buffers():
     # Reset CPU buffers to initial size; free any added during training
     for i in range(len(CPU_BUFFERS)):
         if i < INITIAL_CPU_BUFFER_COUNT:
-            if CPU_BUFFERS[i] is not None and hasattr(CPU_BUFFERS[i], "resize_"):
-                CPU_BUFFERS[i].resize_(INITIAL_CPU_BUFFER_SIZE)
-                # resize_ keeps the object and its pinning, but re-read rather than assume.
-                _mark_host_buffer(CPU_BUFFERS[i])
+            x = CPU_BUFFERS[i]
+            if x is not None and hasattr(x, "resize_"):
+                if _storage_bytes(x) > INITIAL_CPU_BUFFER_SIZE * x.element_size():
+                    # resize_ never shrinks storage: take a fresh startup-size slot so the peak block is freed.
+                    if getattr(x, HOST_PINNED_ATTR, False): _release_pinned(_storage_bytes(x))
+                    with _no_inference_mode():
+                        CPU_BUFFERS[i] = _new_host_buffer(INITIAL_CPU_BUFFER_SIZE, x.dtype)
+                else:
+                    x.resize_(INITIAL_CPU_BUFFER_SIZE)
+                    # resize_ keeps the object and its pinning, but re-read rather than assume.
+                    _mark_host_buffer(x)
         else:
             if CPU_BUFFERS[i] is not None and hasattr(CPU_BUFFERS[i], "resize_"):
                 CPU_BUFFERS[i].resize_(0)
@@ -1996,7 +2013,7 @@ def reset_unsloth_gradient_checkpointing_buffers():
     # Reset GPU buffers to initial size
     for buffer in _allocated_slots(GPU_BUFFERS):
         if hasattr(buffer, "resize_"):
-            buffer.resize_(INITIAL_GPU_BUFFER_SIZE)
+            _shrink_gpu_buffer(buffer)
     pass
 
     # Reset state for a fresh training run
@@ -2019,7 +2036,7 @@ def reset_unsloth_gradient_checkpointing_buffers():
     elif GPU_BUFFERS_B is not None:
         for buffer in _allocated_slots(GPU_BUFFERS_B):
             if hasattr(buffer, "resize_"):
-                buffer.resize_(INITIAL_GPU_BUFFER_SIZE)
+                _shrink_gpu_buffer(buffer)
         USE_DOUBLE_BUFFER = False
     else:
         try:
@@ -2036,7 +2053,10 @@ def reset_unsloth_gradient_checkpointing_buffers():
             pass
 
     # Collect first so tensors only reachable through cycles are freed before the cache is emptied.
+    x = None
     gc.collect()
+    # The swapped-out pinned slots sit in torch's host cache until this hands them back.
+    _empty_host_cache()
     if DEVICE_TYPE == "npu": torch.npu.empty_cache()
     elif DEVICE_TYPE == "xpu": torch.xpu.empty_cache()
     else: torch.cuda.empty_cache()
