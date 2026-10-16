@@ -1410,6 +1410,14 @@ def _live_writer_names_for_repo(
     }
 
 
+# psutil's `open_files()` on Windows is a C call that has taken an access violation reading
+# msedgewebview2.exe and hung on other processes, and neither one is an exception. So there the
+# walk runs in a throwaway child: a crash or a hang costs that child, and the caller gets ``None``,
+# which it already reads as "decline".
+_LIVE_WRITER_WALK_IN_A_CHILD = os.name == "nt"
+_LIVE_WRITER_WALK_TIMEOUT = 120.0
+
+
 def _partial_paths_with_a_live_writer() -> Optional[set]:
     """Normalized PATHS of every ``*.incomplete`` blob some LIVE process holds open, or ``None``
     when this host cannot answer (no psutil, no open-file table) and the caller must decline.
@@ -1425,6 +1433,48 @@ def _partial_paths_with_a_live_writer() -> Optional[set]:
     it is one, `_live_writer_walk_missed_our_own_uid` whose it was."""
     _LIVE_WRITER_WALK.complete = True
     _LIVE_WRITER_WALK.missed_our_uid = False
+    if _LIVE_WRITER_WALK_IN_A_CHILD:
+        return _live_writer_walk_in_a_child()
+    return _walk_for_live_writers()
+
+
+def _live_writer_walk_in_a_child() -> Optional[set]:
+    """`_walk_for_live_writers` in a fresh interpreter, or ``None`` if it crashed or hung there."""
+    import json
+    import subprocess
+
+    package_parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(p for p in (package_parent, env.get("PYTHONPATH")) if p)
+    code = (
+        "import json\n"
+        "from unsloth_zoo_downloads import hf_xet_fallback as m\n"
+        "found = m._walk_for_live_writers()\n"
+        "print(json.dumps([None if found is None else sorted(found),"
+        " m._live_writer_walk_was_complete(), m._live_writer_walk_missed_our_own_uid()]))\n"
+    )
+    try:
+        done = subprocess.run(
+            [sys.executable, "-c", code],
+            env = env,
+            capture_output = True,
+            text = True,
+            timeout = _LIVE_WRITER_WALK_TIMEOUT,
+            creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        if done.returncode != 0:
+            return None
+        found, complete, missed_our_uid = json.loads(done.stdout.strip().splitlines()[-1])
+    except Exception:
+        return None
+    if found is None:
+        return None
+    _LIVE_WRITER_WALK.complete = bool(complete)
+    _LIVE_WRITER_WALK.missed_our_uid = bool(missed_our_uid)
+    return set(found)
+
+
+def _walk_for_live_writers() -> Optional[set]:
     try:
         import psutil  # type: ignore
     except ImportError:
