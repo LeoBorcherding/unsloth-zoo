@@ -580,6 +580,78 @@ def test_the_live_writer_probe_finds_this_processs_own_open_partial(tmp_path):
     assert after is not None and key not in after
 
 
+_CRASHING_PSUTIL = """
+import os, time
+class NoSuchProcess(Exception): pass
+class ZombieProcess(NoSuchProcess): pass
+class AccessDenied(Exception): pass
+class _Proc:
+    pid = 4242
+    def open_files(self):
+        mode = os.environ["FAKE_PSUTIL_MODE"]
+        if mode == "crash":
+            os._exit(139)
+        if mode == "hang":
+            time.sleep(3600)
+        if mode == "denied":
+            raise AccessDenied()
+        return [type("Handle", (), {"path": os.environ["FAKE_PSUTIL_PARTIAL"]})()]
+def process_iter():
+    return [_Proc()]
+"""
+
+_WALK_PROBE = """
+import os
+from unsloth_zoo_downloads import hf_xet_fallback as xf
+xf._LIVE_WRITER_WALK_IN_A_CHILD = True
+xf._LIVE_WRITER_WALK_TIMEOUT = float(os.environ["FAKE_WALK_TIMEOUT"])
+found = xf._partial_paths_with_a_live_writer()
+print("RESULT", None if found is None else sorted(found), xf._live_writer_walk_was_complete())
+"""
+
+
+@pytest.mark.parametrize("mode, walk_timeout", [
+    ("crash", 60.0), ("hang", 3.0), ("denied", 60.0), ("ok", 60.0),
+])
+def test_a_walk_that_kills_or_hangs_its_process_only_costs_the_child(tmp_path, mode, walk_timeout):
+    """On Windows psutil's `open_files()` has died with an access violation reading
+    msedgewebview2.exe and hung on other processes, neither of which `except` can catch. The walk
+    runs in a child there, so either one is "cannot answer" (``None``, which callers decline on)
+    instead of the download process going down with it. Run in a subprocess so a regression kills
+    that, not pytest."""
+    import subprocess
+
+    fake = tmp_path / "fake"
+    fake.mkdir()
+    (fake / "psutil.py").write_text(_CRASHING_PSUTIL)
+    partial = tmp_path / ("deadbeef" + xf.INCOMPLETE_SUFFIX)
+    partial.write_bytes(b"x")
+    repo_root = Path(__file__).resolve().parents[1]
+    env = dict(os.environ)
+    env.update(
+        PYTHONPATH = os.pathsep.join([str(fake), str(repo_root)]),
+        FAKE_PSUTIL_MODE = mode,
+        FAKE_PSUTIL_PARTIAL = str(partial),
+        FAKE_WALK_TIMEOUT = str(walk_timeout),
+    )
+    try:
+        done = subprocess.run(
+            [sys.executable, "-c", _WALK_PROBE],
+            env = env, capture_output = True, text = True, timeout = 90,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail(f"the walk hung the calling process ({mode})")
+    assert done.returncode == 0, f"the walk took the calling process down ({mode}): rc={done.returncode}"
+    result = done.stdout.strip().splitlines()[-1]
+    expected = {
+        "crash": "RESULT None True",
+        "hang": "RESULT None True",
+        "denied": "RESULT [] False",
+        "ok": f"RESULT {[xf._normalized_partial_key(partial)]} True",
+    }[mode]
+    assert result == expected, done.stdout + done.stderr
+
+
 def test_clear_unsafe_partials_reports_survivors_and_spares_a_fresh_stranger(monkeypatch, tmp_path):
     """Ours goes at any age, a stranger only past the grace AND with no live writer; the return
     names what SURVIVED. The table is pinned empty so the case is about the grace."""
@@ -990,6 +1062,7 @@ def test_a_process_we_cannot_read_stops_the_unowned_purge_on_a_shared_cache(
             return [_Proc()]
 
     monkeypatch.setitem(sys.modules, "psutil", _FakePsutil)
+    monkeypatch.setattr(xf, "_LIVE_WRITER_WALK_IN_A_CHILD", False)  # the fake lives in this process
     # Shared: another user can write into this cache, so the process we could not read is a
     # possible writer here.
     monkeypatch.setattr(xf, "_cache_is_private_to_this_user", lambda _cache_dir = None, **_kwargs: False)
@@ -1215,6 +1288,7 @@ def test_the_walk_completeness_is_per_thread(monkeypatch):
             return cls.visible
 
     monkeypatch.setitem(sys.modules, "psutil", _FakePsutil)
+    monkeypatch.setattr(xf, "_LIVE_WRITER_WALK_IN_A_CHILD", False)  # the fake lives in this process
     xf._partial_paths_with_a_live_writer()
     assert xf._live_writer_walk_was_complete() is False
 
@@ -1506,6 +1580,7 @@ def test_a_process_of_our_own_that_nothing_can_describe_raises_the_age_bar(
             return _FakePsutil.procs
 
     monkeypatch.setitem(sys.modules, "psutil", _FakePsutil)
+    monkeypatch.setattr(xf, "_LIVE_WRITER_WALK_IN_A_CHILD", False)  # the fake lives in this process
     monkeypatch.setattr(xf, "_proc_fd_partial_paths", lambda pid: None)
     monkeypatch.setattr(xf, "_cache_is_private_to_this_user", lambda *a, **k: True)
 
