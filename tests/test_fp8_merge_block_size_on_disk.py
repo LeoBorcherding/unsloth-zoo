@@ -129,6 +129,8 @@ def test_merge_of_4bit_loaded_fp8_base_dequantizes_ragged_dims_exactly(tmp_path,
     model, expected = _fp8_llama_base(base_dir)
     peft_model = get_peft_model(model, LoraConfig(r = 8, lora_alpha = 16, target_modules = ["q_proj"]))
     out_dir = base_dir if in_place else tmp_path / "merged"
+    if in_place:
+        monkeypatch.setenv("UNSLOTH_ALLOW_IN_PLACE_MERGE", "1")
     H.run_merge(peft_model, str(base_dir), str(out_dir), save_dtype = torch.bfloat16)
     merged = H.read_safetensors_dir(str(out_dir))
     for key, reference in expected.items():

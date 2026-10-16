@@ -371,6 +371,8 @@ def test_a_contained_nested_shard_name_still_merges(monkeypatch, tmp_path, in_pl
 
     nested_root, base_rel, weight_map = _nested_layout(tmp_path, ["weights"])
     save_directory = base_rel if in_place else os.path.join("out", "deep", "merged")
+    if in_place:
+        monkeypatch.setenv("UNSLOTH_ALLOW_IN_PLACE_MERGE", "1")
 
     monkeypatch.chdir(tmp_path)
     _stub_the_hub(monkeypatch)
@@ -424,6 +426,7 @@ def test_two_nested_shards_sharing_a_basename_are_not_merged_into_one(
     if not H.family_available(FAMILY):
         pytest.skip(f"{FAMILY} unavailable in this transformers")
     H.set_offline_cpu_env()
+    monkeypatch.setenv("UNSLOTH_ALLOW_IN_PLACE_MERGE", "1")
 
     spec = H.make_spec(FAMILY)
     real_base = os.path.join(str(tmp_path), "real_base")
@@ -516,6 +519,7 @@ def test_an_unsafe_index_is_refused_on_the_dequant_and_splitting_paths(
     if not H.family_available(FAMILY):
         pytest.skip(f"{FAMILY} unavailable in this transformers")
     H.set_offline_cpu_env()
+    monkeypatch.setenv("UNSLOTH_ALLOW_IN_PLACE_MERGE", "1")
 
     spec = H.make_spec(FAMILY)
     model = H.build_and_save_base(spec, os.path.join(str(tmp_path), "real_base"))
@@ -960,6 +964,7 @@ def test_a_symlinked_shard_is_not_written_through(monkeypatch, tmp_path):
     if not H.family_available(FAMILY):
         pytest.skip(f"{FAMILY} unavailable in this transformers")
     H.set_offline_cpu_env()
+    monkeypatch.setenv("UNSLOTH_ALLOW_IN_PLACE_MERGE", "1")
 
     spec = H.make_spec(FAMILY)
     real_base = os.path.join(str(tmp_path), "real_base")
@@ -1007,6 +1012,7 @@ def test_a_shard_behind_a_symlinked_parent_is_refused(monkeypatch, tmp_path):
     if not H.family_available(FAMILY):
         pytest.skip(f"{FAMILY} unavailable in this transformers")
     H.set_offline_cpu_env()
+    monkeypatch.setenv("UNSLOTH_ALLOW_IN_PLACE_MERGE", "1")
 
     spec = H.make_spec(FAMILY)
     real_base = os.path.join(str(tmp_path), "real_base")
