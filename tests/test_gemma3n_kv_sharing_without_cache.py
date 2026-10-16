@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import gc
 import inspect
 
 import pytest
@@ -113,6 +114,21 @@ def test_checkpointed_gradients_match_the_uncheckpointed_ones(pristine, reentran
     zoo_gemma3n.patch_Gemma3nTextAttention_kv_sharing()
     reference = _grads(None)
     assert _max_relative_error(reference, _grads(reentrant)) < 1e-5
+
+
+@pytest.mark.skipif(not SHARES_THROUGH_CACHE_ONLY, reason = "the module-level stand-in is only used on transformers <= 5.5")
+def test_non_reentrant_training_drops_each_steps_shared_kv(pristine, monkeypatch):
+    # The source layers' recompute in backward used to pin its graph, and with it the rotary tensor whose
+    # finalizer drops the entry, so every step's shared K/V stayed in the module-level dict.
+    monkeypatch.setattr(zoo_gemma3n, "_GEMMA3N_SHARED_KV", {})
+    zoo_gemma3n.patch_Gemma3nTextAttention_kv_sharing()
+    model = _tiny_model().train()
+    model.gradient_checkpointing_enable(gradient_checkpointing_kwargs = {"use_reentrant": False})
+    for step in range(3):
+        ids = torch.randint(0, 128, (2, 12), generator = torch.Generator().manual_seed(step))
+        model(input_ids = ids, labels = ids, use_cache = False).loss.backward()
+    gc.collect()
+    assert len(zoo_gemma3n._GEMMA3N_SHARED_KV) == 0
 
 
 def _two_forward_grads(reentrant):
