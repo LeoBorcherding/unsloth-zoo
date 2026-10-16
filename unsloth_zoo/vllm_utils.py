@@ -4955,6 +4955,7 @@ pass
 def create_batches(requests, num_sequences = 64):
     # All Unsloth Zoo code licensed under LGPLv3
     # llm.generate must be batched
+    if len(requests) == 0: return []
     n_splits = int(math.ceil(len(requests) / num_sequences))
     offsets = np.arange(0, len(requests), num_sequences)
     if offsets[-1] != len(requests):
@@ -6585,10 +6586,11 @@ def generate_batches(llm, inputs, n_batches = None, lora_request = None, *args, 
         else:
             free_memory, total_memory = get_mem_info()
             total_memory_gb = round(total_memory / 1024 / 1024 / 1024, 2)
-            if   total_memory_gb <=  8: n_batches = llm.approx_max_num_seqs // 10
-            elif total_memory_gb <= 16: n_batches = llm.approx_max_num_seqs // 5
-            elif total_memory_gb <= 24: n_batches = llm.approx_max_num_seqs // 2
-            else: n_batches = llm.approx_max_num_seqs
+            # Small KV caches and vision models cap approx_max_num_seqs low enough to floor to 0
+            if   total_memory_gb <=  8: n_batches = max(1, llm.approx_max_num_seqs // 10)
+            elif total_memory_gb <= 16: n_batches = max(1, llm.approx_max_num_seqs // 5)
+            elif total_memory_gb <= 24: n_batches = max(1, llm.approx_max_num_seqs // 2)
+            else: n_batches = max(1, llm.approx_max_num_seqs)
 
             os.environ["UNSLOTH_VLLM_BATCHES"] = str(n_batches)
 
