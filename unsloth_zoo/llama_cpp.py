@@ -5181,13 +5181,18 @@ def _remove_gguf_outputs(output_file):
 
     The writer opens every shard with "wb" before any tensor byte and cleans up
     nothing on failure, and callers upload every save_directory/*.gguf, so a
-    truncated leftover gets published as a valid artifact.
+    truncated leftover gets published as a valid artifact. Returns the paths that
+    could not be removed (on Windows, a file something still has mapped).
     """
+    left = []
     for path in _gguf_output_paths(output_file):
         try:
             os.remove(path)
-        except OSError:
+        except FileNotFoundError:
             pass
+        except OSError:
+            left.append(path)
+    return left
 
 
 # GGUF converter / gguf-py version skew (unsloth#3581). Every converter entrypoint
@@ -6075,14 +6080,22 @@ def _verify_run_outputs(files, description, required, quantization_type,
         return True
     except Exception as error:
         if required: raise
-        for path in files: _remove_gguf_outputs(path)
-        print(
-            f"Unsloth: The {description} converted but did not pass verification "
-            f"({error}). It has been removed. The text model was converted "
-            f"successfully and is usable; only multimodal (image/audio) input is "
-            f"unavailable in this GGUF."
-        )
-        return False
+        reason = str(error)
+    # Removed outside the except block: its traceback pins the verifier's frame and so
+    # its readers' memmaps, and Windows refuses to delete a mapped file.
+    left = [left_path for path in files for left_path in _remove_gguf_outputs(path)]
+    if left:
+        status = (f"It could not be removed ({', '.join(left)}); delete it before "
+                  f"uploading this folder.")
+    else:
+        status = "It has been removed."
+    print(
+        f"Unsloth: The {description} converted but did not pass verification "
+        f"({reason}). {status} The text model was converted "
+        f"successfully and is usable; only multimodal (image/audio) input is "
+        f"unavailable in this GGUF."
+    )
+    return False
 
 
 def convert_to_gguf(
