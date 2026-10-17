@@ -599,6 +599,87 @@ jobs:
             echo "::endgroup::"
           done
 
+  # The whole suite on CPU, so a regression test fails the PR that adds it. The gates
+  # above are allowlists, and a file outside them was only ever collected here; it
+  # ran later in unsloth's Core zoo job, against zoo main, after the PR had merged.
+  # The command and its ignores are that job's. tests/security and the MLX files
+  # have their own gates; tests/test_ci_every_test_file_runs.py fails when a file
+  # is run by no job.
+  repo-tests-cpu-full:
+    name: Repo tests (CPU, full suite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
+      UNSLOTH_COMPILE_DISABLE: '1'
+      UNSLOTH_IS_PRESENT: '1'
+    steps:
+      - name: Harden runner (audit)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1  # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - id: pip-cache
+        uses: ./.github/actions/pip-cache-restore
+        with:
+          name: repo-tests-full
+          key-files: |
+            pyproject.toml
+
+      - name: Install runtime + test deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.4.0,<2.11.0" "torchvision<0.26"
+          pip install -e .[core]
+          for attempt in 1 2 3; do
+            pip install --no-deps "unsloth @ git+https://github.com/unslothai/unsloth@main" && break
+            if [ "$attempt" = 3 ]; then echo "::error::installing unsloth@main failed 3 times"; exit 1; fi
+            echo "unsloth install attempt $attempt failed, retrying in 15s"; sleep 15
+          done
+          # What the suite imports beyond .[core], as Core zoo installs it. The torch cap is
+          # repeated so bitsandbytes or compressed-tensors can't swap in CUDA torch.
+          pip install pytest==9.0.3 pytest-xdist pytest-timeout pyyaml==6.0.2 gguf \
+            compressed-tensors 'bitsandbytes>=0.45' triton ipython \
+            "torch>=2.4.0,<2.11.0" "torchvision<0.26"
+
+      - uses: ./.github/actions/pip-cache-save
+        with:
+          dir: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ steps.pip-cache.outputs.key }}
+          cache-hit: ${{ steps.pip-cache.outputs.cache-hit }}
+
+      - name: pytest tests/ (CPU)
+        # A hung test is named and stack-dumped instead of eating the job's budget.
+        env:
+          PYTEST_TIMEOUT: 300
+        timeout-minutes: 25
+        run: |
+          rc=0
+          python -m pytest -q -rs --tb=short -n 4 --dist loadfile tests/ \
+            --ignore=tests/security \
+            --ignore-glob='tests/test_mlx_*.py' \
+            --ignore=tests/test_moe_bnb4bit_per_expert_conversions.py \
+            --ignore=tests/test_hf_xet_fallback.py \
+            --ignore=tests/test_gemma3_forced_float32_boundary_dtype.py \
+            --deselect tests/test_unsloth_zoo_lora_merge.py::test_merge_lora_moves_cpu_inputs_to_active_device \
+            || rc=1
+          # These leak process state or time themselves, so each gets its own process.
+          # Exit 5 is a module-level skip. test_hf_xet_fallback.py runs alone in the
+          # behavioral gate.
+          _keep() { [ "$1" = 5 ] || rc=1; }
+          python -m pytest -q -rs --tb=short tests/test_moe_bnb4bit_per_expert_conversions.py || _keep "$?"
+          python -m pytest -q -rs --tb=short tests/test_gemma3_forced_float32_boundary_dtype.py || _keep "$?"
+          exit "$rc"
+
   # Real MLX numerics on Linux. mlx-cpu publishes a manylinux x86-64 wheel and
   # mx.quantize/dequantize/compile all run on it, so the 8-bit optimizer state
   # is gated on every PR instead of only on the opt-in Apple Silicon job.
