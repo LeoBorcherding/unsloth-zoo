@@ -3539,6 +3539,17 @@ def _normalize_grid_thw(grid_thw):
     return tuple(normalized)
 
 
+def _real_image_indices(pixel_values):
+    """Flat indices of the Idefics-family images that aren't all-zero row padding, or None if all are real."""
+    if pixel_values is None or len(pixel_values.shape) != 5:
+        return None
+    flat = pixel_values.reshape(pixel_values.shape[0] * pixel_values.shape[1], -1)
+    xp = np if isinstance(flat, np.ndarray) else mx
+    real = xp.any(flat != 0, axis=1).tolist()
+    keep = tuple(i for i, is_real in enumerate(real) if is_real) or (0,)  # upstream keeps one
+    return None if len(keep) == len(real) else keep
+
+
 def _mlx_vlm_canonical_model_type(model_type):
     """Resolve exactly the module spelling mlx-vlm imports, including hyphens."""
     if not model_type:
@@ -4298,6 +4309,10 @@ def _prepare_vlm_batch_for_compile(batch_dict, config, phase=None):
                 value = normalized
             batch_dict[key] = value
             static_metadata[key] = normalized
+    if _mlx_vlm_canonical_model_type(model_type) in ("idefics2", "idefics3", "smolvlm"):
+        real_image_indices = _real_image_indices(batch_dict.get("pixel_values"))
+        if real_image_indices is not None:
+            static_metadata["real_image_indices"] = real_image_indices
     # Only when there is metadata: every VLM batch goes through here, and an
     # always-present empty dict is a new key in every text-only batch's pytree.
     if static_metadata:
