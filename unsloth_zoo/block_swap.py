@@ -60,6 +60,14 @@ _CHUNK_BYTES = 256 << 20
 # Pin only while this much host RAM stays free: max(4 GiB, 15%); the rest stays pageable.
 _PIN_RESERVE_MIN_BYTES = 4 << 30
 _PIN_RESERVE_FRACTION = 0.15
+# Copy, stall and compute timings for stats(); UNSLOTH_OFFLOAD_STATS=0 skips the timing events.
+_TIMING = os.environ.get("UNSLOTH_OFFLOAD_STATS", "1") != "0"
+# prefetch_depth = "auto": deepest pool it grows to, and the steps it watches before settling.
+_AUTO_MAX_DEPTH = 4
+_AUTO_STEPS = 12
+# Steps judged per depth: a single step's copy timings are too noisy to decide on.
+_AUTO_SAMPLE = 2
+_AUTO_STALL = 0.02
 
 
 def _host_copy(t):
@@ -70,13 +78,51 @@ def _pow2_ceil(n):
     return 1 << max(0, (int(n) - 1).bit_length())
 
 
+def _host_reserve(vm):
+    return max(_PIN_RESERVE_MIN_BYTES, int(vm.total * _PIN_RESERVE_FRACTION))
+
+
+def _local_world_size():
+    try:
+        return max(1, int(os.environ.get("LOCAL_WORLD_SIZE", "1")))
+    except ValueError:
+        return 1
+
+
 def _pin_budget():
+    # Each local rank sees the same free RAM, so it may only claim its share.
     try:
         import psutil
         vm = psutil.virtual_memory()
-        return vm.available - max(_PIN_RESERVE_MIN_BYTES, int(vm.total * _PIN_RESERVE_FRACTION))
+        return (vm.available - _host_reserve(vm)) // _local_world_size()
     except Exception:
         return 0
+
+
+def _check_host_fit(sizes, on_host = 0):
+    """Refuse an offload whose layers (`sizes`, bytes each) would not fit in free host RAM: running it out
+    freezes the machine. `on_host` bytes of them already sit in host RAM and are counted as available."""
+    try:
+        import psutil
+        vm = psutil.virtual_memory()
+    except Exception:
+        return
+    need = sum(sizes)
+    # Every local rank reads the same free RAM, so each may only plan for its share, like _pin_budget.
+    avail = (vm.available - _host_reserve(vm)) // _local_world_size() + on_host
+    if need <= avail:
+        return
+    fit, used = 0, 0
+    for size in sorted(sizes, reverse = True):
+        if used + size > avail:
+            break
+        used, fit = used + size, fit + 1
+    raise ValueError(
+        f"Unsloth: offload_layers asked for {len(sizes)} layers in host RAM, which needs "
+        f"{need / 2**30:.1f} GiB, but only {max(avail, 0) / 2**30:.1f} GiB is available after keeping "
+        f"{_host_reserve(vm) / 2**30:.1f} GiB free for the system. At most {fit} layers would fit; "
+        "lower offload_layers or free host RAM."
+    )
 
 
 class _Registered:
@@ -148,7 +194,8 @@ def _swappable(module):
 
 class _Block:
     __slots__ = ("params", "host", "devices", "index", "streams", "events", "resident", "slot", "sig",
-                 "pending", "layout", "sizes", "src", "empties", "host_buf", "home")
+                 "pending", "layout", "sizes", "src", "empties", "host_buf", "home",
+                 "t_copy", "copy_open", "marks", "mark_open")
 
     def __init__(self, layer, streams, device, shared = ()):
         self.params, self.host, self.devices = [], [], []
@@ -170,7 +217,12 @@ class _Block:
             if d not in streams:
                 streams[d] = torch.cuda.Stream(device = d)
         self.streams = streams
-        self.events = {d: torch.cuda.Event() for d in self.sizes}
+        self.events = {d: torch.cuda.Event(enable_timing = _TIMING) for d in self.sizes}
+        self.t_copy = {d: torch.cuda.Event(enable_timing = True) for d in self.sizes} if _TIMING else None
+        self.copy_open = False
+        # Compute-stream marks: before the wait, after it, after the layer ran.
+        self.marks = tuple(torch.cuda.Event(enable_timing = True) for _ in range(3)) if _TIMING else None
+        self.mark_open = 0
         self.empties = [torch.empty(0, device = d, dtype = p.dtype) for p, d in zip(self.params, self.devices)]
         self.resident = True
         self.slot = None
@@ -210,8 +262,11 @@ class _Block:
             stream = self.streams[d]
             stream.wait_stream(torch.cuda.current_stream(d))
             with torch.cuda.stream(stream):
+                if self.t_copy is not None:
+                    self.t_copy[d].record(stream)
                 bufs[d].copy_(self.host_buf[d], non_blocking = True)
                 event.record(stream)
+        self.copy_open = self.t_copy is not None
         for p, v in zip(self.params, views):
             p.data = v
         self.slot = slot
@@ -248,11 +303,32 @@ def swap_indices(total, n, placement = "spread"):
 
 
 class BlockSwap:
-    """Install on a layer list; layers at `n` (a count or explicit indices) live on the host."""
+    """Install on a layer list; layers at `n` (a count or explicit indices) live on the host.
+    `prefetch_depth = "auto"` starts at 1 and deepens while copies stall a step that could hide them."""
+
+    # Defaults for instances built without __init__ (the scheduler tests).
+    total = 0
+    current = None
+    _auto = False
+    _settled = True
+    _steps = 0
+    _last_stall = None
+    _sampled = 0
+    _tot = None
+    _seen = None
+    _adapt_seen = None
+    _step_peak = None
+    _last_peak = None
 
     def __init__(self, layers, n, prefetch_depth = 2, device = None, placement = "tail"):
         self.blocks, self.handles = [], []
-        self.depth = max(1, prefetch_depth)
+        self._auto = prefetch_depth == "auto"
+        self._settled = not self._auto
+        self.depth = 1 if self._auto else max(1, int(prefetch_depth))
+        self.total = len(layers)
+        self._tot = dict.fromkeys(_STAT_KEYS, 0.0)
+        self._seen = dict(self._tot)
+        self._adapt_seen = dict(self._tot)
         self.streams = {}
         self.free = {}
         self._grew = False
@@ -279,6 +355,8 @@ class BlockSwap:
                 owners.setdefault(id(p), set()).add(li)
         shared = {pid for pid, o in owners.items() if len(o) > 1}
         self.blocks = [_Block(layer, self.streams, self.device, shared) for layer in swapped]
+        # No credit for weights already in host RAM: packing holds both copies while it runs.
+        _check_host_fit([b.nbytes() for b in self.blocks])
         homes = {b.home for b in self.blocks if b.home is not None}
         for li, layer in enumerate(layers):
             if li not in self.pos:
@@ -404,6 +482,8 @@ class BlockSwap:
     def _fetch(self, block, steal = False):
         if block.resident:
             return
+        if getattr(block, "copy_open", False):
+            self._harvest_copy(block)
         slot = self._acquire(block, steal)
         if slot is not None:
             block.prefetch(slot)
@@ -418,8 +498,22 @@ class BlockSwap:
     def _pre(self, i):
         def hook(module, args, kwargs):
             b = self.blocks[i]
+            self.current = self.indices[i]
+            if self._auto and not self._settled:
+                self._note_peak(b.home)
             self._fetch(b, steal = True)
-            b.wait()
+            marks = getattr(b, "marks", None)
+            # A sample still in flight (backward recompute queued behind its forward) is kept for _harvest,
+            # not overwritten: recording into the same events would lose it.
+            if marks is not None and not (b.mark_open == 2 and not marks[2].query()):
+                self._harvest_marks(b)
+                stream = torch.cuda.current_stream(b.home)
+                marks[0].record(stream)
+                b.wait()
+                marks[1].record(stream)
+                b.mark_open = 1
+            else:
+                b.wait()
             # Weights kept for backward = recompute sweep, which walks layers in reverse.
             nxt = i - self.depth if _autograd_keeps_weights() else i + self.depth
             if 0 <= nxt < len(self.blocks):
@@ -445,6 +539,10 @@ class BlockSwap:
 
     def _post(self, i):
         def hook(module, args, output):
+            b = self.blocks[i]
+            if getattr(b, "mark_open", 0) == 1:
+                b.marks[2].record(torch.cuda.current_stream(b.home))
+                b.mark_open = 2
             training = getattr(module, "training", False)
             if not _autograd_keeps_weights():
                 # A training forward's last blocks are the first ones recompute needs: keep them.
@@ -469,8 +567,18 @@ class BlockSwap:
 
     def _bwd(self, i):
         def hook(grad):
+            if self._auto and not self._settled:
+                self._note_peak(self.blocks[i].home)
             self._release(self.blocks[i])
             if i == 0:
+                self._last_peak, self._step_peak = self._step_peak or {}, {}
+                self._steps += 1
+                if self._steps == 1 and self._tot is not None:
+                    # Step 1 includes copies armed at install and warmup: windows start after it.
+                    self._harvest()
+                    self._seen, self._adapt_seen = dict(self._tot), dict(self._tot)
+                elif not self._settled:
+                    self._adapt_depth()
                 self._arm(forward = True)
         return _opaque(hook)
 
@@ -539,6 +647,135 @@ class BlockSwap:
 
     def resident_count(self):
         return sum(b.resident for b in self.blocks)
+
+    def _harvest_copy(self, b):
+        # Only finished copies are read: query() never blocks the host.
+        if not all(e.query() for e in b.events.values()):
+            return
+        # max(0, ...): HIP can order timestamps of events recorded while a stream sat idle backwards.
+        self._tot["copy_ms"] += sum(max(0.0, b.t_copy[d].elapsed_time(e)) for d, e in b.events.items())
+        self._tot["copies"] += 1
+        self._tot["copy_bytes"] += b.nbytes()
+        b.copy_open = False
+
+    def _harvest_marks(self, b):
+        if b.mark_open == 2 and b.marks[2].query():
+            self._tot["stall_ms"] += max(0.0, b.marks[0].elapsed_time(b.marks[1]))
+            self._tot["compute_ms"] += max(0.0, b.marks[1].elapsed_time(b.marks[2]))
+            self._tot["layers"] += 1
+        b.mark_open = 0
+
+    def _harvest(self):
+        for b in self.blocks:
+            if getattr(b, "copy_open", False):
+                self._harvest_copy(b)
+            if getattr(b, "mark_open", 0) == 2 and b.marks[2].query():
+                self._harvest_marks(b)
+
+    def _since(self, seen):
+        return {k: self._tot[k] - seen[k] for k in _STAT_KEYS}
+
+    def _adapt_depth(self):
+        # Between steps only: the "keep the last depth blocks" rule in _post must not change mid-sweep.
+        self._harvest()
+        d = self._since(self._adapt_seen)
+        if d["layers"] == 0 or d["copies"] == 0:
+            return
+        self._sampled += 1
+        if self._sampled < _AUTO_SAMPLE and self._steps < _AUTO_STEPS:
+            return
+        self._sampled = 0
+        self._adapt_seen = dict(self._tot)
+        busy = d["compute_ms"] + d["stall_ms"]
+        stall = d["stall_ms"] / busy if busy > 0 else 0.0
+        # Measured, not predicted: a slot that does not cut the stall (a bus slower than compute, or noise)
+        # is given back, so a slow bus costs one slot for a couple of steps.
+        if self._last_stall is not None and stall > 0.75 * self._last_stall:
+            self._shrink_pool()
+            self.depth -= 1
+            self._settled = True
+        elif stall > _AUTO_STALL and self.depth < _AUTO_MAX_DEPTH and self._grow_pool():
+            self.depth += 1
+            self._last_stall = stall
+        else:
+            self._settled = True
+        if self._steps >= _AUTO_STEPS:
+            self._settled = True
+        if self._settled:
+            print(f"Unsloth: offload_layers prefetch_depth = 'auto' settled on {self.depth} "
+                  f"(copies stalled {100 * stall:.1f}% of the swapped layers' time).")
+
+    def _note_peak(self, dv):
+        # Our own per-step high-water mark: torch's peak counter still holds the load and the pre-swap model.
+        if self._step_peak is None:
+            self._step_peak = {}
+        k = torch.device(dv).index
+        self._step_peak[k] = max(self._step_peak.get(k, 0), torch.cuda.memory_allocated(dv))
+
+    def _grow_pool(self):
+        """One more slot for every pool that can use one, if each card still has room for it."""
+        sigs = [b.sig for b in self.blocks]
+        want = [s for s in self.free if sigs.count(s) > self.depth + 1]
+        if not want:
+            return False
+        need = {}
+        for s in want:
+            size = {}
+            for shape, dt, dv, off in s:
+                n = torch.Size(shape).numel() * torch.empty(0, dtype = dt).element_size()
+                size[dv] = max(size.get(dv, 0), off + -(-n // _ALIGN) * _ALIGN)
+            for dv, n in size.items():
+                need[dv] = need.get(dv, 0) + n
+        for dv, n in need.items():
+            # Between steps the activations are gone; keep room for the next step's peak.
+            peak = (self._last_peak or {}).get(torch.device(dv).index, 0)
+            transient = max(0, peak - torch.cuda.memory_allocated(dv))
+            if _free_device_bytes(dv) - transient < 2 * n:
+                return False
+        for s in want:
+            self.free[s].append(self._new_slot(s))
+        return True
+
+    def _shrink_pool(self):
+        sigs = [b.sig for b in self.blocks]
+        for s, free in self.free.items():
+            held = sum(b.sig == s and b.slot is not None for b in self.blocks)
+            if free and held + len(free) > min(self.depth, sigs.count(s)):
+                free.pop()
+
+    def stats(self, reset = True):
+        """Where each swapped layer is, plus copy / stall / compute totals since the last call."""
+        self._harvest()
+        window = self._since(self._seen)
+        if reset:
+            self._seen = dict(self._tot)
+        state = {}
+        for li, b in zip(self.indices, self.blocks):
+            if not b.resident:
+                state[li] = "host"
+            elif b.pending:
+                state[li] = "held"
+            elif not all(e.query() for e in b.events.values()):
+                state[li] = "copying"
+            else:
+                state[li] = "gpu"
+        return {
+            "total_layers": self.total,
+            "swapped": list(self.indices),
+            "state": state,
+            "current": self.current,
+            "prefetch_depth": self.depth,
+            "auto_depth": self._auto,
+            "depth_settled": self._settled,
+            "host_bytes": self.host_bytes(),
+            "pinned_bytes": self.pinned_bytes,
+            "pool_bytes": self.pool_bytes(),
+            "timing": _TIMING,
+            **window,
+        }
+
+
+_STAT_KEYS = ("copies", "copy_ms", "copy_bytes", "stall_ms", "compute_ms", "layers")
 
 
 def _text_config(config):
@@ -785,8 +1022,8 @@ class _HostLoad:
     def __init__(self, n, placement, embeddings = False):
         self.n, self.placement, self.want_embeddings = n, placement, embeddings
         self.layers, self.indices, self.prefixes = None, [], {}
-        self.done = set()
-        self.embedding_prefixes, self.embeddings = {}, []
+        self.done, self.done_bytes = set(), []
+        self.embedding_prefixes, self.embeddings, self.embedding_bytes = {}, [], []
 
     def bind(self, model):
         if self.layers is not None:
@@ -801,15 +1038,25 @@ class _HostLoad:
         if self.want_embeddings:
             self.embedding_prefixes = {f"{n}.": m for n, m in extra_input_embeddings(model)}
 
+    def _pending_embedding_bytes(self, skip = None):
+        # Streamed tables still to come; a meta weight already knows its size.
+        return [m.weight.nbytes for m in self.embedding_prefixes.values()
+                if m not in self.embeddings and m is not skip and getattr(m, "weight", None) is not None]
+
     def evict_embedding(self, module):
         weight = getattr(module, "weight", None)
         if module in self.embeddings or weight is None or weight.device.type == "meta":
             return
+        left = max(len(self.indices) - len(self.done), 0)
+        size = self.done_bytes[-1] if self.done_bytes else 0
+        _check_host_fit(self.done_bytes + self.embedding_bytes + [weight.nbytes] + [size] * left,
+                        sum(self.done_bytes) + sum(self.embedding_bytes) + (weight.nbytes if weight.device.type == "cpu" else 0))
         with torch.no_grad():
             weight.requires_grad_(False)
             if weight.device.type != "cpu":
                 weight.data = weight.data.to("cpu")
         self.embeddings.append(module)
+        self.embedding_bytes.append(weight.nbytes)
 
     def evict(self, i, force = False):
         if i in self.done:
@@ -818,6 +1065,11 @@ class _HostLoad:
         params = list(layer.parameters())
         if not force and any(p.device.type == "meta" for p in params):
             return
+        # Layers still to come are sized like this one; the first check runs before any layer has moved.
+        size = sum(p.nbytes for p in params if p.device.type != "meta")
+        left = len(self.indices) - len(self.done)
+        _check_host_fit(self.done_bytes + self.embedding_bytes + self._pending_embedding_bytes() + [size] * left,
+                        sum(self.done_bytes) + sum(self.embedding_bytes) + sum(p.nbytes for p in params if p.device.type == "cpu"))
         with torch.no_grad():
             for p in params:
                 if p.is_floating_point():
@@ -825,6 +1077,7 @@ class _HostLoad:
                 if p.device.type not in ("cpu", "meta"):
                     p.data = p.data.to("cpu")
         self.done.add(i)
+        self.done_bytes.append(size)
 
     def on_param(self, model, target_name):
         self.bind(model)
