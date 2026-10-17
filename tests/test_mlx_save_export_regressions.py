@@ -215,6 +215,88 @@ def test_merged_16bit_save_fully_dequantizes_model(monkeypatch, tmp_path):
     assert "quantization_config" not in calls["saved_config"]["nested"]
 
 
+def _lora_quantized_model():
+    import mlx.nn as nn
+
+    class Quantized(nn.Module):
+        pass
+
+    class Dense(nn.Module):
+        pass
+
+    class LoRA(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.linear = Quantized()
+
+        def fuse(self, dequantize=False):
+            return Dense()
+
+    class Block(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.q_proj = LoRA()
+            self.down_proj = Quantized()
+
+    class Model(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.layers = [Block(), Block()]
+            self._config = {"model_type": "llama", "quantization": {"bits": 4}}
+
+    def dequantize_model(model):
+        # mlx-lm swaps each quantized module for a dense one, in place.
+        from mlx.utils import tree_unflatten
+
+        dense = [(n, Dense()) for n, m in model.named_modules() if isinstance(m, Quantized)]
+        model.update_modules(tree_unflatten(dense))
+        return model
+
+    return Model(), Quantized, Dense, LoRA, dequantize_model
+
+
+@pytest.mark.parametrize("fail_save", [False, True])
+def test_merged_save_hands_back_the_lora_quantized_model(monkeypatch, tmp_path, fail_save):
+    """merged_16bit and GGUF fused and dequantized the caller's model in place, so a
+    later LoRA save found no adapters and training went on over a dense copy."""
+    import unsloth_zoo.mlx.utils as mutils
+
+    model, Quantized, Dense, LoRA, dequantize_model = _lora_quantized_model()
+    before = dict(model.named_modules())
+    saved = {}
+
+    def fake_save_model(path, saved_model, donate_model=False):
+        saved["types"] = {n: type(m) for n, m in saved_model.named_modules() if n}
+        if fail_save:
+            raise OSError("disk full")
+
+    fake_mlx_lm_utils = types.ModuleType("mlx_lm.utils")
+    fake_mlx_lm_utils.dequantize_model = dequantize_model
+    fake_mlx_lm_utils.save_model = fake_save_model
+    fake_mlx_lm_utils.save_config = lambda config, path: saved.setdefault("config", config)
+    fake_mlx_lm_utils.create_model_card = lambda path, hf_repo: None
+    monkeypatch.setitem(sys.modules, "mlx_lm.utils", fake_mlx_lm_utils)
+    tokenizer = types.SimpleNamespace(save_pretrained=lambda path: None)
+
+    if fail_save:
+        with pytest.raises(OSError):
+            mutils.save_merged_model(model, tokenizer, tmp_path, dequantize=True)
+    else:
+        mutils.save_merged_model(model, tokenizer, tmp_path, dequantize=True)
+        # The artifact is still the merged, dense model.
+        assert saved["types"]["layers.0.q_proj"] is Dense
+        assert saved["types"]["layers.1.down_proj"] is Dense
+        assert "quantization" not in saved["config"]
+
+    assert isinstance(model.layers[0].q_proj, LoRA)
+    assert isinstance(model.layers[0].q_proj.linear, Quantized)
+    assert isinstance(model.layers[1].down_proj, Quantized)
+    assert model._config["quantization"] == {"bits": 4}
+    after = dict(model.named_modules())
+    assert after.keys() == before.keys()
+    assert all(after[name] is module for name, module in before.items())
+
+
 def test_bound_gguf_save_filters_cuda_only_kwargs(monkeypatch, tmp_path):
     import unsloth_zoo.mlx.loader as loader
     import unsloth_zoo.mlx.utils as mutils
