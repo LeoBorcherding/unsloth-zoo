@@ -1275,28 +1275,6 @@ def _sha256_file(path):
     return digest.hexdigest()
 
 
-def _select_prebuilt_asset(tag, assets):
-    """Map this host to an upstream-style llama-{tag}-bin-* CPU archive name.
-    Kept for callers outside this module: _install_llama_cpp_prebuilt no longer
-    uses it, since prebuilts come only from the fork (_select_cpu_assets). Returns
-    (name, url) or None for unsupported platforms or releases missing the asset."""
-    machine = platform.machine().lower()
-    if machine in ("x86_64", "amd64"): arch = "x64"
-    elif machine in ("aarch64", "arm64"): arch = "arm64"
-    else: return None
-    name = {
-        ("Linux",   "x64")   : f"llama-{tag}-bin-ubuntu-x64.tar.gz",
-        ("Linux",   "arm64") : f"llama-{tag}-bin-ubuntu-arm64.tar.gz",
-        ("Darwin",  "x64")   : f"llama-{tag}-bin-macos-x64.tar.gz",
-        ("Darwin",  "arm64") : f"llama-{tag}-bin-macos-arm64.tar.gz",
-        ("Windows", "x64")   : f"llama-{tag}-bin-win-cpu-x64.zip",
-        ("Windows", "arm64") : f"llama-{tag}-bin-win-cpu-arm64.zip",
-    }.get((platform.system(), arch))
-    if name is None or name not in assets:
-        return None
-    return name, assets[name]
-
-
 def _select_cpu_assets(tag, assets, manifest):
     """Ordered download attempts [(asset_name, url), ...] of the unslothai/llama.cpp
     fork's CPU bundle for this host -- the final prebuilt fallback before a source
@@ -2383,6 +2361,19 @@ def install_llama_cpp(
         if prebuilt is not None:
             return prebuilt
 
+    # A source build clones the same fork release the prebuilts come from, pinned to its tag.
+    # With no release to pin, stop before any package install instead of building an unpinned tree.
+    if needs_clone:
+        resolved = _resolve_llama_cpp_release(LLAMA_CPP_PUBLISHED_RELEASES_API)
+        if resolved is None:
+            raise RuntimeError(
+                f"Unsloth: Could not resolve a {LLAMA_CPP_FORK_REPO} release to build llama.cpp from "
+                "(GitHub unreachable or rate limited).\n"
+                "Set GH_TOKEN or GITHUB_TOKEN and retry, or install llama.cpp manually via "
+                "https://docs.unsloth.ai/basics/troubleshooting-and-faqs#how-do-i-manually-save-to-gguf"
+            )
+        fork_tag = resolved[0]
+
     print_outputs = []
     missing_packages, system_type = check_build_requirements()
     sudo = do_we_need_sudo(system_type)
@@ -2404,8 +2395,9 @@ def install_llama_cpp(
         print("Unsloth: Cloning llama.cpp repository...")
         # H2: Quote path to handle spaces in directory names
         quoted_folder = shlex.quote(llama_cpp_folder) if not IS_WINDOWS else f'"{llama_cpp_folder}"'
+        quoted_tag = shlex.quote(fork_tag) if not IS_WINDOWS else f'"{fork_tag}"'
         try_execute_with_auto_install(
-            f"git clone https://github.com/ggml-org/llama.cpp {quoted_folder}",
+            f"git clone --depth 1 --branch {quoted_tag} https://github.com/{LLAMA_CPP_FORK_REPO} {quoted_folder}",
             **kwargs
         )
     pass
