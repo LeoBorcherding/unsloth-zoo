@@ -882,22 +882,69 @@ def try_execute_with_auto_install(command, sudo=False, print_output=False, print
 pass
 
 
+_VS_GENERATORS = {
+    '18': 'Visual Studio 18 2026', '2026': 'Visual Studio 18 2026',
+    '17': 'Visual Studio 17 2022', '2022': 'Visual Studio 17 2022',
+    '16': 'Visual Studio 16 2019', '2019': 'Visual Studio 16 2019',
+    '15': 'Visual Studio 15 2017', '2017': 'Visual Studio 15 2017',
+}
+
+
+def _cmake_can_drive(generator):
+    # VS 18 2026 needs cmake >= 4.2 (or a VS-bundled one that lists it), like setup.ps1's probe.
+    if not generator.startswith('Visual Studio 18'):
+        return True
+    try:
+        result = subprocess.run(['cmake', '--help'], capture_output=True, text=True)
+    except OSError:
+        return True  # no cmake yet: check_build_requirements reports that separately
+    return generator in (result.stdout or '')
+
+
 def _find_visual_studio():
     """Detect VS Build Tools (aligned with setup.ps1 Find-VsBuildTools).
     Returns (cmake_generator, vs_install_path) or (None, None)."""
+    program_files_x86 = os.environ.get('ProgramFiles(x86)', r'C:\Program Files (x86)')
+    vswhere = os.path.join(program_files_x86, 'Microsoft Visual Studio', 'Installer', 'vswhere.exe')
+    if os.path.isfile(vswhere):
+        # vswhere first: it also finds VS installed outside Program Files.
+        values = []
+        for prop in ('catalog_productLineVersion', 'installationPath'):
+            try:
+                result = subprocess.run(
+                    [vswhere, '-latest', '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
+                     '-property', prop],
+                    capture_output=True, text=True,
+                )
+                values.append((result.stdout or '').strip())
+            except OSError:
+                values.append('')
+        generator = _VS_GENERATORS.get(values[0])
+        if generator and values[1] and _cmake_can_drive(generator):
+            return generator, values[1]
+
+    # Filesystem scan for a broken vswhere registration. VS 2026 lives in "18".
     program_files = [
         os.environ.get('ProgramFiles', r'C:\Program Files'),
-        os.environ.get('ProgramFiles(x86)', r'C:\Program Files (x86)'),
+        program_files_x86,
     ]
-    editions = ['BuildTools', 'Community', 'Professional', 'Enterprise']
-    vs_map = {'2022': '17', '2019': '16', '2017': '15'}
-    for year, ver in vs_map.items():
+    editions = ['BuildTools', 'Community', 'Professional', 'Enterprise', 'Preview']
+    for year in ('18', '2026', '2022', '2019', '2017'):
+        generator = _VS_GENERATORS[year]
         for pf in program_files:
-            for edition in editions:
-                candidate = os.path.join(pf, 'Microsoft Visual Studio', year, edition)
+            vs_base = os.path.join(pf, 'Microsoft Visual Studio', year)
+            if year in ('18', '2026'):
+                # VS 2026 may use edition folder names outside the known list.
+                try:
+                    candidates = sorted(os.path.join(vs_base, d) for d in os.listdir(vs_base))
+                except OSError:
+                    continue
+            else:
+                candidates = [os.path.join(vs_base, edition) for edition in editions]
+            for candidate in candidates:
                 vc_dir = os.path.join(candidate, 'VC', 'Tools', 'MSVC')
-                if os.path.isdir(vc_dir):
-                    return f"Visual Studio {ver} {year}", candidate
+                if os.path.isdir(vc_dir) and _cmake_can_drive(generator):
+                    return generator, candidate
     return None, None
 
 
