@@ -769,22 +769,28 @@ def _read_video_torchvision(
         if "http://" in video_path or "https://" in video_path:
             warnings.warn("torchvision < 0.19.0 does not support http/https video path, please upgrade to 0.19.0.")
     st = time.time()
-    try:
-        video, audio, info = io.read_video(
-            video_path,
-            start_pts=ele.get("video_start", 0.0),
-            end_pts=ele.get("video_end", None),
-            pts_unit="sec",
-            output_format="TCHW",
-        )
-    except TypeError as exc:
-        # torchvision's read_video passes av.open(..., metadata_errors="ignore"), which PyAV 19
-        # removed, so every read fails before decoding. Decode the same range with PyAV directly.
-        if "metadata_errors" not in str(exc):
-            raise
+    if getattr(io, "read_video", None) is None:
+        # torchvision 0.26 removed io.read_video.
         video, info = _read_video_pyav(
             video_path, ele.get("video_start", 0.0), ele.get("video_end", None)
         )
+    else:
+        try:
+            video, audio, info = io.read_video(
+                video_path,
+                start_pts=ele.get("video_start", 0.0),
+                end_pts=ele.get("video_end", None),
+                pts_unit="sec",
+                output_format="TCHW",
+            )
+        except TypeError as exc:
+            # torchvision's read_video passes av.open(..., metadata_errors="ignore"), which PyAV 19
+            # removed, so every read fails before decoding. Decode the same range with PyAV directly.
+            if "metadata_errors" not in str(exc):
+                raise
+            video, info = _read_video_pyav(
+                video_path, ele.get("video_start", 0.0), ele.get("video_end", None)
+            )
     try:
         video_fps = info["video_fps"]
     except Exception as e:
