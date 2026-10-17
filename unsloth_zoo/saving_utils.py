@@ -980,6 +980,22 @@ def _get_bias_overrides(biases, safetensor_keys, model_class_name):
     return overrides
 pass
 
+def _pick_legacy_moe_expert_lora(converted_lora_weights, base_prefix, is_down):
+    # A lone ParamWrapper sits on `experts` whatever it targets, and the nesting order decides
+    # which wrapper is outermost, so the wrapped parameter picks the role. Key position is the
+    # fallback only when that is unknown.
+    roles = ("down_proj",) if is_down else ("gate_up_proj", "gate_proj", "up_proj")
+    position_key = base_prefix if is_down else base_prefix + ".base_layer"
+    for key in (base_prefix, base_prefix + ".base_layer"):
+        lora_stats = converted_lora_weights.get(key)
+        if lora_stats is None: continue
+        param_name = getattr(lora_stats, "parameter_name", None)
+        if param_name in roles or (param_name is None and key == position_key):
+            return key, lora_stats
+    key = base_prefix + (".down_proj" if is_down else ".gate_up_proj")
+    return key, converted_lora_weights.get(key)
+pass
+
 @torch.inference_mode
 def _merge_and_overwrite_lora(
     save_directory,
@@ -1139,22 +1155,13 @@ def _merge_and_overwrite_lora(
                     # Fallback count only: the merge helpers re-resolve num_experts from the
                     # wrapped module (lora_stats), so a shard-local value here is corrected.
                     num_experts = available_experts
+                    fused_key, lora_stats = _pick_legacy_moe_expert_lora(
+                        converted_lora_weights, base_prefix, is_down = w_name == "w2",
+                    )
                     if w_name == "w2":
-                        # down_proj LoRA: experts module, else fused .down_proj when unwrapped.
-                        fused_key = base_prefix
-                        lora_stats = converted_lora_weights.get(fused_key)
-                        if lora_stats is None:
-                            fused_key = base_prefix + ".down_proj"
-                            lora_stats = converted_lora_weights.get(fused_key)
                         merge_role = "down"
                         merge_fn = _merge_moe_down_proj_expert
                     else:
-                        # gate_up_proj LoRA: experts.base_layer, else .gate_up_proj when unwrapped.
-                        fused_key = base_prefix + ".base_layer"
-                        lora_stats = converted_lora_weights.get(fused_key)
-                        if lora_stats is None:
-                            fused_key = base_prefix + ".gate_up_proj"
-                            lora_stats = converted_lora_weights.get(fused_key)
                         merge_role = "gate" if w_name == "w1" else "up"
                         merge_fn = _merge_moe_gate_expert if w_name == "w1" else _merge_moe_up_expert
                     if lora_stats is not None and lora_stats.lora_A is not None and lora_stats.lora_B is not None:
