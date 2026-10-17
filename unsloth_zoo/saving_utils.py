@@ -2460,6 +2460,26 @@ def _mxfp4_base_returns_transposed(convert_cpu_variant, transformers_version):
         return True
 
 
+def _fused_expert_lora_for_group(converted_lora_weights, fused_base_name):
+    # LoRA stats for a fused `<experts>.gate_up_proj` / `.down_proj` group, or None. A lone
+    # ParamWrapper sits on `experts` whatever it targets, so parameter_name picks the role;
+    # key position (gate_up on .base_layer, down on the bare module) only when it is unknown.
+    _m = re.match(r"^(.*\.experts)\.(gate_up_proj|down_proj)$", fused_base_name)
+    if _m is None:
+        return None
+    prefix, leaf = _m.groups()
+    position_key = prefix if leaf == "down_proj" else prefix + ".base_layer"
+    for key in (prefix, prefix + ".base_layer", fused_base_name):
+        lora_stats = converted_lora_weights.get(key)
+        if getattr(lora_stats, "lora_A", None) is None or getattr(lora_stats, "lora_B", None) is None:
+            continue
+        param_name = getattr(lora_stats, "parameter_name", None)
+        if key == fused_base_name or param_name == leaf or (param_name is None and key == position_key):
+            return lora_stats
+    return None
+pass
+
+
 def _fold_perexpert_lora_into_fused(W, fused_base_name, converted_lora_weights):
     """Fold per-expert Linear LoRA into a dequantized fused 3D expert group.
 
@@ -2617,7 +2637,16 @@ def _merge_and_overwrite_lora_mxfp4(save_directory, filename, lora_weights, outp
                 processed_mxfp4_keys.add(key); processed_mxfp4_keys.add(scales_key)
 
                 lora_stats = converted_lora_weights.get(base_name, None)
-                if lora_stats and hasattr(lora_stats, 'lora_A') and lora_stats.lora_A is not None:
+                _fused_stats = _fused_expert_lora_for_group(converted_lora_weights, base_name)
+                if _fused_stats is not None and W.dim() == 3:
+                    # PEFT target_parameters LoRA on the fused experts: _merge_lora refuses 3D,
+                    # and W is the transposed GPT-OSS layout (E, in, out).
+                    _merge_fused = (
+                        _merge_moe_fused_down_proj_expert if base_name.endswith(".down_proj")
+                        else _merge_moe_fused_gate_up_expert
+                    )
+                    count += 1; W = _merge_fused(W, _fused_stats, output_dtype or W.dtype, is_transposed = True)
+                elif lora_stats and hasattr(lora_stats, 'lora_A') and lora_stats.lora_A is not None:
                     # Packed MoE experts (GPT-OSS gate_up_proj/down_proj) take this path, not the
                     # dense _merge_moe_*_expert helpers, so mirror their DoRA guard here. Otherwise a
                     # use_dora adapter on the experts bypasses the refuse and _merge_lora fails with an
