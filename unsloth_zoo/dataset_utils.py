@@ -760,6 +760,13 @@ def is_trl_padding_free_collator(collator):
 pass
 
 
+def _model_stop_token_ids(model):
+    stop = getattr(getattr(model, "generation_config", None), "eos_token_id", None)
+    if stop is None: return None
+    return [stop] if isinstance(stop, int) else list(stop)
+pass
+
+
 def train_on_responses_only(
     trainer,
     instruction_part  = None,
@@ -770,6 +777,7 @@ def train_on_responses_only(
     num_proc          = None,
     last_response_only = False, # Train only on the last assistant turn
     mask_out_tokens   = None,  # e.g. ["</think>"] - also mask these inside kept responses
+    stop_token_ids    = None,  # Turn terminators besides eos; default trainer.model.generation_config.eos_token_id
 ):
     """Train only on responses by masking instruction labels to -100.
 
@@ -784,6 +792,10 @@ def train_on_responses_only(
     merges into the string, as with SentencePiece/BPE "▁word" pieces). Atomic added tokens such as "</think>"
     always match exactly; multi-token strings match only where the in-context
     tokenization equals the standalone one.
+
+    stop_token_ids end a response span and are trained, like eos_token_id. GLM
+    (<|observation|>, <|user|>) and Phi-4-mini (<|end|>) stop on ids that are
+    not the tokenizer's eos_token.
     """
     # All Unsloth Zoo code licensed under LGPLv3
     if trainer is not None:
@@ -889,12 +901,16 @@ def train_on_responses_only(
         message_start = []
     bos_token_id = getattr(tokenizer, "bos_token_id", None)
     eos_token_id = getattr(tokenizer, "eos_token_id", None)
+    if stop_token_ids is None and trainer is not None:
+        stop_token_ids = _model_stop_token_ids(getattr(trainer, "model", None))
+    if isinstance(stop_token_ids, int): stop_token_ids = [stop_token_ids]
+    # Inclusive span ends. Never the response marker, or a following assistant turn would be swallowed.
+    stop_ids = {eos_token_id, *(stop_token_ids or ())} - {None, A_first}
 
     # Every boundary test below fires only on one of these ids: one set lookup per token
     # replaces four comparisons, over every token of every row.
-    boundary_first = {A_first}
+    boundary_first = {A_first} | stop_ids
     if bos_token_id is not None: boundary_first.add(bos_token_id)
-    if eos_token_id is not None: boundary_first.add(eos_token_id)
     if message_start: boundary_first.add(message_start[0])
 
     torch_Tensor = torch.Tensor
@@ -982,7 +998,7 @@ def train_on_responses_only(
                     while j < n:
                         token = input_ids[j]
                         if token in boundary_first:
-                            if token == eos_token_id:
+                            if token in stop_ids:
                                 spans.append((assistant_k, j + 1))
                                 break
                             if token == bos_token_id or \
@@ -995,9 +1011,13 @@ def train_on_responses_only(
                                 break
                             pass
                         pass
-                        if (j == n_minus_1) or \
-                            ((token == Q_first) and \
-                             (input_ids[j : (k := j + len_Q_must)] == Q_must)):
+                        is_user = (token == Q_first) and \
+                            (input_ids[j : (k := j + len_Q_must)] == Q_must)
+                        # Unterminated last turn: keep it to the end, never step back over Q_left tokens.
+                        if (j == n_minus_1) and not is_user:
+                            spans.append((assistant_k, n))
+                            break
+                        if is_user:
 
                             # Extend over optional tokens, backward then forward
                             for optional_left in Q_left_reversed:
@@ -2864,7 +2884,7 @@ def sft_prepare_dataset(
             )
             response_labels = None
             if marker_masks:
-                from unsloth_zoo.dataset_utils import train_on_responses_only as _response_labels
+                from unsloth_zoo.dataset_utils import train_on_responses_only as _response_labels, _model_stop_token_ids
                 marker_kwargs = {}
                 # Harmony (gpt-oss): auto-detection would keep only the final channel, not analysis/tool calls.
                 if "<|channel|>" in _template_text(getattr(tokenizer, "chat_template", None)) and \
@@ -2874,7 +2894,8 @@ def sft_prepare_dataset(
                         response_part = "<|start|>assistant",
                     )
                 response_labels = _response_labels(
-                    None, tokenizer = processing_class, return_function = True, **marker_kwargs,
+                    None, tokenizer = processing_class, return_function = True,
+                    stop_token_ids = _model_stop_token_ids(_model), **marker_kwargs,
                 )
             if assistant_only_loss:
                 used_column_names.append("assistant_masks")
