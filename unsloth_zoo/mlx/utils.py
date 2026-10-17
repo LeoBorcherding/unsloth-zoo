@@ -3872,123 +3872,21 @@ def _build_glm_ocr_position_ids(
     attention_mask,
     image_grid_thw,
     video_grid_thw,
-    image_start_token_id,
     image_token_id,
     video_token_id,
     spatial_merge_size,
 ):
-    batch_size, seq_length = input_ids.shape
-    position_ids = np.ones((3, batch_size, seq_length), dtype=np.int32)
-
-    image_grids = list(image_grid_thw or ())
-    video_grids = list(video_grid_thw or ())
-    image_index = 0
-    video_index = 0
-
-    for batch_idx in range(batch_size):
-        valid_len = (
-            int(attention_mask[batch_idx].sum())
-            if attention_mask is not None
-            else seq_length
-        )
-        tokens = input_ids[batch_idx, :valid_len].tolist()
-        if valid_len == 0:
-            continue
-
-        masked_tokens = tokens[:]
-        llm_pos_ids_list = []
-        st = 0
-
-        try:
-            vision_start_index = masked_tokens.index(image_start_token_id)
-            vision_token = (
-                masked_tokens[vision_start_index + 1]
-                if vision_start_index + 1 < len(masked_tokens)
-                else None
-            )
-            image_nums = int(vision_token == image_token_id)
-            video_nums = int(vision_token == video_token_id)
-        except ValueError:
-            image_nums = 0
-            video_nums = 0
-
-        remain_images = image_nums
-        remain_videos = video_nums
-
-        for _ in range(image_nums + video_nums):
-            try:
-                ed_image = masked_tokens.index(image_token_id, st) if remain_images > 0 else valid_len + 1
-            except ValueError:
-                ed_image = valid_len + 1
-            try:
-                ed_video = masked_tokens.index(video_token_id, st) if remain_videos > 0 else valid_len + 1
-            except ValueError:
-                ed_video = valid_len + 1
-
-            if ed_image < ed_video:
-                t, h, w = image_grids[image_index]
-                image_index += 1
-                remain_images -= 1
-                ed = ed_image
-            else:
-                t, h, w = video_grids[video_index]
-                video_index += 1
-                remain_videos -= 1
-                ed = ed_video
-
-            llm_grid_t = int(t)
-            llm_grid_h = int(h) // spatial_merge_size
-            llm_grid_w = int(w) // spatial_merge_size
-
-            text_len = ed - st
-            start_idx = int(llm_pos_ids_list[-1].max()) + 1 if llm_pos_ids_list else 0
-            if text_len > 0:
-                text_ids = np.broadcast_to(
-                    np.arange(text_len, dtype=np.int32)[None, :],
-                    (3, text_len),
-                )
-                llm_pos_ids_list.append(text_ids + start_idx)
-                start_idx += text_len
-
-            t_index = np.broadcast_to(
-                np.arange(llm_grid_t, dtype=np.int32)[:, None],
-                (llm_grid_t, llm_grid_h * llm_grid_w),
-            ).reshape(-1)
-            h_index = np.broadcast_to(
-                np.arange(llm_grid_h, dtype=np.int32)[None, :, None],
-                (llm_grid_t, llm_grid_h, llm_grid_w),
-            ).reshape(-1)
-            w_index = np.broadcast_to(
-                np.arange(llm_grid_w, dtype=np.int32)[None, None, :],
-                (llm_grid_t, llm_grid_h, llm_grid_w),
-            ).reshape(-1)
-
-            llm_pos_ids_list.append(
-                np.stack([t_index, h_index, w_index], axis=0) + start_idx
-            )
-            st = ed + (llm_grid_t * llm_grid_h * llm_grid_w)
-
-        if st < valid_len:
-            start_idx = int(llm_pos_ids_list[-1].max()) + 1 if llm_pos_ids_list else 0
-            text_len = valid_len - st
-            text_ids = np.broadcast_to(
-                np.arange(text_len, dtype=np.int32)[None, :],
-                (3, text_len),
-            )
-            llm_pos_ids_list.append(text_ids + start_idx)
-
-        if llm_pos_ids_list:
-            batch_positions = np.concatenate(llm_pos_ids_list, axis=1)
-            batch_positions = batch_positions[:, :valid_len]
-        else:
-            batch_positions = np.broadcast_to(
-                np.arange(valid_len, dtype=np.int32)[None, :],
-                (3, valid_len),
-            )
-
-        position_ids[:, batch_idx, :valid_len] = batch_positions
-
-    return mx.array(position_ids)
+    # Same layout as Qwen, but GLM-OCR places each video frame as its own token run (HF get_rope_index).
+    video_frames = [(1, h, w) for t, h, w in (video_grid_thw or ()) for _ in range(int(t))]
+    return _build_qwen_position_ids(
+        input_ids,
+        attention_mask,
+        image_grid_thw,
+        video_frames,
+        image_token_id,
+        video_token_id,
+        spatial_merge_size,
+    )
 
 
 _RAW_INPUT_IDS_FOR_LABELS = "_unsloth_raw_input_ids_for_labels"
@@ -4512,7 +4410,6 @@ def _vlm_positions_for_compile(batch_dict, config):
                 attention_mask=attention_mask_np,
                 image_grid_thw=image_grid_thw,
                 video_grid_thw=video_grid_thw,
-                image_start_token_id=int(_config_get(config, "image_start_token_id")),
                 image_token_id=int(_config_get(config, "image_token_id")),
                 video_token_id=int(_config_get(config, "video_token_id")),
                 spatial_merge_size=int(vision_config.get("spatial_merge_size", 2)),
