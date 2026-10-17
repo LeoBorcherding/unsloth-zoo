@@ -38,7 +38,7 @@ def _torchvision_rejects_the_keyword(monkeypatch):
     def read_video(*args, **kwargs):
         raise TypeError(PYAV_19_ERROR)
 
-    monkeypatch.setattr(vision_utils.io, "read_video", read_video)
+    monkeypatch.setattr(vision_utils.io, "read_video", read_video, raising = False)
 
 
 def test_a_pyav_19_torchvision_read_falls_back_to_pyav(monkeypatch, clip):
@@ -46,6 +46,16 @@ def test_a_pyav_19_torchvision_read_falls_back_to_pyav(monkeypatch, clip):
     video, sample_fps = vision_utils._read_video_torchvision({"video": clip})
     assert video.dim() == 4 and video.shape[1:] == (3, 32, 32)
     assert video.dtype == torch.uint8
+    assert sample_fps > 0
+
+
+def test_a_torchvision_without_read_video_decodes_with_pyav(monkeypatch, clip):
+    # torchvision 0.26 dropped io.read_video.
+    monkeypatch.delattr(vision_utils.io, "read_video", raising = False)
+    video, sample_fps = vision_utils._read_video_torchvision({"video": clip, "video_start": 0.5, "video_end": 1.5})
+    assert video.dim() == 4 and video.shape[1:] == (3, 32, 32)
+    # Frame i is filled with i * 8, so 0.5 s to 1.5 s at 10 fps is roughly 40 to 120.
+    assert 30 <= int(video[:, 0, 0, 0].min()) and int(video[:, 0, 0, 0].max()) <= 130
     assert sample_fps > 0
 
 
@@ -61,7 +71,7 @@ def test_an_unrelated_type_error_still_propagates(monkeypatch, clip):
     def read_video(*args, **kwargs):
         raise TypeError("expected str, bytes or os.PathLike object")
 
-    monkeypatch.setattr(vision_utils.io, "read_video", read_video)
+    monkeypatch.setattr(vision_utils.io, "read_video", read_video, raising = False)
     with pytest.raises(TypeError, match = "PathLike"):
         vision_utils._read_video_torchvision({"video": clip})
 
