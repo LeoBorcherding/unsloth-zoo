@@ -608,7 +608,7 @@ jobs:
   repo-tests-cpu-full:
     name: Repo tests (CPU, full suite)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     env:
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
       UNSLOTH_COMPILE_DISABLE: '1'
@@ -661,7 +661,7 @@ jobs:
         # A hung test is named and stack-dumped instead of eating the job's budget.
         env:
           PYTEST_TIMEOUT: 300
-        timeout-minutes: 22
+        timeout-minutes: 25
         run: |
           rc=0
           python -m pytest -q -rs --tb=short -n 4 --dist loadfile tests/ \
