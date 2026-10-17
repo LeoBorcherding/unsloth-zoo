@@ -927,6 +927,8 @@ def create_locked_down_function(function, *, builtins_policy: str = "allowlist")
     # parameter recently, but the attribute is writable on every version we
     # support. Without it `def f(x, *, k = 1)` loses k and raises TypeError.
     locked.__kwdefaults__ = f.__kwdefaults__
+    # The process backend rebuilds it from this under spawn / forkserver.
+    locked._unsloth_source = (function, builtins_policy)
     # Full builtins can reach signal itself, so only a separate process bounds them.
     if builtins_policy == "full" or _catches_everything(ast.parse(function)):
         # The id keeps each instance's globals separate in the helper, as they are in-process.
@@ -1070,28 +1072,74 @@ import traceback
 class RemoteTracebackError(RuntimeError):
     pass
 
+class _LockedSource:
+    # A <user_code> function cannot be pickled; spawn and forkserver send its source and policy instead.
+    def __init__(self, source, builtins_policy):
+        self.source, self.builtins_policy = source, builtins_policy
+
+class _TimeLimitedRef:
+    # Decorating rebinds the module name to our wrapper, so pickle cannot find the original by name.
+    def __init__(self, module, qualname):
+        self.module, self.qualname = module, qualname
+
+def _to_picklable(value):
+    if not isinstance(value, types.FunctionType):
+        return value
+    source = getattr(value, "_unsloth_source", None)
+    if source is not None:
+        return _LockedSource(*source)
+    found = sys.modules.get(value.__module__)
+    for part in value.__qualname__.split("."):
+        found = getattr(found, part, None)
+    if getattr(found, "_unsloth_time_limited", False) and getattr(found, "__wrapped__", None) is value:
+        return _TimeLimitedRef(value.__module__, value.__qualname__)
+    return value
+pass
+
+def _from_picklable(value):
+    if isinstance(value, _LockedSource):
+        return create_locked_down_function(value.source, builtins_policy = value.builtins_policy)
+    if isinstance(value, _TimeLimitedRef):
+        found = importlib.import_module(value.module)
+        for part in value.qualname.split("."):
+            found = getattr(found, part)
+        return found.__wrapped__
+    return value
+pass
+
+def _subprocess_child(entry_conn, f, a, kw):
+    try:
+        f = _from_picklable(f)
+        a = tuple(_from_picklable(x) for x in a)
+        kw = {k: _from_picklable(v) for k, v in (kw or {}).items()}
+        res = f(*a, **kw)
+        entry_conn.send(("ok", res))
+    except BaseException as e:
+        entry_conn.send(("err", (e.__class__.__name__, str(e), traceback.format_exc())))
+    finally:
+        try:
+            entry_conn.close()
+        except Exception:
+            pass
+pass
+
 def _run_in_subprocess(func, seconds, args, kwargs, *, start_method="spawn", kill_grace=1.0):
     ctx = mp.get_context(start_method)
+    if start_method != "fork":
+        func = _to_picklable(func)
+        args = tuple(_to_picklable(a) for a in args)
+        kwargs = {k: _to_picklable(v) for k, v in (kwargs or {}).items()}
     parent_conn, child_conn = ctx.Pipe(duplex=False)
 
-    def _child(entry_conn, f, a, kw):
-        try:
-            res = f(*a, **(kw or {}))
-            entry_conn.send(("ok", res))
-        except BaseException as e:
-            entry_conn.send(("err", (e.__class__.__name__, str(e), traceback.format_exc())))
-        finally:
-            try:
-                entry_conn.close()
-            except Exception:
-                pass
-
-    proc = ctx.Process(target=_child, args=(child_conn, func, args, kwargs))
+    proc = ctx.Process(target=_subprocess_child, args=(child_conn, func, args, kwargs))
     proc.daemon = False
-    proc.start()
-    child_conn.close()
 
     try:
+        try:
+            proc.start()
+        finally:
+            # The child has its own copy, or never started: ours is closed either way.
+            child_conn.close()
         # Wait for result up to 'seconds'
         if parent_conn.poll(seconds):
             kind, payload = parent_conn.recv()
@@ -1311,7 +1359,7 @@ def execute_with_time_limit(
     seconds: float,
     *,
     backend: str = "signal",
-    start_method: str = "fork",
+    start_method: str = None,
     kill_grace: float = 1.0,
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """
@@ -1328,12 +1376,15 @@ def execute_with_time_limit(
     the process backend.
 
     start_method (only used when backend="process" or auto fallback):
+      - None (default): "fork" where it exists, else "spawn" (Windows).
       - "fork": copies parent process memory (fast, works in notebooks/Colab).
       - "spawn": starts fresh Python interpreter (slower, safer for CUDA).
       - "forkserver": reuses a server process for forking (balance of both).
     """
     if seconds <= 0:
         raise ValueError("seconds must be > 0")
+    if start_method is None:
+        start_method = "fork" if "fork" in mp.get_all_start_methods() else "spawn"
     if start_method not in _VALID_START_METHODS:
         raise ValueError(
             f"Unsloth: start_method must be one of {sorted(_VALID_START_METHODS)}, got {start_method!r}"
@@ -1369,6 +1420,7 @@ def execute_with_time_limit(
                                           start_method=start_method, kill_grace=kill_grace)
             else:
                 raise ValueError("backend must be 'signal', 'process', or 'auto'")
+        wrapper._unsloth_time_limited = True  # lets spawn find the undecorated function by name
         return wrapper
     return decorator
 pass
