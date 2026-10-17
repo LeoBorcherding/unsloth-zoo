@@ -1310,6 +1310,27 @@ def _require_complete_resume_checkpoint(resume_from):
         )
 
 
+def _resolve_resume_checkpoint(resume_from, output_dir):
+    """HF parity: ``True`` means the newest complete checkpoint-N in output_dir."""
+    if resume_from is False:
+        return None
+    if resume_from is not True:
+        return resume_from
+    found = [
+        child for child in Path(output_dir).glob("checkpoint-*")
+        if re.fullmatch(r"checkpoint-\d+", child.name)
+        and all((child / _f).is_file() for _f in (
+            "adapters.safetensors", "optimizer_state.safetensors", "trainer_state.json"))
+    ]
+    newest = max(found, key=lambda child: int(child.name.rpartition("-")[2]), default=None)
+    if newest is None:
+        raise ValueError(
+            f"Unsloth: resume_from_checkpoint=True, but {output_dir} has no "
+            f"complete checkpoint-* directory to resume from."
+        )
+    return str(newest)
+
+
 def _prune_stale_checkpoints(output_dir, save_total_limit, keep_step=None):
     """Keep the newest ``save_total_limit`` checkpoint-* dirs (HF Trainer parity).
 
@@ -5462,7 +5483,7 @@ class MLXTrainer:
         control["prefetcher"] = None
         return None
 
-    def train(self, resume_from_checkpoint: str | None = None):
+    def train(self, resume_from_checkpoint: str | bool | None = None):
         """Run MLX-native training loop following mlx-lm's compiled-step pattern
         with gradient accumulation. Returns a dict of training metrics."""
         # Clear a PRIOR run's stale stop at the EARLIEST point, before any setup,
@@ -5478,7 +5499,9 @@ class MLXTrainer:
         # first would leave a stale stop latched for the next train() call.
         self._close_active_batch_iterator()
         # Stash for _train_inner. None = fresh start, a path = resume.
-        self._resume_from_checkpoint = resume_from_checkpoint
+        self._resume_from_checkpoint = _resolve_resume_checkpoint(
+            resume_from_checkpoint, self.args.output_dir,
+        )
         self._ensure_distributed()
         args = self.args
         model = self.model
