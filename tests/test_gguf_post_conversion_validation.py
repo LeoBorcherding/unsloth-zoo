@@ -1251,6 +1251,30 @@ def test_a_failed_optional_run_is_dropped_and_the_export_continues(llama_cpp, tm
     assert "text model was converted" in out
 
 
+def test_a_projector_that_cannot_be_removed_is_not_reported_removed(llama_cpp, tmp_path,
+                                                                    capsys, monkeypatch):
+    """A file Windows still has mapped survives os.remove; saying it was removed hides
+    that the upload will publish it."""
+    keys = {k: v for k, v in UNIVERSAL.items() if k != "llama.block_count"}
+    path = write_gguf(tmp_path / "mmproj.gguf", keys = keys,
+                      tensors = {"blk.0.attn_q.weight": None})
+    real_remove = os.remove
+    def locked_remove(target, *args, **kwargs):
+        if os.path.abspath(target) == os.path.abspath(path):
+            raise PermissionError(13, "The process cannot access the file", target)
+        return real_remove(target, *args, **kwargs)
+    monkeypatch.setattr(llama_cpp.os, "remove", locked_remove)
+    kept = llama_cpp._verify_run_outputs(
+        [path], "vision projector", False, "bf16", print_output = False,
+    )
+    monkeypatch.undo()
+    assert kept is False
+    assert os.path.exists(path)
+    out = capsys.readouterr().out
+    assert "It has been removed" not in out
+    assert "could not be removed" in out and "mmproj.gguf" in out
+
+
 def test_a_clean_optional_run_is_kept(llama_cpp, tmp_path):
     path = write_gguf(tmp_path / "mmproj.gguf", architecture = "clip",
                       keys = {}, tensors = {"mm.0.weight": None})
