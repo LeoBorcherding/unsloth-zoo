@@ -18925,7 +18925,7 @@ def _restore_mlx_model_state(model, snapshot):
 
     Otherwise a ``merged_4bit`` save leaves the session holding a 4-bit model: a
     later ``merged_16bit`` export writes weights dequantized from 4-bit, and
-    training continues on quantized layers. The LoRA fuse is deliberate and stays.
+    training continues on quantized layers.
     """
     leaf_modules, parameters, config = snapshot
     model.update_modules(leaf_modules)
@@ -18941,6 +18941,29 @@ def _restore_mlx_model_state(model, snapshot):
     else:
         model._config = config
     mx.clear_cache()
+
+
+def _restore_mlx_replaced_modules(model, before, config):
+    """Put back every module the save swapped out (LoRA fuse, dequantize), outermost first."""
+    from mlx.utils import tree_unflatten
+
+    current = dict(model.named_modules())
+    restored = []
+    for name, module in sorted(before, key=lambda item: item[0].count(".")):
+        if not name or current.get(name) is module:
+            continue
+        if any(name.startswith(f"{done}.") for done, _ in restored):
+            continue
+        restored.append((name, module))
+    if restored:
+        model.update_modules(tree_unflatten(restored))
+    if config is _ABSENT:
+        try:
+            delattr(model, "_config")
+        except AttributeError:
+            pass
+    else:
+        model._config = config
 
 
 def save_merged_model(model, tokenizer, path, dequantize=False,
@@ -18973,47 +18996,54 @@ def save_merged_model(model, tokenizer, path, dequantize=False,
 
     # Fuse LoRA weights into base model (mlx-lm pattern)
     model.eval()
-    fused_linears = [
-        (n, _fuse_mlx_module(m, dequantize))
-        for n, m in model.named_modules()
-        if hasattr(m, "fuse")
-    ]
-    if fused_linears:
-        model.update_modules(tree_unflatten(fused_linears))
+    modules_before = list(model.named_modules())
+    config_before = getattr(model, "_config", _ABSENT)
+    live_model = model
+    replaces_modules = False
 
-    if dequantize:
-        unpacked = _unpack_hadamard_modules(model)
-        model = dequantize_model(model)
-        # Rewrite what is saved: it may resolve from `model.config` or `model.args`.
-        cfg = _get_model_config(model)
-        if isinstance(cfg, dict):
-            model._config = _strip_mlx_quantization_metadata(cfg)
-            if unpacked:
-                model._config = _dense_hadamard_pack_config(model._config)
-    elif quantize_unquantized and not _model_has_quantized_module(model):
-        # The fuse had nothing to requantize: quantize now or say so, but
-        # never write full precision in silence.
-        if _is_vlm_model(model) or _has_vision_config(_get_model_config(model)):
-            print(
-                "Unsloth: save_method='merged_4bit' on an unquantized VLM is "
-                "not supported yet — saving at full precision instead. Load "
-                "the VLM quantized (the default) to get a 4-bit merge."
-            )
-            # A surviving grid would label this full-precision artifact 4-bit.
-            # Strip what is actually saved: _get_model_config may resolve from
-            # `model.config` or `model.args`, not just `_config`.
+    try:
+        fused_linears = [
+            (n, _fuse_mlx_module(m, dequantize))
+            for n, m in modules_before
+            if hasattr(m, "fuse")
+        ]
+        # The caller keeps training or saves LoRA after this: the finally undoes these swaps.
+        replaces_modules = bool(fused_linears) or dequantize
+        if fused_linears:
+            model.update_modules(tree_unflatten(fused_linears))
+
+        if dequantize:
+            unpacked = _unpack_hadamard_modules(model)
+            model = dequantize_model(model)
+            # Rewrite what is saved: it may resolve from `model.config` or `model.args`.
             cfg = _get_model_config(model)
             if isinstance(cfg, dict):
                 model._config = _strip_mlx_quantization_metadata(cfg)
-        else:
-            # Quantizing rewrites the caller's live model; snapshot it before
-            # the try, restore even when the quantize is what fails.
-            restore_after_save = _snapshot_mlx_model_state(model)
+                if unpacked:
+                    model._config = _dense_hadamard_pack_config(model._config)
+        elif quantize_unquantized and not _model_has_quantized_module(model):
+            # The fuse had nothing to requantize: quantize now or say so, but
+            # never write full precision in silence.
+            if _is_vlm_model(model) or _has_vision_config(_get_model_config(model)):
+                print(
+                    "Unsloth: save_method='merged_4bit' on an unquantized VLM is "
+                    "not supported yet — saving at full precision instead. Load "
+                    "the VLM quantized (the default) to get a 4-bit merge."
+                )
+                # A surviving grid would label this full-precision artifact 4-bit.
+                # Strip what is actually saved: _get_model_config may resolve from
+                # `model.config` or `model.args`, not just `_config`.
+                cfg = _get_model_config(model)
+                if isinstance(cfg, dict):
+                    model._config = _strip_mlx_quantization_metadata(cfg)
+            else:
+                # Quantizing rewrites the caller's live model; the finally
+                # restores it even when the quantize is what fails.
+                restore_after_save = _snapshot_mlx_model_state(model)
 
-    # `model` is rebound below; this is what the caller still holds.
-    caller_model = model
+        # `model` is rebound below; this is what the caller still holds.
+        caller_model = model
 
-    try:
         if restore_after_save is not None:
             model = _quantize_merged_model_for_save(model)
 
@@ -19028,6 +19058,8 @@ def save_merged_model(model, tokenizer, path, dequantize=False,
         if restore_after_save is not None:
             _restore_mlx_model_state(caller_model, restore_after_save)
             restore_after_save = None
+        if replaces_modules:
+            _restore_mlx_replaced_modules(live_model, modules_before, config_before)
 
     if config:
         is_vlm = _is_vlm_model(model) or _has_vision_config(config)
