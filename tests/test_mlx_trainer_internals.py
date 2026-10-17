@@ -9088,6 +9088,37 @@ def test_stream_width_policy_and_registry_contracts():
     ))
 
 
+@pytest.mark.parametrize("anchor,grad_accum", [(4096, 4), (8192, 4), (8192, 2)])
+def test_armed_stream_grid_never_trips_the_default_cap(anchor, grad_accum):
+    """A streaming run at GA >= 2 filled the 128-signature registry mid-run and fell
+    back to eager (or raised under strict), while the arm line said "bounded"."""
+    import math
+    import random
+
+    from unsloth_zoo.mlx.shape_guard import (
+        FULL_STEP_SCOPE, StreamShapeGrid, phase_for_microstep,
+        resolve_compile_max_variants, stream_phase_count,
+    )
+    from unsloth_zoo.mlx.trainer import (
+        _StreamSignatureRegistry, _StreamWidthPolicy, _stream_guard_report,
+    )
+
+    registry = _StreamSignatureRegistry(resolve_compile_max_variants(None))
+    policy = _StreamWidthPolicy(StreamShapeGrid(anchor=anchor))
+    policy.arm(registry, stream_phase_count(FULL_STEP_SCOPE, grad_accum))
+    assert policy.exact_ceiling is not None
+
+    rnd = random.Random(0)
+    for microstep in range(20_000):
+        width = min(anchor, max(
+            int(rnd.lognormvariate(math.log(600), 0.9)) for _ in range(2)))
+        width = policy(width) or width
+        key = (phase_for_microstep(FULL_STEP_SCOPE, grad_accum, microstep), width)
+        assert not registry.would_trip(key), (microstep, len(registry.observed))
+        registry.record(key)
+    assert _stream_guard_report(policy, registry, FULL_STEP_SCOPE).grid_ratio == str(policy.grid.ratio)
+
+
 def test_streaming_guard_admission_protocol_is_one_collective_per_fetch():
     """One reduction per fetch; failure outranks a trip; idle microsteps participate."""
     import numpy as np
