@@ -1042,6 +1042,8 @@ def _merge_and_overwrite_lora(
     mm = None
     header_metadata = None
     length_of_header = 0
+    # Local, so a failed merge can't leak its resized tensors into the next shard.
+    resized = {}
 
     try:
         _ensure_shard_writable(filename_original)
@@ -1301,9 +1303,7 @@ def _merge_and_overwrite_lora(
 
                 if not success:
                     # Tensor was resized (e.g. vocab grew); track for rewrite
-                    if not hasattr(_merge_and_overwrite_lora, "_resized"):
-                        _merge_and_overwrite_lora._resized = {}
-                    _merge_and_overwrite_lora._resized[output_key] = W.to(
+                    resized[output_key] = W.to(
                         dtype=W_original_dtype, device="cpu"
                     )
 
@@ -1320,9 +1320,7 @@ def _merge_and_overwrite_lora(
 
         # Vocab grew -> resized tensors no longer fit their byte slots; rewrite the
         # shard. Stream to a temp file when disk allows, else rewrite in place.
-        resized = getattr(_merge_and_overwrite_lora, "_resized", {})
         if resized:
-            _merge_and_overwrite_lora._resized = {}
             gc.collect()
             device_empty_cache()
 
