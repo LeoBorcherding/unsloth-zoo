@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 import types
+from fractions import Fraction
 
 import pytest
 
@@ -16,6 +17,7 @@ from unsloth_zoo.mlx.shape_guard import (
     TextShapeEvent,
     build_text_shape_frontier,
     describe_stream_shape_grid,
+    fit_stream_shape_grid,
     materialize_text_shape_frontier,
     phase_for_microstep,
     plan_text_shape_buckets,
@@ -523,6 +525,33 @@ def test_stream_grid_anchor_and_report_contract():
     assert stream_exact_ceiling(wide, 128, 1, 4) == SMALL_EXACT_SIGNATURE_THRESHOLD
     assert "at most 32 signatures" in describe_stream_shape_grid(wide, 128, 32)
     assert "stay exact" not in describe_stream_shape_grid(wide, 128, None)
+
+
+def test_stream_grid_is_coarsened_to_fit_the_cap_at_every_phase_count():
+    """Each endpoint costs one signature per accumulation phase, so at GA >= 2 the
+    default grid outgrew the cap (4096 at GA 4: 60 x 3 = 180 > 128) and tripped."""
+    assert stream_exact_ceiling(StreamShapeGrid(anchor=4096), 128, 3) is None
+    for cap in (64, 128, 256):
+        for anchor in (2048, 4096, 8192, 32768, 131072):
+            for phases in (1, 2, 3):
+                for in_flight in (0, 2):
+                    grid = StreamShapeGrid(anchor=anchor)
+                    fitted = fit_stream_shape_grid(grid, cap, phases, in_flight)
+                    case = (cap, anchor, phases, in_flight)
+                    assert fitted is not None and fitted.anchor == anchor, case
+                    ceiling = stream_exact_ceiling(fitted, cap, phases, in_flight)
+                    assert ceiling is not None, case
+                    assert ceiling + 1 + in_flight + fitted.endpoint_count * phases <= cap, case
+                    if stream_exact_ceiling(grid, cap, phases, in_flight) is not None:
+                        assert fitted is grid, case
+                    else:
+                        # The finest ratio that fits, not just any.
+                        finer = StreamShapeGrid(anchor=anchor, ratio=fitted.ratio - Fraction(1, 20))
+                        assert stream_exact_ceiling(finer, cap, phases, in_flight) is None, case
+    assert fit_stream_shape_grid(StreamShapeGrid(anchor=4096), 128, 3).ratio == Fraction(11, 10)
+    unbounded = StreamShapeGrid()
+    assert fit_stream_shape_grid(unbounded, 128, 3) is unbounded
+    assert fit_stream_shape_grid(StreamShapeGrid(anchor=4096), 8, 3) is None
 
 
 def test_audio_feature_batches_are_detected_for_eager_routing():

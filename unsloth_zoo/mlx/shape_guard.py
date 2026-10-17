@@ -248,6 +248,29 @@ def stream_exact_ceiling(grid, cap, phases_per_endpoint=1, in_flight=0):
     return ceiling if ceiling > 0 else None
 
 
+def fit_stream_shape_grid(grid, cap, phases_per_endpoint=1, in_flight=0):
+    """``grid``, or the same anchor at the finest coarser ratio that leaves an exact allowance.
+
+    Each endpoint costs one signature per accumulation phase, so at GA >= 2 an
+    anchored grid can outgrow the cap and trip compile mid-run. Ratios step by
+    1/20 as exact rationals, so every rank picks the same grid. ``None`` when
+    no ratio up to 4 fits; unanchored grids are returned as they are.
+    """
+    if grid.anchor is None or stream_exact_ceiling(
+        grid, cap, phases_per_endpoint, in_flight,
+    ) is not None:
+        return grid
+    ratio = grid.ratio
+    while ratio < 4:
+        ratio += Fraction(1, 20)
+        candidate = StreamShapeGrid(anchor=grid.anchor, ratio=ratio)
+        if stream_exact_ceiling(
+            candidate, cap, phases_per_endpoint, in_flight,
+        ) is not None:
+            return candidate
+    return None
+
+
 def describe_stream_shape_grid(grid, cap, exact_ceiling=None):
     """One-line summary of the configured streaming endpoint policy."""
 
@@ -971,6 +994,7 @@ __all__ = (
     "StreamShapeGrid",
     "StreamShapeGuardReport",
     "describe_stream_shape_grid",
+    "fit_stream_shape_grid",
     "stream_exact_ceiling",
     "stream_phase_count",
     "TextShapeEvent",

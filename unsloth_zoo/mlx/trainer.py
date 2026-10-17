@@ -683,13 +683,13 @@ from .shape_guard import (
     DDP_LOCAL_GRAD_SCOPE,
     FULL_STEP_SCOPE,
     STREAM_GRID_FLOOR_WIDTH,
-    STREAM_GRID_RATIO,
     StreamShapeGrid,
     StreamShapeGuardReport,
     TextShapeEvent,
     TextShapeGuardReport,
     build_text_shape_frontier,
     describe_stream_shape_grid,
+    fit_stream_shape_grid,
     stream_exact_ceiling,
     stream_phase_count,
     materialize_text_shape_frontier,
@@ -2075,6 +2075,10 @@ class _StreamWidthPolicy:
 
     def arm(self, registry, phases_per_endpoint=1, in_flight=0):
         self.observed = registry.observed
+        # Unconsulted until armed, so the swap cannot reach a staged batch.
+        self.grid = fit_stream_shape_grid(
+            self.grid, registry.cap, phases_per_endpoint, in_flight,
+        ) or self.grid
         self.exact_ceiling = stream_exact_ceiling(
             self.grid, registry.cap, phases_per_endpoint, in_flight,
         )
@@ -2161,7 +2165,7 @@ def _stream_guard_report(policy, registry, compile_scope):
         reason="streaming",
         cap=registry.cap,
         compile_scope=compile_scope,
-        grid_ratio=str(STREAM_GRID_RATIO),
+        grid_ratio=str(grid.ratio),
         grid_floor=STREAM_GRID_FLOOR_WIDTH,
         grid_anchor=grid.anchor,
         grid_endpoints=grid.endpoint_count,
@@ -8556,6 +8560,13 @@ class MLXTrainer:
                 _stream_policy.grid, _stream_registry.cap,
                 _stream_policy.exact_ceiling,
             ))
+            if _stream_policy.exact_ceiling is None and _stream_policy.grid.anchor is not None:
+                _main_print(
+                    "Unsloth: Warning: the streaming shape grid needs more than "
+                    f"compile_max_variants={_stream_registry.cap} signatures at "
+                    f"gradient_accumulation_steps={grad_accum}, so compile can "
+                    "stop mid-run. Raise compile_max_variants."
+                )
         while self._global_step < total_steps:
             it = microstep + 1
             if self._distributed_should_stop() or self._early_stopped:
