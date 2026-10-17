@@ -5117,6 +5117,79 @@ def test_resume_mid_epoch_fires_epoch_begin(monkeypatch):
         assert depth in (0, 1), resumed.events
 
 
+def test_resume_from_checkpoint_true_picks_newest_complete_checkpoint(monkeypatch, tmp_path):
+    # HF reads resume_from_checkpoint=True as "the newest checkpoint in
+    # output_dir"; MLXTrainer passed the bool on and died in os.path.join(True).
+    import mlx.core as mx
+
+    from unsloth_zoo.mlx.trainer import MLXTrainer, MLXTrainingConfig
+
+    _patch_value_and_grad_with_aux(monkeypatch)
+
+    class StepSpy:
+        def __init__(self):
+            self.steps = []
+
+        def on_step_end(self, args, state, control, **kwargs):
+            self.steps.append(state.global_step)
+            return control
+
+    def make_batch(width):
+        ids = mx.array([list(range(1, width + 1))], dtype=mx.int32)
+        lengths = mx.array([[0, width - 1]], dtype=mx.int32)
+        return (ids, lengths, None)
+
+    def build(out_dir, max_steps, spy):
+        args = MLXTrainingConfig(
+            max_steps=max_steps,
+            gradient_accumulation_steps=1,
+            logging_steps=max_steps,
+            save_steps=2,
+            use_cce=False,
+            compile=False,
+            gradient_checkpointing=False,
+            cast_norm_output_to_input_dtype=False,
+            max_grad_norm=0.0,
+            max_grad_leaf_norm=0.0,
+            disable_memory_limits=True,
+            output_dir=str(out_dir),
+        )
+        trainer = MLXTrainer(
+            _tiny_lm_for_loop_tests(),
+            types.SimpleNamespace(pad_token_id=99, eos_token_id=2),
+            [{"text": f"row {i}"} for i in range(4)],
+            args=args,
+            callbacks=[spy],
+        )
+        trainer._prepare_data = lambda _is_vlm: ([make_batch(10) for _ in range(4)], None)
+        trainer._build_optimizer = _frozen_optimizer()
+        trainer.save_model = lambda *_a, **_kw: None
+        return trainer
+
+    out_dir = tmp_path / "out"
+    build(out_dir, 4, StepSpy()).train()
+    assert (out_dir / "checkpoint-4" / "trainer_state.json").is_file()
+    # A higher-numbered but incomplete checkpoint and a non-step dir are skipped.
+    (out_dir / "checkpoint-9").mkdir()
+    (out_dir / "checkpoint-9" / "trainer_state.json").write_text("{}", encoding="utf-8")
+    (out_dir / "checkpoint-final").mkdir()
+
+    spy = StepSpy()
+    resumed = build(out_dir, 6, spy)
+    resumed.train(resume_from_checkpoint=True)
+    assert resumed._resume_from_checkpoint == str(out_dir / "checkpoint-4")
+    assert spy.steps == [5, 6]
+
+    spy = StepSpy()
+    build(tmp_path / "fresh", 2, spy).train(resume_from_checkpoint=False)
+    assert spy.steps == [1, 2]
+
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    with pytest.raises(ValueError, match="no complete checkpoint"):
+        build(empty, 2, StepSpy()).train(resume_from_checkpoint=True)
+
+
 def test_train_bumps_run_generation_in_finally():
     # The stamp only separates runs if every train() closes its generation, a
     # raising one included, else a failed run's stop would block the next one.
