@@ -25,6 +25,7 @@ from __future__ import annotations
 import collections
 from dataclasses import dataclass
 
+import pytest
 import torch
 from safetensors.torch import load_file, save_file
 
@@ -328,6 +329,72 @@ def test_legacy_mixtral_both_fused_keys_resolve_num_experts(tmp_path):
                 got = merged[f"{dp}.{key}.weight"].to(torch.float64)
                 max_err = max(max_err, (got - ref).abs().max().item())
     assert max_err < 1e-4, f"both-fused-keys legacy merge delta error too large: {max_err:.2e}"
+    _reset_moe_merge_state()
+
+
+@pytest.mark.parametrize("layout", ["gate_up_only", "down_only", "reversed"])
+def test_legacy_mixtral_expert_lora_role_follows_parameter_name(tmp_path, layout):
+    """A lone ParamWrapper sits on bare `experts` whatever it targets, and reversed nesting puts
+    down_proj on `.base_layer`; the wrapped parameter, not the key, decides w1/w3 vs w2."""
+    num_layers, num_experts, rank_per = 1, 4, 3
+    hidden, intermediate = 12, 8
+    alpha = 2.0
+    path = str(tmp_path / "model.safetensors")
+
+    base = _build_legacy_shard(path, num_layers, num_experts, hidden, intermediate)
+
+    torch.manual_seed(SEED + 17)
+    TR = num_experts * rank_per
+    prefix = "model.layers.0.mlp.experts"
+    gu = LoraStats(
+        _InnerMoE(num_experts),
+        torch.randn(TR, hidden) * 0.05, torch.randn(2 * intermediate, TR) * 0.05, alpha,
+        parameter_name = "gate_up_proj",
+    )
+    dn = LoraStats(
+        _InnerMoE(num_experts),
+        torch.randn(TR, intermediate) * 0.05, torch.randn(hidden, TR) * 0.05, alpha,
+        parameter_name = "down_proj",
+    )
+    lw = collections.defaultdict(lambda: LoraStats(None, None, None, 0))
+    if layout == "gate_up_only":
+        lw[prefix] = gu
+    elif layout == "down_only":
+        lw[prefix] = dn
+    else:
+        lw[prefix + ".base_layer"] = dn
+        lw[prefix] = gu
+    has_gu = layout != "down_only"
+    has_dn = layout != "gate_up_only"
+
+    _reset_moe_merge_state()
+    result = _merge_and_overwrite_lora(
+        save_directory=str(tmp_path),
+        filename="model.safetensors",
+        lora_weights=lw,
+        output_dtype=torch.float32,
+        model_class_name="MixtralForCausalLM",
+    )
+    count = result[0] if isinstance(result, tuple) else result
+    merged = load_file(path)
+
+    assert _MOE_MERGE_STATE["fallback"] == 0, _MOE_MERGE_STATE["first_error"]
+    assert count == int(has_gu) + int(has_dn)
+
+    max_err = 0.0
+    for e in range(num_experts):
+        dp = f"model.layers.0.block_sparse_moe.experts.{e}"
+        refs = {k: base[f"{dp}.{k}.weight"].to(torch.float64) for k in ("w1", "w3", "w2")}
+        if has_gu:
+            gu_delta = _delta(gu.lora_A, gu.lora_B, alpha, e, num_experts)
+            refs["w1"] = refs["w1"] + gu_delta[:intermediate]
+            refs["w3"] = refs["w3"] + gu_delta[intermediate:]
+        if has_dn:
+            refs["w2"] = refs["w2"] + _delta(dn.lora_A, dn.lora_B, alpha, e, num_experts)
+        for key, ref in refs.items():
+            got = merged[f"{dp}.{key}.weight"].to(torch.float64)
+            max_err = max(max_err, (got - ref).abs().max().item())
+    assert max_err < 1e-4, f"{layout}: legacy merge picked the wrong expert LoRA ({max_err:.2e})"
     _reset_moe_merge_state()
 
 
