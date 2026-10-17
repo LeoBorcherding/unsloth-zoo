@@ -3044,9 +3044,11 @@ def patch_gpt_oss_linearized():
         def experts_forward(
             self, hidden_states: torch.Tensor, router_indices=None, routing_weights=None
         ) -> torch.Tensor:
-            return torch_native_forward(self, hidden_states, router_indices, routing_weights)
+            # Stock 3D GptOssExperts, not the bnb4bit ModuleList layout torch_native_forward reads.
+            return forward_native_moe_loop(self, hidden_states, router_indices, routing_weights)
 
-        if os.environ.get("UNSLOTH_FORCE_FLOAT32", "0") == "1":
+        # The loop needs v5's (tokens, top_k) routing weights; v4's stock forward handles its own.
+        if os.environ.get("UNSLOTH_FORCE_FLOAT32", "0") == "1" and _is_transformers_v5():
             transformers.models.gpt_oss.modeling_gpt_oss.GptOssExperts.forward = experts_forward
 
     if UNSLOTH_ENABLE_LOGGING: logger.info(f"Unsloth: Patched GPT OSS MoE for 4bit loading (backend: {backend})")
