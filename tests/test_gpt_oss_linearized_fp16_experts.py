@@ -165,3 +165,20 @@ def test_fallback_keeps_float32_under_float16_autocast(linearized_loop):
             out = experts(x, indices, scores)
     assert out.dtype == torch.float32
     torch.testing.assert_close(out, expected)
+
+
+def test_training_output_stays_float32_for_float16_inputs(linearized_loop):
+    """torch_native_forward hands training a float32 result; narrowing it to float16 before the
+    residual add would bring back the overflow this path exists to avoid."""
+    config = GptOssConfig(
+        hidden_size=16, intermediate_size=12, num_local_experts=4, num_experts_per_tok=2,
+        num_hidden_layers=1, num_attention_heads=2, num_key_value_heads=1, head_dim=8,
+    )
+    torch.manual_seed(0)
+    experts = modeling_gpt_oss.GptOssExperts(config)
+    router = modeling_gpt_oss.GptOssTopKRouter(config)
+    x = torch.randn(5, 16)
+    with torch.no_grad():
+        _, scores, indices = router(x)
+        assert experts.train()(x.half(), indices, scores).dtype == torch.float32
+        assert experts.eval()(x.half(), indices, scores).dtype == torch.float16
