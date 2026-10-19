@@ -192,7 +192,8 @@ def test_push_to_hub_merged_does_not_quantize():
 
 
 @pytest.mark.parametrize("config_on", ["_config", "config"])
-def test_merged_16bit_unpacks_hadamard_layers_to_the_dense_layers_they_compute(tmp_path, config_on):
+def test_merged_16bit_unpacks_hadamard_layers_to_the_dense_layers_they_compute(
+        monkeypatch, tmp_path, config_on):
     pack = pytest.importorskip("mlx_vlm.models.prism_hadamard_qwen35.prism_hadamard_qwen35")
     from unsloth_zoo.mlx.utils import LoRAHadamardLinear, save_merged_model
     mx.random.seed(5)
@@ -223,12 +224,24 @@ def test_merged_16bit_unpacks_hadamard_layers_to_the_dense_layers_they_compute(t
         model._config = config
     else:  # mlx_vlm.load exposes it on `model.config` only
         model.config = type("Config", (), {"to_dict": lambda self: dict(config)})()
+    import mlx_lm.utils as mlx_lm_utils
+    real_save_model, at_save = mlx_lm_utils.save_model, {}
+
+    def record_save(path, saved_model, **kwargs):
+        at_save["types"] = [type(m) for m in (saved_model.proj, saved_model.embed, saved_model.adapted)]
+        at_save["forward"] = forward()
+        return real_save_model(path, saved_model, **kwargs)
+
+    monkeypatch.setattr(mlx_lm_utils, "save_model", record_save)
+    packed_modules = (model.proj, model.embed, model.adapted)
     save_merged_model(model, type("Tokenizer", (), {"save_pretrained": lambda self, path: None})(),
                       tmp_path, dequantize=True)
     assert json.loads((tmp_path / "config.json").read_text()) == {
         "model_type": "qwen3_5", "architectures": ["Qwen3_5ForConditionalGeneration"],
         "text_config": {"hidden_size": 1024}, "image_token_id": 7}
-    assert [type(m) for m in (model.proj, model.embed, model.adapted)] == [nn.Linear, nn.Embedding, nn.Linear]
-    for expected, actual in zip(want, forward()):
+    assert at_save["types"] == [nn.Linear, nn.Embedding, nn.Linear]
+    # The caller gets the packed layers back.
+    assert all(a is b for a, b in zip((model.proj, model.embed, model.adapted), packed_modules))
+    for expected, actual in zip(want, at_save["forward"]):
         expected, actual = expected.astype(mx.float32), actual.astype(mx.float32)
         assert (mx.abs(actual - expected).max() / mx.abs(expected).max()).item() < 2e-3

@@ -525,12 +525,22 @@ def test_switch_adapter_public_lifecycle(
             expected_trainable
         )
     if not quantized:
-        monkeypatch.setattr(mlx_lm_utils, "save_model", lambda *args, **kwargs: None)
+        at_save = {}
+
+        def record_save(path, saved_model, **kwargs):
+            at_save["proj"] = proj = saved_model.layers[0].proj
+            at_save["out"] = proj(x, indices)
+
+        monkeypatch.setattr(mlx_lm_utils, "save_model", record_save)
         monkeypatch.setattr(mlx_lm_utils, "create_model_card", lambda *args, **kwargs: None)
         tokenizer.save_pretrained = lambda *args, **kwargs: None
+        adapter_module = loaded.layers[0].proj
         save_merged_model(loaded, tokenizer, tmp_path / f"merged-{backend}")
-        assert not hasattr(loaded.layers[0].proj, "lora_a")
-        assert bool(mx.allclose(loaded.layers[0].proj(x, indices), expected, atol=1e-5))
+        # What was written is fused; the caller gets its adapter back.
+        assert not hasattr(at_save["proj"], "lora_a")
+        assert bool(mx.allclose(at_save["out"], expected, atol=1e-5))
+        assert loaded.layers[0].proj is adapter_module
+        assert bool(mx.allclose(loaded.layers[0].proj(x, indices), expected))
 
 
 def test_legacy_switch_rank_layout(tmp_path):
