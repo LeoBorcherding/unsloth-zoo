@@ -846,3 +846,67 @@ def test_force_compile_skips_prebuilt_gpu(monkeypatch, tmp_path):
     assert llama_cpp._maybe_install_llama_cpp_prebuilt(
         str(tmp_path / "llama.cpp"), gpu_support = True,
     ) is None
+
+
+# --- source build: only ever the pinned fork release ------------------------
+
+class _StopAfterClone(Exception):
+    pass
+
+
+def _wire_source_install(monkeypatch, fork_release):
+    """The whole install_llama_cpp with the real prebuilt path, no network: returns the
+    shell commands it ran, stopping at the first pip install after the clone."""
+    _patch_platform(monkeypatch, "Linux", "x86_64")
+    monkeypatch.setattr(llama_cpp, "IS_WINDOWS", False)
+    monkeypatch.delenv("UNSLOTH_LLAMA_FORCE_COMPILE", raising = False)
+    monkeypatch.delenv("UNSLOTH_LLAMA_TAG", raising = False)
+    monkeypatch.setattr(llama_cpp, "_auto_install_enabled", lambda: True)
+    monkeypatch.setattr(llama_cpp, "_CONVERTER_RELEASE_TAGS", {})
+    resolve = fork_release if callable(fork_release) else (lambda: fork_release)
+    monkeypatch.setattr(llama_cpp, "_resolve_llama_cpp_release", lambda releases_api = None: resolve())
+    monkeypatch.setattr(llama_cpp, "_fetch_release_json_asset", lambda assets, name: None)
+    commands = []
+    monkeypatch.setattr(llama_cpp, "check_build_requirements", lambda: commands.append("<build requirements>") or ([], "debian"))
+    monkeypatch.setattr(llama_cpp, "do_we_need_sudo", lambda system_type = None: False)
+    monkeypatch.setattr(llama_cpp, "check_pip", lambda: "pip")
+    monkeypatch.setattr(llama_cpp, "try_execute_with_auto_install", lambda command, **k: commands.append(command))
+    def stop(command, *a, **k):
+        commands.append(command)
+        raise _StopAfterClone()
+    monkeypatch.setattr(llama_cpp, "try_execute", stop)
+    return commands
+
+
+def test_source_build_clones_the_pinned_fork_release(monkeypatch, tmp_path):
+    # The fork release resolves but no prebuilt matches this host, so it compiles:
+    # from the fork, at that release's tag, never ggml-org master.
+    commands = _wire_source_install(monkeypatch, ("b9585-mix-abc1234", {}))
+    with pytest.raises(_StopAfterClone):
+        llama_cpp.install_llama_cpp(llama_cpp_folder = str(tmp_path / "llama.cpp"))
+    clones = [c for c in commands if c.startswith("git clone")]
+    assert len(clones) == 1, commands
+    assert "--branch b9585-mix-abc1234" in clones[0]
+    assert "https://github.com/unslothai/llama.cpp " in clones[0]
+    assert not any("ggml-org" in c for c in commands), commands
+
+
+def test_no_fork_release_refuses_instead_of_building_upstream(monkeypatch, tmp_path):
+    # A rate-limited or offline release lookup used to fall through to cloning and
+    # compiling unpinned ggml-org master. It now stops before installing anything.
+    commands = _wire_source_install(monkeypatch, None)
+    with pytest.raises(RuntimeError, match = "Could not resolve a unslothai/llama.cpp release"):
+        llama_cpp.install_llama_cpp(llama_cpp_folder = str(tmp_path / "llama.cpp"))
+    assert commands == []
+    assert not (tmp_path / "llama.cpp").exists()
+
+def test_source_build_reuses_the_release_the_prebuilt_path_resolved(monkeypatch, tmp_path):
+    # The prebuilt path resolved a release but no bundle fits; a second lookup that is now
+    # rate limited must not stop the source build of that same release.
+    answers = [("b9585-mix-abc1234", {})]
+    commands = _wire_source_install(monkeypatch, lambda: answers.pop(0) if answers else None)
+    with pytest.raises(_StopAfterClone):
+        llama_cpp.install_llama_cpp(llama_cpp_folder = str(tmp_path / "llama.cpp"))
+    clones = [c for c in commands if c.startswith("git clone")]
+    assert len(clones) == 1, commands
+    assert "--branch b9585-mix-abc1234" in clones[0]

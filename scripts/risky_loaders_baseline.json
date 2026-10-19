@@ -138,9 +138,9 @@
       "file": "unsloth_zoo/llama_cpp.py",
       "rule": "unpinned-code-fetch",
       "sink": "git-clone-unpinned",
-      "digest": "a5ae4361307c747b",
+      "digest": "d934347f58e77f90",
       "count": 1,
-      "reason": "Known residual: install_llama_cpp source-builds from upstream llama.cpp master, the same upstream trust as installing it; pinning is a separate change."
+      "reason": "install_llama_cpp source-builds the unslothai/llama.cpp release the prebuilts come from, cloned at that release's tag (--branch), and refuses when no release resolves. A tag, not a digest."
     },
     {
       "file": "unsloth_zoo/mlx/compile.py",

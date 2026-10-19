@@ -2217,6 +2217,8 @@ def _install_llama_cpp_prebuilt(llama_cpp_folder, gpu_support = False, print_out
         resolved = _resolve_llama_cpp_release(LLAMA_CPP_PUBLISHED_RELEASES_API)
         if resolved is not None:
             fork_tag, fork_assets = resolved
+            # A source build after a failed prebuilt clones this tag without asking again.
+            _CONVERTER_RELEASE_TAGS[os.environ.get("UNSLOTH_LLAMA_TAG", "").strip()] = fork_tag
             manifest = _fetch_release_json_asset(fork_assets, LLAMA_CPP_PREBUILT_MANIFEST_ASSET)
             fork_checksums = _fetch_release_json_asset(fork_assets, LLAMA_CPP_PREBUILT_SHA256_ASSET) or {}
             fork_checksums = fork_checksums.get("artifacts", {})
@@ -2383,6 +2385,18 @@ def install_llama_cpp(
         if prebuilt is not None:
             return prebuilt
 
+    # A source build clones the same fork release the prebuilts come from, pinned to its tag.
+    # With no release to pin, stop before any package install instead of building an unpinned tree.
+    if needs_clone:
+        fork_tag = _latest_converter_release_tag(os.environ.get("UNSLOTH_LLAMA_TAG", "").strip())
+        if fork_tag is None:
+            raise RuntimeError(
+                f"Unsloth: Could not resolve a {LLAMA_CPP_FORK_REPO} release to build llama.cpp from "
+                "(GitHub unreachable or rate limited).\n"
+                "Set GH_TOKEN or GITHUB_TOKEN and retry, or install llama.cpp manually via "
+                "https://docs.unsloth.ai/basics/troubleshooting-and-faqs#how-do-i-manually-save-to-gguf"
+            )
+
     print_outputs = []
     missing_packages, system_type = check_build_requirements()
     sudo = do_we_need_sudo(system_type)
@@ -2404,8 +2418,9 @@ def install_llama_cpp(
         print("Unsloth: Cloning llama.cpp repository...")
         # H2: Quote path to handle spaces in directory names
         quoted_folder = shlex.quote(llama_cpp_folder) if not IS_WINDOWS else f'"{llama_cpp_folder}"'
+        quoted_tag = shlex.quote(fork_tag) if not IS_WINDOWS else f'"{fork_tag}"'
         try_execute_with_auto_install(
-            f"git clone https://github.com/ggml-org/llama.cpp {quoted_folder}",
+            f"git clone --depth 1 --branch {quoted_tag} https://github.com/{LLAMA_CPP_FORK_REPO} {quoted_folder}",
             **kwargs
         )
     pass
@@ -4206,7 +4221,7 @@ def _converter_is_trusted_local(script_path):
     export points it at the llama.cpp it has just installed, which is routing and
     not a judgement about the converter, so internal_scripts_dir_pin marks that
     case and it gets no exemption either. When no prebuilt is available install_llama_cpp falls
-    back to an unpinned `git clone` of upstream master, and
+    back to a `git clone` of the fork release tag, with no digest, and
     _resolve_bundle_convert_script accepts that checkout on the strength of a
     conversion/ package alone. A converter fetched automatically from upstream is
     not a converter the user pinned, so it gets no exemption.
@@ -4410,7 +4425,7 @@ def _download_convert_hf_to_gguf_cached(
         # is a second download from the one the bundle's own sha256 covers. An
         # earlier version of this comment said the bundle's digest covered them;
         # it does not, and until that archive was verified as well nothing did.
-        # From an unpinned `git clone` there is still no digest to check, and a payload can sit in
+        # From a `git clone` there is still no digest to check, and a payload can sit in
         # conversion/__init__.py behind a clean entrypoint.
         # Always, pinned or not. The entrypoint itself is scanned either way and
         # only the refusal is waived for a pin; skipping the sibling packages
