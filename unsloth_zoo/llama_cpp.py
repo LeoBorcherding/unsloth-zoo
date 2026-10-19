@@ -828,12 +828,11 @@ pass
 
 
 def _command_is_missing(command, returncode):
-    # 127 is POSIX sh, 9009 is cmd.exe's errorlevel; Popen on cmd.exe reports 1, so also ask PATH.
-    if returncode in (127, 9009): return True
+    # PATH decides: an installed tool can exit 127 itself, and cmd.exe reports 1 for an unknown one.
     try:
         program = shlex.split(command)[0]
     except (ValueError, IndexError):
-        return False
+        return returncode in (127, 9009)
     return shutil.which(program) is None
 pass
 

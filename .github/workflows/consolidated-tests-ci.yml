@@ -518,6 +518,7 @@ jobs:
               tests/test_gguf_post_conversion_validation.py \
               tests/test_mtp_config_reconcile.py \
               tests/test_llama_cpp_converter_scan.py \
+              tests/test_llama_cpp_try_execute.py \
               tests/test_compiled_cache_fail_closed.py \
               tests/test_forced_float32_lora_forward_result_dtype.py \
               tests/test_inductor_codegen_fallback.py \

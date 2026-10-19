@@ -79,3 +79,13 @@ def test_a_failing_real_binary_does_not_install(monkeypatch, tmp_path):
     with pytest.raises(RuntimeError):
         llama_cpp.try_execute_with_auto_install(_emit(tmp_path, "boom\n", exit_code = 3))
     assert calls == []
+
+
+def test_an_installed_tool_exiting_127_is_not_missing(monkeypatch, tmp_path):
+    # A wrapper whose own helper is missing exits 127 too; the tool itself is on PATH.
+    calls = []
+    monkeypatch.setattr(llama_cpp, "install_package", lambda package, *a, **k: calls.append(package))
+    with pytest.raises(RuntimeError) as exc:
+        llama_cpp.try_execute_with_auto_install(_emit(tmp_path, "helper: not found\n", exit_code = 127))
+    assert calls == []
+    assert "Command not found" not in str(exc.value)
