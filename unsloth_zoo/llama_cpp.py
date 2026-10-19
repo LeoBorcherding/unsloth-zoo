@@ -2217,6 +2217,8 @@ def _install_llama_cpp_prebuilt(llama_cpp_folder, gpu_support = False, print_out
         resolved = _resolve_llama_cpp_release(LLAMA_CPP_PUBLISHED_RELEASES_API)
         if resolved is not None:
             fork_tag, fork_assets = resolved
+            # A source build after a failed prebuilt clones this tag without asking again.
+            _CONVERTER_RELEASE_TAGS[os.environ.get("UNSLOTH_LLAMA_TAG", "").strip()] = fork_tag
             manifest = _fetch_release_json_asset(fork_assets, LLAMA_CPP_PREBUILT_MANIFEST_ASSET)
             fork_checksums = _fetch_release_json_asset(fork_assets, LLAMA_CPP_PREBUILT_SHA256_ASSET) or {}
             fork_checksums = fork_checksums.get("artifacts", {})
@@ -2386,15 +2388,14 @@ def install_llama_cpp(
     # A source build clones the same fork release the prebuilts come from, pinned to its tag.
     # With no release to pin, stop before any package install instead of building an unpinned tree.
     if needs_clone:
-        resolved = _resolve_llama_cpp_release(LLAMA_CPP_PUBLISHED_RELEASES_API)
-        if resolved is None:
+        fork_tag = _latest_converter_release_tag(os.environ.get("UNSLOTH_LLAMA_TAG", "").strip())
+        if fork_tag is None:
             raise RuntimeError(
                 f"Unsloth: Could not resolve a {LLAMA_CPP_FORK_REPO} release to build llama.cpp from "
                 "(GitHub unreachable or rate limited).\n"
                 "Set GH_TOKEN or GITHUB_TOKEN and retry, or install llama.cpp manually via "
                 "https://docs.unsloth.ai/basics/troubleshooting-and-faqs#how-do-i-manually-save-to-gguf"
             )
-        fork_tag = resolved[0]
 
     print_outputs = []
     missing_packages, system_type = check_build_requirements()

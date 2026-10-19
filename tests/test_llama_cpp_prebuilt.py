@@ -862,7 +862,9 @@ def _wire_source_install(monkeypatch, fork_release):
     monkeypatch.delenv("UNSLOTH_LLAMA_FORCE_COMPILE", raising = False)
     monkeypatch.delenv("UNSLOTH_LLAMA_TAG", raising = False)
     monkeypatch.setattr(llama_cpp, "_auto_install_enabled", lambda: True)
-    monkeypatch.setattr(llama_cpp, "_resolve_llama_cpp_release", lambda releases_api = None: fork_release)
+    monkeypatch.setattr(llama_cpp, "_CONVERTER_RELEASE_TAGS", {})
+    resolve = fork_release if callable(fork_release) else (lambda: fork_release)
+    monkeypatch.setattr(llama_cpp, "_resolve_llama_cpp_release", lambda releases_api = None: resolve())
     monkeypatch.setattr(llama_cpp, "_fetch_release_json_asset", lambda assets, name: None)
     commands = []
     monkeypatch.setattr(llama_cpp, "check_build_requirements", lambda: commands.append("<build requirements>") or ([], "debian"))
@@ -897,3 +899,14 @@ def test_no_fork_release_refuses_instead_of_building_upstream(monkeypatch, tmp_p
         llama_cpp.install_llama_cpp(llama_cpp_folder = str(tmp_path / "llama.cpp"))
     assert commands == []
     assert not (tmp_path / "llama.cpp").exists()
+
+def test_source_build_reuses_the_release_the_prebuilt_path_resolved(monkeypatch, tmp_path):
+    # The prebuilt path resolved a release but no bundle fits; a second lookup that is now
+    # rate limited must not stop the source build of that same release.
+    answers = [("b9585-mix-abc1234", {})]
+    commands = _wire_source_install(monkeypatch, lambda: answers.pop(0) if answers else None)
+    with pytest.raises(_StopAfterClone):
+        llama_cpp.install_llama_cpp(llama_cpp_folder = str(tmp_path / "llama.cpp"))
+    clones = [c for c in commands if c.startswith("git clone")]
+    assert len(clones) == 1, commands
+    assert "--branch b9585-mix-abc1234" in clones[0]
