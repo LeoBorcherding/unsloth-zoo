@@ -5428,6 +5428,12 @@ def forward_triton_grouped_gemm(
     return final_hidden_states
 
 
+def _dequantized_expert_stack(param, dtype):
+    if HAS_BNB and isinstance(param, Params4bit) and getattr(param, "quant_state", None) is not None:
+        return _get_base_weight(param, dtype)
+    return param
+
+
 @torch.compiler.disable
 def forward_native_moe_loop(
     self,
@@ -5496,6 +5502,10 @@ def forward_native_moe_loop(
     is_gpt_oss = "GptOssExperts" in self.__class__.__name__
     own_apply_gate = _uses_own_apply_gate(self)
 
+    # load_in_4bit packs the stock 3D experts too ((N, 1) uint8): decode them once, not per expert.
+    gate_up_stack = _dequantized_expert_stack(getattr(self, "gate_up_proj", None), hidden_states.dtype)
+    down_stack = _dequantized_expert_stack(getattr(self, "down_proj", None), hidden_states.dtype)
+
     for expert_idx_t in expert_hit:
         expert_idx = expert_idx_t.item()
 
@@ -5504,7 +5514,7 @@ def forward_native_moe_loop(
 
         # gate_up projection for this expert ('gate_up_proj' or 'w1'/'w3').
         if hasattr(self, "gate_up_proj"):
-            gate_up_weight = self.gate_up_proj[expert_idx]
+            gate_up_weight = gate_up_stack[expert_idx]
             if grouped_mm_format or gate_up_weight.shape[-1] != current_state.shape[-1]:
                 gate_up_weight = gate_up_weight.T
             gate_up = F.linear(current_state, gate_up_weight)
@@ -5543,7 +5553,7 @@ def forward_native_moe_loop(
 
         # down projection for this expert.
         if hasattr(self, "down_proj"):
-            down_weight = self.down_proj[expert_idx]
+            down_weight = down_stack[expert_idx]
             # Mirror gate_up: prefer the flag over the shape heuristic (unsafe at square dims).
             if grouped_mm_format or down_weight.shape[-1] != current_hidden_states.shape[-1]:
                 down_weight = down_weight.T

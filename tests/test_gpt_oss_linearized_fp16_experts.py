@@ -3,6 +3,8 @@ patch_gpt_oss_linearized binds a forward onto the stock 3D GptOssExperts, and th
 forward has to train and match the stock math. The square case is gpt-oss-20b's own
 shape (hidden_size == intermediate_size), where down_proj's orientation is ambiguous.
 On transformers 4 the stock forward, which takes v4's scattered routing weights, stays."""
+from types import SimpleNamespace
+
 import pytest
 import torch
 
@@ -75,3 +77,40 @@ def test_transformers_4_keeps_the_stock_forward(monkeypatch):
         assert experts_cls.forward is stock_forward
     finally:
         experts_cls.forward = stock_forward
+
+
+class _PackedStub(torch.nn.Parameter):
+    """Stands in for bitsandbytes' Params4bit (no bnb on the test host): load_in_4bit packs
+    the stock 3D experts into an (N, 1) uint8 tensor and keeps the real shape in quant_state."""
+
+
+def test_packed_4bit_experts_are_dequantized(linearized_loop, monkeypatch):
+    import unsloth_zoo.temporary_patches.moe_utils as M
+    stock_forward = linearized_loop
+    config = GptOssConfig(
+        hidden_size=16, intermediate_size=12, num_local_experts=4, num_experts_per_tok=2,
+        num_hidden_layers=1, num_attention_heads=2, num_key_value_heads=1, head_dim=8,
+    )
+    torch.manual_seed(0)
+    experts = modeling_gpt_oss.GptOssExperts(config)
+    for parameter in experts.parameters():
+        torch.nn.init.normal_(parameter, std=0.2)
+    router = modeling_gpt_oss.GptOssTopKRouter(config)
+    x = torch.randn(5, 16)
+    with torch.no_grad():
+        _, scores, indices = router(x)
+        expected = stock_forward(experts, x, indices, scores)
+
+    def pack(name):
+        real = getattr(experts, name).detach()
+        packed = _PackedStub(torch.zeros(real.numel() // 2, 1, dtype=torch.uint8), requires_grad=False)
+        packed.quant_state = SimpleNamespace(weight=real)
+        setattr(experts, name, packed)
+
+    pack("gate_up_proj"); pack("down_proj")
+    monkeypatch.setattr(M, "HAS_BNB", True)
+    monkeypatch.setattr(M, "Params4bit", _PackedStub)
+    monkeypatch.setattr(M, "_get_base_weight", lambda p, target_dtype=None, **_: p.quant_state.weight.to(target_dtype))
+    with torch.no_grad():
+        out = experts(x, indices, scores)
+    torch.testing.assert_close(out, expected)
