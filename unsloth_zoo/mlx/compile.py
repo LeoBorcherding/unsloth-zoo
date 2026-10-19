@@ -2045,6 +2045,7 @@ def _merge_special_token_features(
     if video_token_id is not None:
         special_mask = mx.logical_or(special_mask, input_ids == video_token_id)
 
+    _raise_on_feature_count_mismatch(special_mask, image_features, inputs_embeds)
     return _merge_sequence_mask_features(special_mask, image_features, inputs_embeds)
 
 
@@ -6543,6 +6544,7 @@ def _install_idefics_family_compile_patches():
 
     def patched_prepare_inputs_for_multimodal(self, image_features, inputs_embeds, input_ids):
         special_image_mask = input_ids == self.config.image_token_index
+        _raise_on_feature_count_mismatch(special_image_mask, image_features, inputs_embeds)
         outputs, _ = _merge_sequence_mask_features(
             special_image_mask,
             image_features,
@@ -6578,6 +6580,21 @@ def _install_idefics_family_compile_patches():
                 batch_size * num_images, height, width
             ).astype(mx.bool_)
 
+        # Upstream drops the all-zero images the processor pads each row with; a tracer
+        # can't be read here, so the collator hands the indices over as static metadata.
+        keep = kwargs.get("real_image_indices", None)
+        if keep is None:
+            from .utils import _real_image_indices
+
+            try:
+                keep = _real_image_indices(pixel_values)
+            except Exception:
+                keep = None
+        if keep is not None:
+            keep = mx.array(keep, dtype=mx.int32)
+            flat_pixel_values = flat_pixel_values[keep]
+            pixel_attention_mask = pixel_attention_mask[keep]
+
         patch_size = self.config.vision_config.patch_size
         patches_h = height // patch_size
         patches_w = width // patch_size
@@ -6585,7 +6602,7 @@ def _install_idefics_family_compile_patches():
             :, : patches_h * patch_size, : patches_w * patch_size
         ]
         reshaped = reshaped.reshape(
-            batch_size * num_images, patches_h, patch_size, patches_w, patch_size
+            flat_pixel_values.shape[0], patches_h, patch_size, patches_w, patch_size
         )
         reshaped = reshaped.transpose(0, 1, 3, 2, 4)
         patch_attention_mask = reshaped.sum(axis=(-1, -2)) > 0
@@ -6608,6 +6625,7 @@ def _install_idefics_family_compile_patches():
         )
         return InputEmbeddingsFeatures(inputs_embeds=final_inputs_embeds)
 
+    patched_get_input_embeddings._unsloth_static_vlm_metadata = ("real_image_indices",)
     for arch in sorted(_IDEFICS_SHARED_PATCH_ARCHES):
         module = _try_import_module(f"mlx_vlm.models.{arch}.{arch}")
         if module is None:
