@@ -4220,7 +4220,7 @@ def _converter_is_trusted_local(script_path):
     export points it at the llama.cpp it has just installed, which is routing and
     not a judgement about the converter, so internal_scripts_dir_pin marks that
     case and it gets no exemption either. When no prebuilt is available install_llama_cpp falls
-    back to an unpinned `git clone` of upstream master, and
+    back to a `git clone` of the fork release tag, with no digest, and
     _resolve_bundle_convert_script accepts that checkout on the strength of a
     conversion/ package alone. A converter fetched automatically from upstream is
     not a converter the user pinned, so it gets no exemption.
@@ -4424,7 +4424,7 @@ def _download_convert_hf_to_gguf_cached(
         # is a second download from the one the bundle's own sha256 covers. An
         # earlier version of this comment said the bundle's digest covered them;
         # it does not, and until that archive was verified as well nothing did.
-        # From an unpinned `git clone` there is still no digest to check, and a payload can sit in
+        # From a `git clone` there is still no digest to check, and a payload can sit in
         # conversion/__init__.py behind a clean entrypoint.
         # Always, pinned or not. The entrypoint itself is scanned either way and
         # only the refusal is waived for a pin; skipping the sibling packages
