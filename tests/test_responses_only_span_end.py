@@ -151,5 +151,7 @@ def test_real_templates_mask_tool_results_with_generation_stop_ids(repo):
     )["labels"][0]
     trained = tokenizer.decode([t for t, l in zip(input_ids, labels) if l != -100])
     assert "TOOLOUT" not in trained and "USERQ" not in trained, trained
-    assert '"a": 77' in trained or '"a":77' in trained, trained
+    # The tool call stays trained when the template renders one (JSON or XML arguments).
+    call = text.split("USERQ_1", 1)[1].split("TOOLOUT", 1)[0]
+    assert "multiply" not in call or "77" in trained, trained
     assert "FINALANS_5521" in trained, trained
