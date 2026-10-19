@@ -141,3 +141,34 @@ def test_templates_with_a_header_after_tools_get_no_second_marker(repo):
     tokenizer = _cached_tokenizer(repo)
     instruction_part, response_part = get_chat_template_parts(tokenizer)
     assert get_tool_response_part(tokenizer, instruction_part, response_part) is None
+
+
+# The real Mistral templates wrap the result as {"content": ..., "call_id": ...}, so the
+# probe's call id sits right before [/TOOL_RESULTS]. Only tokenizer files are fetched.
+REAL_TOOLS = [{"type": "function", "function": {"name": "get_weather", "description": "Weather.",
+    "parameters": {"type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]}}}]
+REAL_CONVERSATION = [
+    {"role": "user", "content": "Weather in Paris? USERQ_1"},
+    {"role": "assistant", "content": "", "tool_calls": [{"id": "abc123def", "type": "function",
+        "function": {"name": "get_weather", "arguments": {"city": "Paris"}}}]},
+    {"role": "tool", "tool_call_id": "abc123def", "name": "get_weather", "content": "TOOLOUT 21C sunny"},
+    {"role": "assistant", "content": "FINALANS_ONE it is 21C."},
+    {"role": "user", "content": "Thanks USERQ_2"},
+    {"role": "assistant", "content": "FINALANS_TWO welcome."},
+]
+
+
+@pytest.mark.parametrize("repo", ["unsloth/mistral-7b-instruct-v0.3", "unsloth/Mistral-Nemo-Instruct-2407"])
+def test_real_mistral_templates_auto_detect_the_tool_result_closer(repo):
+    from unsloth_zoo.dataset_utils import get_chat_template_parts, get_tool_response_part
+    tokenizer = _cached_tokenizer(repo)
+    instruction_part, response_part = get_chat_template_parts(tokenizer)
+    assert get_tool_response_part(tokenizer, instruction_part, response_part) == "[/TOOL_RESULTS]"
+    text = tokenizer.apply_chat_template(REAL_CONVERSATION, tools = REAL_TOOLS, tokenize = False)
+    input_ids = tokenizer(text, add_special_tokens = False)["input_ids"]
+    labels = train_on_responses_only(None, tokenizer = tokenizer, return_function = True)(
+        {"input_ids": [input_ids]}
+    )["labels"][0]
+    trained = tokenizer.decode([t for t, l in zip(input_ids, labels) if l != -100])
+    assert "FINALANS_ONE" in trained and "FINALANS_TWO" in trained, trained
+    assert "TOOLOUT" not in trained and "USERQ" not in trained, trained

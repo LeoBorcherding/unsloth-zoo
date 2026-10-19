@@ -467,7 +467,12 @@ def get_tool_response_part(tokenizer, instruction_part, response_part):
     try:    added = set(tok.get_added_vocab().keys())
     except Exception: added = set()
     specials = {str(s) for s in (set(getattr(tok, "all_special_tokens", []) or []) | added) if s}
-    if not part or not any(s in part for s in specials): return None
+    starts = [part.find(s) for s in specials if s in part]
+    if not part or not starts: return None
+    # Drop text before the first special token: Mistral wraps the result as
+    # {"content": ..., "call_id": "probe0001"}, so that tail is the probe's own, not the closer.
+    part = part[min(starts):]
+    if call_id in part: return None
     core = _find_common_token_ids(part, tok, True)[0]
     probe_ids = tok(full, add_special_tokens = False).input_ids
     if not core or not any(probe_ids[i : i + len(core)] == core for i in range(len(probe_ids) - len(core) + 1)):
