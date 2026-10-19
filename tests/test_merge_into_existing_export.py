@@ -69,7 +69,28 @@ def test_second_merge_into_same_directory_is_identical(tmp_path, shard_size, low
     assert any(not torch.equal(expected[k], base_tensors[k]) for k in expected if "q_proj" in k)
 
 
-def test_in_place_export_still_merges_once(tmp_path):
+def _dir_bytes(d):
+    return {f: (d / f).read_bytes() for f in sorted(os.listdir(d)) if (d / f).is_file()}
+
+
+@pytest.mark.parametrize("spelling", ["same", "trailing_dot", "missing_child_dotdot"])
+def test_in_place_export_is_refused_and_leaves_the_base_alone(tmp_path, monkeypatch, spelling):
+    monkeypatch.delenv("UNSLOTH_ALLOW_IN_PLACE_MERGE", raising = False)
+    base, peft_model = _build(tmp_path, "200KB")
+    before = _dir_bytes(tmp_path / "base")
+    # `base/fresh/..` with no `fresh` yet is not a directory on POSIX until the export creates it.
+    out = {
+        "same": base,
+        "trailing_dot": os.path.join(base, "."),
+        "missing_child_dotdot": os.path.join(base, "fresh", ".."),
+    }[spelling]
+    with pytest.raises(RuntimeError, match = "would overwrite the base weights"):
+        H.run_merge(peft_model, base, out, save_dtype = torch.float32)
+    assert _dir_bytes(tmp_path / "base") == before
+
+
+def test_in_place_export_still_merges_once(tmp_path, monkeypatch):
+    monkeypatch.setenv("UNSLOTH_ALLOW_IN_PLACE_MERGE", "1")
     base, peft_model = _build(tmp_path)
     fresh = str(tmp_path / "fresh")
     H.run_merge(peft_model, base, fresh, save_dtype = torch.float32)
