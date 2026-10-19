@@ -431,6 +431,56 @@ def get_chat_template_parts(tokenizer):
 pass
 
 
+def get_tool_response_part(tokenizer, instruction_part, response_part):
+    """The marker that opens an assistant answer straight after a tool result, when
+    it is not response_part (Mistral: "[/TOOL_RESULTS]" with no "[/INST]" before the
+    answer). None when the template repeats response_part there or cannot render tools."""
+    # All Unsloth Zoo code licensed under LGPLv3
+    tok = tokenizer.tokenizer if hasattr(tokenizer, "tokenizer") else tokenizer
+    render_tok = tokenizer if getattr(tokenizer, "chat_template", None) is not None else tok
+    if getattr(render_tok, "chat_template", None) is None: return None
+    U, T, A = "⁠USERPROBE7q⁠", "⁠TOOLPROBE3k⁠", "⁠ASSTPROBE4z⁠"
+    # Mistral templates want 9-character alphanumeric call ids.
+    call_id = "probe0001"
+    full = None
+    for arguments in ({"x": 1}, '{"x": 1}'):
+        convo = [
+            {"role": "user", "content": U},
+            {"role": "assistant", "content": "", "tool_calls": [
+                {"id": call_id, "type": "function", "function": {"name": "probe_fn", "arguments": arguments}}]},
+            {"role": "tool", "tool_call_id": call_id, "name": "probe_fn", "content": T},
+            {"role": "assistant", "content": A},
+        ]
+        try: full = render_tok.apply_chat_template(convo, tokenize = False, add_generation_prompt = False)
+        except Exception: continue
+        if T in full and A in full: break
+        full = None
+    if full is None: return None
+    t_end, a_start = full.find(T) + len(T), full.rfind(A)
+    if a_start < t_end: return None
+    gap = full[t_end : a_start]
+    if response_part in gap or instruction_part in gap: return None
+    # The closer must hold a special token: a plain-text marker could match inside an answer.
+    eos = getattr(tok, "eos_token", "") or ""
+    part = gap.strip()
+    if eos and part.endswith(eos): return None
+    try:    added = set(tok.get_added_vocab().keys())
+    except Exception: added = set()
+    specials = {str(s) for s in (set(getattr(tok, "all_special_tokens", []) or []) | added) if s}
+    starts = [part.find(s) for s in specials if s in part]
+    if not part or not starts: return None
+    # Drop text before the first special token: Mistral wraps the result as
+    # {"content": ..., "call_id": "probe0001"}, so that tail is the probe's own, not the closer.
+    part = part[min(starts):]
+    if call_id in part: return None
+    core = _find_common_token_ids(part, tok, True)[0]
+    probe_ids = tok(full, add_special_tokens = False).input_ids
+    if not core or not any(probe_ids[i : i + len(core)] == core for i in range(len(probe_ids) - len(core) + 1)):
+        return None
+    return part
+pass
+
+
 def _model_forward_parameter_names(model):
     """Every named parameter of `model.forward`, unwrapping PEFT / compile layers.
 
@@ -822,6 +872,10 @@ def train_on_responses_only(
             # Neither given: auto-detect both from the chat template
             instruction_part, response_part = get_chat_template_parts(processor)
             print(f"Unsloth: Auto-detected instruction_part = {repr(instruction_part)} and response_part = {repr(response_part)}")
+            tool_part = get_tool_response_part(processor, instruction_part, response_part)
+            if tool_part is not None:
+                print(f"Unsloth: Answers after a tool result start at {repr(tool_part)} - training those too")
+                response_part = [response_part, tool_part]
         elif instruction_part is None or response_part is None:
             raise ValueError("Unsloth: Give both instruction_part and response_part, or neither to auto-detect!")
         pass
@@ -834,15 +888,19 @@ def train_on_responses_only(
         response_part    = tokenizer._unsloth_output_part
     pass
 
+    # A list of response markers opens a span at any of them; the first is the assistant header.
+    response_parts = list(response_part) if isinstance(response_part, (list, tuple)) else [response_part]
+
     # Get most common tokens since tokenizers can tokenize stuff differently!
     Q_must, Q_left, Q_right = _find_common_token_ids(instruction_part, tokenizer, force_match)
-    A_must, A_left, A_right = _find_common_token_ids(response_part,    tokenizer, force_match)
+    A_parts = [_find_common_token_ids(part, tokenizer, force_match) for part in response_parts]
+    A_must, A_left, A_right = A_parts[0]
 
     # Empty core -> named error instead of IndexError on A_must[0]. Two ways in: an
     # explicitly-passed marker that tokenizes to nothing, and a marker whose core was
     # never located in its own tokenization (force_match = False on templates like
     # Phi-3, which used to mask the whole dataset instead of saying anything).
-    if len(Q_must) == 0 or len(A_must) == 0:
+    if len(Q_must) == 0 or any(len(part[0]) == 0 for part in A_parts):
         _empty = "instruction_part" if len(Q_must) == 0 else "response_part"
         # force_match = True already resolves the unlocated-core case, so only suggest
         # it to callers who are not using it.
@@ -861,11 +919,10 @@ def train_on_responses_only(
     if Q_must == A_must[:len(Q_must)] and Q_right:
         Q_must, Q_right = Q_must + Q_right, []
 
-    # Store some temporary stuff
-    A_first = A_must[0]
-    len_A_must = len(A_must)
-    A_left_reversed = A_left[::-1]
-    A_right_forward = A_right
+    # Response markers by first id: (core, core length, optional left reversed, optional right).
+    A_markers = {}
+    for must, left, right in [(A_must, A_left, A_right)] + A_parts[1:]:
+        A_markers.setdefault(must[0], []).append((must, len(must), left[::-1], right))
 
     Q_first = Q_must[0]
     len_Q_must = len(Q_must)
@@ -892,7 +949,7 @@ def train_on_responses_only(
 
     # Every boundary test below fires only on one of these ids: one set lookup per token
     # replaces four comparisons, over every token of every row.
-    boundary_first = {A_first}
+    boundary_first = set(A_markers)
     if bos_token_id is not None: boundary_first.add(bos_token_id)
     if eos_token_id is not None: boundary_first.add(eos_token_id)
     if message_start: boundary_first.add(message_start[0])
@@ -960,8 +1017,12 @@ def train_on_responses_only(
             spans = []
             while j < n:
                 # Find <assistant>
-                if (input_ids[j] == A_first) and \
-                    (input_ids[j : (k := j + len_A_must)] == A_must):
+                first = input_ids[j]
+                if (first in A_markers) and \
+                    (A_match := next((m for m in A_markers[first] if input_ids[j : j + m[1]] == m[0]), None)):
+
+                    _, len_A_must, A_left_reversed, A_right_forward = A_match
+                    k = j + len_A_must
 
                     # Extend over optional tokens, backward then forward
                     for optional_left in A_left_reversed:
@@ -988,7 +1049,8 @@ def train_on_responses_only(
                             if token == bos_token_id or \
                                 (message_start and token == message_start[0] and \
                                  input_ids[j : j + len(message_start)] == message_start) or \
-                                (token == A_first and input_ids[j : j + len_A_must] == A_must):
+                                (token in A_markers and \
+                                 any(input_ids[j : j + m[1]] == m[0] for m in A_markers[token])):
                                 spans.append((assistant_k, j))
                                 # Revisit the boundary so a following assistant is not skipped.
                                 j -= 1
