@@ -73,12 +73,17 @@ def _dir_bytes(d):
     return {f: (d / f).read_bytes() for f in sorted(os.listdir(d)) if (d / f).is_file()}
 
 
-@pytest.mark.parametrize("spelling", ["same", "trailing_dot"])
+@pytest.mark.parametrize("spelling", ["same", "trailing_dot", "missing_child_dotdot"])
 def test_in_place_export_is_refused_and_leaves_the_base_alone(tmp_path, monkeypatch, spelling):
     monkeypatch.delenv("UNSLOTH_ALLOW_IN_PLACE_MERGE", raising = False)
     base, peft_model = _build(tmp_path, "200KB")
     before = _dir_bytes(tmp_path / "base")
-    out = base if spelling == "same" else os.path.join(base, ".")
+    # `base/fresh/..` with no `fresh` yet is not a directory on POSIX until the export creates it.
+    out = {
+        "same": base,
+        "trailing_dot": os.path.join(base, "."),
+        "missing_child_dotdot": os.path.join(base, "fresh", ".."),
+    }[spelling]
     with pytest.raises(RuntimeError, match = "would overwrite the base weights"):
         H.run_merge(peft_model, base, out, save_dtype = torch.float32)
     assert _dir_bytes(tmp_path / "base") == before

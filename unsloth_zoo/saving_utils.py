@@ -4927,8 +4927,10 @@ def merge_and_overwrite_lora(
             print(f"Detected local model directory: {model_name}")
             # The merge rewrites its output shards in place: exporting into the base directory
             # destroys the base, and any later merge from it (a retry) adds the LoRA twice.
-            if os.path.isdir(save_directory) and os.path.samefile(save_directory, model_name) \
-                    and os.environ.get("UNSLOTH_ALLOW_IN_PLACE_MERGE") != "1":
+            # A directory that doesn't exist yet can still be the base once created (`base/new/..`).
+            _into_base = os.path.samefile(save_directory, model_name) if os.path.isdir(save_directory) \
+                else os.path.normcase(os.path.realpath(save_directory)) == os.path.normcase(os.path.realpath(model_name))
+            if _into_base and os.environ.get("UNSLOTH_ALLOW_IN_PLACE_MERGE") != "1":
                 raise RuntimeError(
                     f"Unsloth: `{save_directory}` is the directory the base model was loaded "
                     f"from, so a {save_method} export there would overwrite the base weights. "
