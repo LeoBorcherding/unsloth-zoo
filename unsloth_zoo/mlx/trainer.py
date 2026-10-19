@@ -1311,7 +1311,7 @@ def _require_complete_resume_checkpoint(resume_from):
 
 
 def _resolve_resume_checkpoint(resume_from, output_dir):
-    """HF parity: ``True`` means the newest complete checkpoint-N in output_dir."""
+    """HF parity: ``True`` means the newest complete checkpoint-N in output_dir (None if none)."""
     if resume_from is False:
         return None
     if resume_from is not True:
@@ -1323,12 +1323,7 @@ def _resolve_resume_checkpoint(resume_from, output_dir):
             "adapters.safetensors", "optimizer_state.safetensors", "trainer_state.json"))
     ]
     newest = max(found, key=lambda child: int(child.name.rpartition("-")[2]), default=None)
-    if newest is None:
-        raise ValueError(
-            f"Unsloth: resume_from_checkpoint=True, but {output_dir} has no "
-            f"complete checkpoint-* directory to resume from."
-        )
-    return str(newest)
+    return None if newest is None else str(newest)
 
 
 def _prune_stale_checkpoints(output_dir, save_total_limit, keep_step=None):
@@ -5498,11 +5493,25 @@ class MLXTrainer:
         # cannot fail, while this can block or propagate an interrupt; running it
         # first would leave a stale stop latched for the next train() call.
         self._close_active_batch_iterator()
-        # Stash for _train_inner. None = fresh start, a path = resume.
-        self._resume_from_checkpoint = _resolve_resume_checkpoint(
+        self._ensure_distributed()
+        resume = _resolve_resume_checkpoint(
             resume_from_checkpoint, self.args.output_dir,
         )
-        self._ensure_distributed()
+        if resume_from_checkpoint is True:
+            # Only rank 0 writes checkpoints, so ranks can disagree; a rank
+            # raising alone would strand its peers in their first collective.
+            found = self._distributed_all_sum(
+                mx.array(int(resume is not None), dtype=mx.int32), stream=mx.cpu,
+            )
+            mx.eval(found)
+            if int(found.item()) < self._distributed_world_size:
+                raise ValueError(
+                    f"Unsloth: resume_from_checkpoint=True, but {self.args.output_dir} "
+                    f"has no complete checkpoint-* directory to resume from"
+                    + (" on every rank." if self._distributed_world_size > 1 else ".")
+                )
+        # Stash for _train_inner. None = fresh start, a path = resume.
+        self._resume_from_checkpoint = resume
         args = self.args
         model = self.model
         self._text_shape_guard_preflight = None

@@ -5189,6 +5189,26 @@ def test_resume_from_checkpoint_true_picks_newest_complete_checkpoint(monkeypatc
     with pytest.raises(ValueError, match="no complete checkpoint"):
         build(empty, 2, StepSpy()).train(resume_from_checkpoint=True)
 
+    # DDP: only rank 0 writes checkpoints, so a rank that finds none must raise
+    # together with its peers, not alone before their first collective.
+    for has_checkpoint, peer_found in ((False, 1), (True, 0)):
+        trainer = build(out_dir if has_checkpoint else empty, 6, StepSpy())
+        calls = []
+
+        def all_sum(value, stream=None, peer_found=peer_found):
+            calls.append(int(value.item()))
+            return mx.array(int(value.item()) + peer_found, dtype=mx.int32)
+
+        trainer._distributed_initialized = True
+        trainer._distributed_world = object()
+        trainer._distributed_world_size = 2
+        trainer._distributed_rank = 0 if has_checkpoint else 1
+        trainer._distributed_is_main_process = has_checkpoint
+        trainer._distributed_all_sum = all_sum
+        with pytest.raises(ValueError, match="on every rank"):
+            trainer.train(resume_from_checkpoint=True)
+        assert calls == [int(has_checkpoint)]
+
 
 def test_train_bumps_run_generation_in_finally():
     # The stamp only separates runs if every train() closes its generation, a
