@@ -827,6 +827,16 @@ def check_pip():
 pass
 
 
+def _command_is_missing(command, returncode):
+    # PATH decides: an installed tool can exit 127 itself, and cmd.exe reports 1 for an unknown one.
+    try:
+        program = shlex.split(command)[0]
+    except (ValueError, IndexError):
+        return returncode in (127, 9009)
+    return shutil.which(program) is None
+pass
+
+
 def try_execute(command, sudo = False, print_output = False, print_outputs = None, cwd = None, system_type = "debian", ignore_deprecation = False):
     # All Unsloth Zoo code licensed under LGPLv3
 
@@ -836,29 +846,21 @@ def try_execute(command, sudo = False, print_output = False, print_outputs = Non
         stderr = stderr or ""
         all_output = stdout + stderr
 
-        # Check exit code
+        # The exit code decides. Successful cmake / compiler runs print "not found",
+        # "Failed" and "is deprecated" lines, so output is only scanned for a hint.
         if sp.returncode != 0:
             error_msg = f"[FAIL] Command `{command}` failed with exit code {sp.returncode}\n"
             if stdout: error_msg += f"stdout: {stdout}\n"
             if stderr: error_msg += f"stderr: {stderr}\n"
+            if _command_is_missing(command, sp.returncode):
+                raise RuntimeError(f"Command not found: {command}\n" + error_msg)
+            for key, value in BAD_OUTCOMES.items():
+                if value and key in all_output:
+                    error_msg += value
+                    break
             raise RuntimeError(error_msg)
 
-        # Process output
         for line in all_output.splitlines(keepends=True):
-            # Check for command not found
-            if line.rstrip().endswith(COMMANDS_NOT_FOUND):
-                raise RuntimeError(f"Command not found: {command}")
-
-            # Check for other bad outcomes
-            for key, value in BAD_OUTCOMES.items():
-                if key in line:
-                    error_msg = f"[FAIL] Command `{command}` failed with error `{line.strip()}`\n"
-                    raise RuntimeError(error_msg + value)
-            key, value = "is deprecated", "Command is deprecated!"
-            if not ignore_deprecation and key in line:
-                error_msg = f"[FAIL] Command `{command}` failed with error `{line.strip()}`\n"
-                raise RuntimeError(error_msg + value)
-
             if print_output:
                 print(line, flush=True, end="")
             if print_outputs is not None:
