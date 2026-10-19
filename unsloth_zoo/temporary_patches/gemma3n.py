@@ -254,7 +254,13 @@ def _gemma3n_shared_kv_stand_in(config, anchor):
     return stand_in
 pass
 
+def _in_backward():
+    try: return torch._C._current_graph_task_id() != -1
+    except Exception: return False
+pass
+
 def _gemma3n_attention_forward_shared_kv(self, *args, **kwargs):
+    holder_scoped = False
     if _GEMMA3N_ATTENTION_FORWARD.get("mode") == "kwarg":
         shared = kwargs.get("shared_kv_states")
     else:
@@ -263,6 +269,7 @@ def _gemma3n_attention_forward_shared_kv(self, *args, **kwargs):
             position_embeddings = kwargs.get("position_embeddings", args[1] if len(args) > 1 else None)
             anchor = position_embeddings[0] if isinstance(position_embeddings, (tuple, list)) else None
             holder = _gemma3n_shared_kv_stand_in(self.config, anchor)
+            holder_scoped = True
             kwargs.pop("past_key_value", None)
             kwargs["past_key_values"] = holder
         shared = getattr(holder, "shared_layers", None)
@@ -295,6 +302,11 @@ def _gemma3n_attention_forward_shared_kv(self, *args, **kwargs):
                 grad_value = torch.zeros_like(stored[1]) if grad_value is None else grad_value.to(stored[1].dtype)
                 attn_output = _Gemma3nInjectSharedKVGrad.apply(output[0], stored[0], stored[1], grad_key, grad_value)
                 output = (attn_output, *output[1:])
+    if self.store_full_length_kv and holder_scoped and _in_backward():
+        # A recompute in backward: under non-reentrant checkpointing nothing frees its graph, which pins the
+        # rotary tensor scoping the entry. Drop the K/V when backward ends, once every reader has recomputed.
+        layer_idx = self.layer_idx
+        torch.autograd.Variable._execution_engine.queue_callback(lambda: shared.pop(layer_idx, None))
     return output
 pass
 
