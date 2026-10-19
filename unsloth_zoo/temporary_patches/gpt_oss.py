@@ -3045,7 +3045,10 @@ def patch_gpt_oss_linearized():
             self, hidden_states: torch.Tensor, router_indices=None, routing_weights=None
         ) -> torch.Tensor:
             # Stock 3D GptOssExperts, not the bnb4bit ModuleList layout torch_native_forward reads.
-            return forward_native_moe_loop(self, hidden_states, router_indices, routing_weights)
+            # Float32 with autocast off, as torch_native_forward keeps it: float16 overflows here.
+            with torch.autocast(device_type=hidden_states.device.type, enabled=False):
+                out = forward_native_moe_loop(self, hidden_states.float(), router_indices, routing_weights)
+            return out.to(hidden_states.dtype)
 
         # The loop needs v5's (tokens, top_k) routing weights; v4's stock forward handles its own.
         if os.environ.get("UNSLOTH_FORCE_FLOAT32", "0") == "1" and _is_transformers_v5():
