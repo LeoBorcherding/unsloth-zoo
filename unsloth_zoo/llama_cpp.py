@@ -1275,6 +1275,28 @@ def _sha256_file(path):
     return digest.hexdigest()
 
 
+def _select_prebuilt_asset(tag, assets):
+    """Map this host to an upstream-style llama-{tag}-bin-* CPU archive name.
+    Kept for callers outside this module: _install_llama_cpp_prebuilt no longer
+    uses it, since prebuilts come only from the fork (_select_cpu_assets). Returns
+    (name, url) or None for unsupported platforms or releases missing the asset."""
+    machine = platform.machine().lower()
+    if machine in ("x86_64", "amd64"): arch = "x64"
+    elif machine in ("aarch64", "arm64"): arch = "arm64"
+    else: return None
+    name = {
+        ("Linux",   "x64")   : f"llama-{tag}-bin-ubuntu-x64.tar.gz",
+        ("Linux",   "arm64") : f"llama-{tag}-bin-ubuntu-arm64.tar.gz",
+        ("Darwin",  "x64")   : f"llama-{tag}-bin-macos-x64.tar.gz",
+        ("Darwin",  "arm64") : f"llama-{tag}-bin-macos-arm64.tar.gz",
+        ("Windows", "x64")   : f"llama-{tag}-bin-win-cpu-x64.zip",
+        ("Windows", "arm64") : f"llama-{tag}-bin-win-cpu-arm64.zip",
+    }.get((platform.system(), arch))
+    if name is None or name not in assets:
+        return None
+    return name, assets[name]
+
+
 def _select_cpu_assets(tag, assets, manifest):
     """Ordered download attempts [(asset_name, url), ...] of the unslothai/llama.cpp
     fork's CPU bundle for this host -- the final prebuilt fallback before a source

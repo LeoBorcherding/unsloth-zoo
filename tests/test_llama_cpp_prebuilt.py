@@ -63,6 +63,39 @@ def _patch_platform(monkeypatch, system, machine):
     monkeypatch.setattr(llama_cpp.platform, "machine", lambda: machine)
 
 
+@pytest.mark.parametrize("system,machine,expected", [
+    ("Linux",   "x86_64",  "llama-b9000-bin-ubuntu-x64.tar.gz"),
+    ("Linux",   "AMD64",   "llama-b9000-bin-ubuntu-x64.tar.gz"),
+    ("Linux",   "aarch64", "llama-b9000-bin-ubuntu-arm64.tar.gz"),
+    ("Darwin",  "arm64",   "llama-b9000-bin-macos-arm64.tar.gz"),
+    ("Darwin",  "x86_64",  "llama-b9000-bin-macos-x64.tar.gz"),
+    ("Windows", "AMD64",   "llama-b9000-bin-win-cpu-x64.zip"),
+    ("Windows", "ARM64",   "llama-b9000-bin-win-cpu-arm64.zip"),
+])
+def test_select_asset_matrix(monkeypatch, system, machine, expected):
+    _patch_platform(monkeypatch, system, machine)
+    tag, assets = _fake_release("b9000", [expected, "llama-b9000-ui.tar.gz"])
+    name, url = llama_cpp._select_prebuilt_asset(tag, assets)
+    assert name == expected
+    assert url.endswith(expected)
+
+
+@pytest.mark.parametrize("system,machine", [
+    ("Linux", "i686"),
+    ("FreeBSD", "x86_64"),
+])
+def test_select_asset_unsupported_platform(monkeypatch, system, machine):
+    _patch_platform(monkeypatch, system, machine)
+    tag, assets = _fake_release("b9000", ["llama-b9000-bin-ubuntu-x64.tar.gz"])
+    assert llama_cpp._select_prebuilt_asset(tag, assets) is None
+
+
+def test_select_asset_missing_from_release(monkeypatch):
+    _patch_platform(monkeypatch, "Linux", "x86_64")
+    tag, assets = _fake_release("b9000", ["llama-b9000-bin-macos-arm64.tar.gz"])
+    assert llama_cpp._select_prebuilt_asset(tag, assets) is None
+
+
 def test_resolve_release_env_pin_hits_tag_endpoint(monkeypatch):
     seen = {}
     class FakeResponse:
