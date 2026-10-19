@@ -303,9 +303,10 @@ def _gemma3n_attention_forward_shared_kv(self, *args, **kwargs):
                 attn_output = _Gemma3nInjectSharedKVGrad.apply(output[0], stored[0], stored[1], grad_key, grad_value)
                 output = (attn_output, *output[1:])
     if self.store_full_length_kv and holder_scoped and _in_backward():
-        # Recomputed in backward after every layer that reads it: under non-reentrant checkpointing nothing
-        # frees this graph, which pins the rotary tensor scoping the entry, so the entry would never be dropped.
-        shared.pop(self.layer_idx, None)
+        # A recompute in backward: under non-reentrant checkpointing nothing frees its graph, which pins the
+        # rotary tensor scoping the entry. Drop the K/V when backward ends, once every reader has recomputed.
+        layer_idx = self.layer_idx
+        torch.autograd.Variable._execution_engine.queue_callback(lambda: shared.pop(layer_idx, None))
     return output
 pass
 
