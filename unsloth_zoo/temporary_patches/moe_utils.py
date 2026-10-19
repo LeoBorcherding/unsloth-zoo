@@ -5428,6 +5428,50 @@ def forward_triton_grouped_gemm(
     return final_hidden_states
 
 
+def _expert_stack_for_loop(param, dtype):
+    # A packed stack that splits per expert stays packed (see _expert_linear); one that doesn't is decoded once.
+    if (
+        HAS_BNB and isinstance(param, Params4bit) and getattr(param, "quant_state", None) is not None
+        and _bnb4bit_expert_split(param) is None
+    ):
+        return _get_base_weight(param, dtype)
+    return param
+
+
+class _RecomputedExpertLinear(torch.autograd.Function):
+    """F.linear(x, weight()) for a frozen weight: dX only, the weight rebuilt in backward instead of saved."""
+
+    @staticmethod
+    def forward(ctx, x, weight):
+        ctx.weight = weight
+        with torch.no_grad():
+            return F.linear(x, weight())
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        with torch.no_grad():
+            return grad_output @ ctx.weight().to(grad_output.dtype), None
+
+
+def _expert_linear(x, stack, expert_idx, transposed):
+    """F.linear(x, stack[expert_idx]), ``.T`` when the stack is (E, in, out). A packed bnb 4-bit
+    stack decodes only this expert, and again in backward, so no dense stack outlives the forward."""
+    if _bnb4bit_expert_split(stack) is not None:
+        dtype, in_features = x.dtype, x.shape[-1]
+
+        def weight():
+            w = _dequantize_bnb4bit_experts(stack, slice(expert_idx, expert_idx + 1), dtype)[0]
+            return w.T if transposed or w.shape[-1] != in_features else w
+
+        return _RecomputedExpertLinear.apply(x, weight)
+    w = stack[expert_idx]
+    if transposed or w.shape[-1] != x.shape[-1]:
+        w = w.T
+    if w.dtype != x.dtype and not torch.is_autocast_enabled(x.device.type):
+        w = w.to(x.dtype)
+    return F.linear(x, w)
+
+
 @torch.compiler.disable
 def forward_native_moe_loop(
     self,
@@ -5496,6 +5540,10 @@ def forward_native_moe_loop(
     is_gpt_oss = "GptOssExperts" in self.__class__.__name__
     own_apply_gate = _uses_own_apply_gate(self)
 
+    # load_in_4bit packs the stock 3D experts too ((N, 1) uint8).
+    gate_up_stack = _expert_stack_for_loop(getattr(self, "gate_up_proj", None), hidden_states.dtype)
+    down_stack = _expert_stack_for_loop(getattr(self, "down_proj", None), hidden_states.dtype)
+
     for expert_idx_t in expert_hit:
         expert_idx = expert_idx_t.item()
 
@@ -5504,10 +5552,7 @@ def forward_native_moe_loop(
 
         # gate_up projection for this expert ('gate_up_proj' or 'w1'/'w3').
         if hasattr(self, "gate_up_proj"):
-            gate_up_weight = self.gate_up_proj[expert_idx]
-            if grouped_mm_format or gate_up_weight.shape[-1] != current_state.shape[-1]:
-                gate_up_weight = gate_up_weight.T
-            gate_up = F.linear(current_state, gate_up_weight)
+            gate_up = _expert_linear(current_state, gate_up_stack, expert_idx, grouped_mm_format)
             if gate_up_lora is not None:
                 first_weight, second_weight, scaling = gate_up_lora
                 lora_delta = current_state @ first_weight[expert_idx]
@@ -5543,11 +5588,8 @@ def forward_native_moe_loop(
 
         # down projection for this expert.
         if hasattr(self, "down_proj"):
-            down_weight = self.down_proj[expert_idx]
             # Mirror gate_up: prefer the flag over the shape heuristic (unsafe at square dims).
-            if grouped_mm_format or down_weight.shape[-1] != current_hidden_states.shape[-1]:
-                down_weight = down_weight.T
-            down = F.linear(current_hidden_states, down_weight)
+            down = _expert_linear(current_hidden_states, down_stack, expert_idx, grouped_mm_format)
             if down_lora is not None:
                 first_weight, second_weight, scaling = down_lora
                 lora_delta = current_hidden_states @ first_weight[expert_idx]
