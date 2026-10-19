@@ -291,6 +291,39 @@ def test_merged_4bit_save_hands_the_live_model_back_unchanged(tmp_path):
     assert mx.array_equal(before, after)
 
 
+def test_merged_16bit_save_hands_the_lora_model_back(tmp_path):
+    """merged_16bit and every GGUF export fused and dequantized the live model, so a
+    later LoRA save found no adapters and training went on over a dense copy.
+    """
+    from mlx_lm.tuner.lora import LoRALinear
+
+    from unsloth_zoo.mlx.utils import save_merged_model
+
+    model = _tiny_llama(mx.float16)
+    model._config = _tiny_llama_config(
+        quantization={"group_size": 64, "bits": 4, "mode": "affine"})
+    nn.quantize(model, group_size=64, bits=4)
+    for layer in model.model.layers:
+        lora = LoRALinear.from_base(layer.self_attn.q_proj, r=4)
+        lora.lora_b = mx.random.normal(lora.lora_b.shape).astype(mx.float16) * 0.01
+        layer.self_attn.q_proj = lora
+    wrappers = [layer.self_attn.q_proj for layer in model.model.layers]
+    tokens = mx.array([[1, 2, 3]])
+    before = model(tokens)
+    mx.eval(before)
+
+    save_merged_model(model, _StubTokenizer(), tmp_path / "merged", dequantize=True)
+
+    assert all(layer.self_attn.q_proj is lora
+               for layer, lora in zip(model.model.layers, wrappers))
+    assert all(isinstance(lora.linear, nn.QuantizedLinear) for lora in wrappers)
+    assert isinstance(model.model.layers[0].mlp.down_proj, nn.QuantizedLinear)
+    assert _get_model_config(model)["quantization"]["bits"] == 4
+    after = model(tokens)
+    mx.eval(after)
+    assert mx.array_equal(before, after)
+
+
 def test_merged_4bit_save_still_writes_a_quantized_checkpoint(tmp_path):
     """Restoring the live model must not walk back the artifact."""
     import json
