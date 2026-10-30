@@ -541,8 +541,8 @@ class BlockSwap:
     def _acquire(self, block, steal):
         free = self.free[block.sig]
         if not free and steal:
-            # Only after an interrupted step; prefetches never steal (could evict the running block).
-            # A pending block's slot is still read by backward: reusing it corrupts gradients silently.
+            # Only after an interrupted step, since prefetches never steal (could evict the running block); a pending
+            # block's slot is still read by backward, so reuse corrupts gradients silently.
             for b in self.blocks:
                 if b is not block and b.sig == block.sig and b.resident and b.slot is not None and not b.pending:
                     self._release(b)
@@ -748,6 +748,22 @@ class BlockSwap:
         self._chunks = []
         for dev in self.streams:
             torch.cuda.synchronize(dev)
+
+    @contextmanager
+    def shaped(self):
+        """Evicted weights read as empty tensors, but PEFT wraps MoE expert weights by their shape. While this is
+        open they read as zero-stride placeholders of their real shape, on their own card, holding no memory."""
+        held = []
+        try:
+            for b in self.blocks:
+                if not b.resident:
+                    for p, e, sig in zip(b.params, b.empties, b.sig):
+                        held.append((p, e))
+                        p.data = e.new_zeros(()).expand(sig[0])
+            yield
+        finally:
+            for p, e in held:
+                p.data = e
 
     def host_bytes(self):
         return sum(b.nbytes() for b in self.blocks)
