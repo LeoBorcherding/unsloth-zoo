@@ -371,6 +371,7 @@ class BlockSwap:
     current = None
     _auto = False
     _settled = True
+    _step_queued = False
     _steps = 0
     _last_stall = None
     _sampled = 0
@@ -386,6 +387,7 @@ class BlockSwap:
         # Auto tunes from the timing events; with UNSLOTH_OFFLOAD_STATS=0 it is the fixed default.
         self._auto = auto and _TIMING
         self._settled = not self._auto
+        self._step_queued = False
         self.depth = 1 if self._auto else 2 if auto else max(1, int(prefetch_depth))
         self.total = len(layers)
         self._tot = dict.fromkeys(_STAT_KEYS, 0.0)
@@ -658,15 +660,18 @@ class BlockSwap:
             if self._auto and not self._settled:
                 self._note_peak(self.blocks[i].home)
             self._release(self.blocks[i])
-            if i == 0:
-                if self._auto and not self._settled:
-                    # Unswapped layers below this one still run their backward: judge the step once it is all done.
+            if self._auto and not self._settled:
+                # Judge the step once the whole backward is done: unswapped layers below may still run, and a
+                # frozen first block gets no hook at all. Any swapped block's backward queues it, once.
+                if not self._step_queued:
+                    self._step_queued = True
                     torch.autograd.Variable._execution_engine.queue_callback(self._end_step)
-                else:
-                    self._end_step()
+            elif i == 0:
+                self._end_step()
         return _opaque(hook)
 
     def _end_step(self):
+        self._step_queued = False
         if self._auto and not self._settled:
             # Grads accumulated in the layers below the first swapped one are still allocated here.
             for dv in {b.home for b in self.blocks if b.home is not None}:

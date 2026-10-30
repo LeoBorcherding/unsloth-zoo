@@ -1387,6 +1387,25 @@ def test_auto_depth_peak_includes_unswapped_layers_backward():
     sw.remove()
 
 
+def test_auto_depth_counts_steps_when_the_first_swapped_block_gets_no_grad():
+    if not torch.cuda.is_available():
+        return
+    torch.manual_seed(0)
+    # Frozen prefix: layers 0 and 1 see no grad-requiring input, only layer 2 onward trains (its bias).
+    layers = nn.ModuleList([nn.Linear(256, 256) for _ in range(4)]).cuda()
+    for li, layer in enumerate(layers):
+        layer.weight.requires_grad_(False)
+        layer.bias.requires_grad_(li >= 2)
+    sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda")
+    for _ in range(3):
+        h = torch.randn(64, 256, device = "cuda")
+        for layer in layers:
+            h = layer(h)
+        h.sum().backward()
+    assert sw._steps == 3 and not sw._step_queued
+    sw.remove()
+
+
 def test_output_peak_reads_the_logits_from_a_tuple_with_the_loss_first():
     import types
     logits, loss = torch.zeros(4, 8), torch.zeros(())
