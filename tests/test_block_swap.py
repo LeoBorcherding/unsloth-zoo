@@ -1355,7 +1355,7 @@ def test_auto_depth_peak_includes_the_model_output():
     sw.remove()
 
 
-class _Stack(nn.Module):
+class _OwnedLayers(nn.Module):
     # A model owning `layers`, so BlockSwap(model = ...) hooks its output like a real one.
     def __init__(self, layers):
         super().__init__()
@@ -1385,7 +1385,7 @@ def test_auto_depth_peak_includes_unswapped_layers_backward():
     layers = nn.ModuleList([Head()] + [nn.Linear(256, 256) for _ in range(3)]).cuda()
     for layer in layers[1:]:
         layer.requires_grad_(False)
-    model = _Stack(layers)
+    model = _OwnedLayers(layers)
     sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda", model = model)
     x = torch.randn(64, 256, device = "cuda", requires_grad = True)
     torch.cuda.synchronize()
@@ -1407,7 +1407,7 @@ def test_auto_depth_counts_steps_when_the_first_swapped_block_gets_no_grad():
     for li, layer in enumerate(layers):
         layer.weight.requires_grad_(False)
         layer.bias.requires_grad_(li >= 2)
-    model = _Stack(layers)
+    model = _OwnedLayers(layers)
     sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda", model = model)
     for _ in range(3):
         model(torch.randn(64, 256, device = "cuda")).sum().backward()
@@ -1423,7 +1423,7 @@ def test_auto_depth_counts_one_step_per_backward_under_reentrant_checkpointing()
     layers = nn.ModuleList([nn.Linear(256, 256) for _ in range(4)]).cuda()
     for layer in layers:
         layer.weight.requires_grad_(False)
-    model = _Stack(layers)
+    model = _OwnedLayers(layers)
     sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda", model = model)
     for _ in range(3):
         x = torch.randn(64, 256, device = "cuda", requires_grad = True)
