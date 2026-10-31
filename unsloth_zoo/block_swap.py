@@ -18,7 +18,7 @@
 
 Host copy is authoritative (frozen under LoRA), so eviction never copies back.
 The recompute sweep runs in reverse, so prefetch direction follows grad mode.
-Slots come from a fixed depth + 1 pool: per-fetch allocation leaves the peak unchanged.
+Slots come from a depth + 1 pool, not per-fetch allocation; prefetch_depth = "auto" grows or shrinks it.
 """
 import os
 import sys
@@ -371,6 +371,8 @@ class BlockSwap:
     current = None
     _auto = False
     _settled = True
+    _step_queued = False
+    _ends_on_output = False
     _steps = 0
     _last_stall = None
     _sampled = 0
@@ -386,6 +388,8 @@ class BlockSwap:
         # Auto tunes from the timing events; with UNSLOTH_OFFLOAD_STATS=0 it is the fixed default.
         self._auto = auto and _TIMING
         self._settled = not self._auto
+        self._step_queued = False
+        self._ends_on_output = False
         self.depth = 1 if self._auto else 2 if auto else max(1, int(prefetch_depth))
         self.total = len(layers)
         self._tot = dict.fromkeys(_STAT_KEYS, 0.0)
@@ -453,6 +457,7 @@ class BlockSwap:
             if self._auto and owner is not None:
                 # Logits and loss run after the last layer, so only the model's output sees the step's peak.
                 self.handles.append(owner.register_forward_hook(self._output_peak))
+                self._ends_on_output = True
             for i, layer in enumerate(swapped):
                 self.handles.append(layer.register_forward_pre_hook(self._pre(i), with_kwargs = True))
                 self.handles.append(layer.register_forward_hook(self._post(i)))
@@ -658,15 +663,13 @@ class BlockSwap:
             if self._auto and not self._settled:
                 self._note_peak(self.blocks[i].home)
             self._release(self.blocks[i])
-            if i == 0:
-                if self._auto and not self._settled:
-                    # Unswapped layers below this one still run their backward: judge the step once it is all done.
-                    torch.autograd.Variable._execution_engine.queue_callback(self._end_step)
-                else:
-                    self._end_step()
+            # While tuning, the output's grad hook ends the step from the outer graph (see _output_peak).
+            if i == 0 and not (self._ends_on_output and self._auto and not self._settled):
+                self._end_step()
         return _opaque(hook)
 
     def _end_step(self):
+        self._step_queued = False
         if self._auto and not self._settled:
             # Grads accumulated in the layers below the first swapped one are still allocated here.
             for dv in {b.home for b in self.blocks if b.home is not None}:
@@ -851,6 +854,7 @@ class BlockSwap:
     def _output_peak(self, module, args, output):
         if not self._auto or self._settled:
             return
+        self._step_queued = False
         homes = {b.home for b in self.blocks if b.home is not None}
         for dv in homes:
             self._note_peak(dv)
@@ -866,6 +870,11 @@ class BlockSwap:
                 if self._auto and not self._settled:
                     for dv in homes:
                         self._note_peak(dv, extra = 2 * size if torch.device(dv) == dev else 0)
+                    # Queued from the outer graph, so it runs after the whole backward: a reentrant checkpoint's
+                    # inner backward per layer, layers below the first swapped one and a frozen first block included.
+                    if not self._step_queued:
+                        self._step_queued = True
+                        torch.autograd.Variable._execution_engine.queue_callback(self._end_step)
             register = getattr(node, "register_prehook", None) or node.register_hook
             register(_opaque(grad_peak))
 

@@ -1398,6 +1398,19 @@ def test_auto_depth_peak_includes_the_model_output():
     sw.remove()
 
 
+class _OwnedLayers(nn.Module):
+    # A model owning `layers`, so BlockSwap(model = ...) hooks its output like a real one.
+    def __init__(self, layers):
+        super().__init__()
+        self.layers = layers
+
+    def forward(self, h, ckpt = False):
+        from torch.utils.checkpoint import checkpoint
+        for layer in self.layers:
+            h = checkpoint(layer, h, use_reentrant = True) if ckpt else layer(h)
+        return h
+
+
 def test_auto_depth_peak_includes_unswapped_layers_backward():
     if not torch.cuda.is_available():
         return
@@ -1415,18 +1428,50 @@ def test_auto_depth_peak_includes_unswapped_layers_backward():
     layers = nn.ModuleList([Head()] + [nn.Linear(256, 256) for _ in range(3)]).cuda()
     for layer in layers[1:]:
         layer.requires_grad_(False)
-    sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda")
+    model = _OwnedLayers(layers)
+    sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda", model = model)
     x = torch.randn(64, 256, device = "cuda", requires_grad = True)
     torch.cuda.synchronize()
     torch.cuda.reset_peak_memory_stats()
-    h = x
-    for layer in layers:
-        h = layer(h)
-    h.sum().backward()
+    model(x).sum().backward()
     true_peak = torch.cuda.max_memory_allocated()
     k = torch.device("cuda").index or 0
     # Judged after the whole backward: the head's grad is in the step's peak, not left for the next step.
     assert sw._steps == 1 and sw._last_peak.get(k, 0) >= 0.9 * true_peak, (sw._last_peak, true_peak)
+    sw.remove()
+
+
+def test_auto_depth_counts_steps_when_the_first_swapped_block_gets_no_grad():
+    if not torch.cuda.is_available():
+        return
+    torch.manual_seed(0)
+    # Frozen prefix: layers 0 and 1 see no grad-requiring input, only layer 2 onward trains (its bias).
+    layers = nn.ModuleList([nn.Linear(256, 256) for _ in range(4)]).cuda()
+    for li, layer in enumerate(layers):
+        layer.weight.requires_grad_(False)
+        layer.bias.requires_grad_(li >= 2)
+    model = _OwnedLayers(layers)
+    sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda", model = model)
+    for _ in range(3):
+        model(torch.randn(64, 256, device = "cuda")).sum().backward()
+    assert sw._steps == 3 and not sw._step_queued
+    sw.remove()
+
+
+def test_auto_depth_counts_one_step_per_backward_under_reentrant_checkpointing():
+    if not torch.cuda.is_available():
+        return
+    torch.manual_seed(0)
+    # Unsloth checkpoints with use_reentrant = True: each layer's backward is its own inner graph.
+    layers = nn.ModuleList([nn.Linear(256, 256) for _ in range(4)]).cuda()
+    for layer in layers:
+        layer.weight.requires_grad_(False)
+    model = _OwnedLayers(layers)
+    sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda", model = model)
+    for _ in range(3):
+        x = torch.randn(64, 256, device = "cuda", requires_grad = True)
+        model(x, ckpt = True).sum().backward()
+    assert sw._steps == 3, sw._steps
     sw.remove()
 
 
