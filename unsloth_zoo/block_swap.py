@@ -372,7 +372,6 @@ class BlockSwap:
     _auto = False
     _settled = True
     _step_queued = False
-    _ends_on_output = False
     _steps = 0
     _last_stall = None
     _sampled = 0
@@ -389,7 +388,6 @@ class BlockSwap:
         self._auto = auto and _TIMING
         self._settled = not self._auto
         self._step_queued = False
-        self._ends_on_output = False
         self.depth = 1 if self._auto else 2 if auto else max(1, int(prefetch_depth))
         self.total = len(layers)
         self._tot = dict.fromkeys(_STAT_KEYS, 0.0)
@@ -457,7 +455,6 @@ class BlockSwap:
             if self._auto and owner is not None:
                 # Logits and loss run after the last layer, so only the model's output sees the step's peak.
                 self.handles.append(owner.register_forward_hook(self._output_peak))
-                self._ends_on_output = True
             for i, layer in enumerate(swapped):
                 self.handles.append(layer.register_forward_pre_hook(self._pre(i), with_kwargs = True))
                 self.handles.append(layer.register_forward_hook(self._post(i)))
@@ -663,8 +660,8 @@ class BlockSwap:
             if self._auto and not self._settled:
                 self._note_peak(self.blocks[i].home)
             self._release(self.blocks[i])
-            # While tuning, the output's grad hook ends the step from the outer graph (see _output_peak).
-            if i == 0 and not (self._ends_on_output and self._auto and not self._settled):
+            # The output's grad hook already queued the step end from the outer graph (see _output_peak).
+            if i == 0 and not self._step_queued:
                 self._end_step()
         return _opaque(hook)
 
@@ -844,16 +841,22 @@ class BlockSwap:
             self._note_peak(dv)
         out = _output_logits(output)
         node = getattr(out, "grad_fn", None) if isinstance(out, torch.Tensor) else None
+        # When the output's grad lands, the op that consumed the output (the loss) has just held the output,
+        # its grad and a temporary of the same size; only the grad is still allocated. A node hook, not a
+        # tensor hook: callers keep only the loss, and a tensor hook dies with the dropped output.
+        dev, size = (out.device, out.nbytes) if node is not None else (None, 0)
+        if node is None:
+            # Fused cross entropy (Unsloth's) keeps the logits out of the graph; the loss still opens the backward.
+            loss = getattr(output, "loss", None)
+            if loss is None and isinstance(output, (tuple, list)) and output and isinstance(output[0], torch.Tensor):
+                loss = output[0] if output[0].numel() == 1 else None
+            node = getattr(loss, "grad_fn", None) if isinstance(loss, torch.Tensor) else None
         if node is not None:
-            # When the output's grad lands, the op that consumed the output (the loss) has just held the output,
-            # its grad and a temporary of the same size; only the grad is still allocated. A node hook, not a
-            # tensor hook: callers keep only the loss, and a tensor hook dies with the dropped output.
-            dev, size = out.device, out.nbytes
 
             def grad_peak(*_):
                 if self._auto and not self._settled:
                     for dv in homes:
-                        self._note_peak(dv, extra = 2 * size if torch.device(dv) == dev else 0)
+                        self._note_peak(dv, extra = 2 * size if dev is not None and torch.device(dv) == dev else 0)
                     # Queued from the outer graph, so it runs after the whole backward: a reentrant checkpoint's
                     # inner backward per layer, layers below the first swapped one and a frozen first block included.
                     if not self._step_queued:

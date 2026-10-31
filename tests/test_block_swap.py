@@ -1411,7 +1411,36 @@ def test_auto_depth_counts_steps_when_the_first_swapped_block_gets_no_grad():
     sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda", model = model)
     for _ in range(3):
         model(torch.randn(64, 256, device = "cuda")).sum().backward()
-    assert sw._steps == 3 and not sw._step_queued
+    # Each backward counts until auto settles; before the fix not one did (the frozen first block never hooks).
+    assert sw._steps >= 2 and (sw._settled or sw._steps == 3), (sw._steps, sw._settled)
+    sw.remove()
+
+
+def test_auto_depth_ends_the_step_from_the_loss_when_logits_are_not_in_the_graph():
+    import types
+    if not torch.cuda.is_available():
+        return
+    torch.manual_seed(0)
+
+    class FusedCE(nn.Module):
+        # Unsloth's fused cross entropy: the loss is in the graph, the returned logits are not.
+        def __init__(self, layers):
+            super().__init__()
+            self.layers = layers
+
+        def forward(self, h):
+            for layer in self.layers:
+                h = layer(h)
+            return types.SimpleNamespace(loss = h.square().mean(), logits = torch.empty(0, device = h.device))
+
+    layers = nn.ModuleList([nn.Linear(256, 256) for _ in range(4)]).cuda()
+    for layer in layers:
+        layer.weight.requires_grad_(False)
+    model = FusedCE(layers)
+    sw = BlockSwap(layers, [1, 2, 3], prefetch_depth = "auto", device = "cuda", model = model)
+    for _ in range(2):
+        model(torch.randn(64, 256, device = "cuda", requires_grad = True)).loss.backward()
+    assert sw._steps == 2, sw._steps
     sw.remove()
 
 
