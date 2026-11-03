@@ -97,14 +97,19 @@ include-package-data = false
 
 [tool.setuptools.package-data]
 unsloth_zoo = ["diffusion_studio/*.html"]
+unsloth_zoo_rdna4 = ["*.hip"]
 
 [tool.setuptools.packages.find]
 # Explicit include: auto-discovery shipped top-level tests/ and scripts/ into
 # site-packages, where they collide with every other wheel using those names.
 # Dotted rather than "unsloth_zoo*", which also matches a sibling like
 # unsloth_zoo_cache/ and would ship it as another top-level package.
-include = ["unsloth_zoo", "unsloth_zoo.*", "unsloth_zoo_downloads", "unsloth_zoo_downloads.*"]
+include = ["unsloth_zoo", "unsloth_zoo.*", "unsloth_zoo_downloads", "unsloth_zoo_downloads.*", "unsloth_zoo_rdna4"]
 exclude = ["images*", "tests*", "scripts*"]
+
+[project.entry-points."vllm.general_plugins"]
+# RDNA4 (gfx12) MXFP4 linear kernels; a no-op outside ROCm. unsloth_zoo_rdna4/__init__.py says why it is its own package.
+unsloth_zoo_rdna4 = "unsloth_zoo_rdna4.vllm_plugin:register"
 
 [project.optional-dependencies]
 mlx = [
