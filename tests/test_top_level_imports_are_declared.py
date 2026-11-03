@@ -55,7 +55,7 @@ def _module_level_imports() -> dict[str, list[str]]:
     if stdlib is None:
         pytest.skip("needs sys.stdlib_module_names (Python 3.10+)")
     found: dict[str, list[str]] = {}
-    for path in sorted([*(ROOT / "unsloth_zoo").glob("*.py"), *(ROOT / "unsloth_zoo_downloads").glob("*.py")]):
+    for path in sorted([*(ROOT / "unsloth_zoo").glob("*.py"), *(ROOT / "unsloth_zoo_downloads").glob("*.py"), *(ROOT / "unsloth_zoo_rdna4").glob("*.py")]):
         for node in ast.parse(path.read_text(encoding = "utf-8")).body:
             if isinstance(node, ast.Import):
                 names = [alias.name.split(".")[0] for alias in node.names]
@@ -64,7 +64,7 @@ def _module_level_imports() -> dict[str, list[str]]:
             else:
                 continue
             for name in names:
-                if name in stdlib or name in {"unsloth_zoo", "unsloth_zoo_downloads"}:
+                if name in stdlib or name in {"unsloth_zoo", "unsloth_zoo_downloads", "unsloth_zoo_rdna4"}:
                     continue
                 found.setdefault(name, []).append(path.name)
     return found
