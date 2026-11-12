@@ -122,9 +122,8 @@ def _host_memory():
 def _pin_budget():
     # Each local rank sees the same free RAM, so it may only claim its share.
     try:
-        total, available = _host_memory()
-        spare = available - max(_PIN_RESERVE_MIN_BYTES, int(total * _PIN_RESERVE_FRACTION))
-        return spare // _local_world_size()
+        import psutil
+        return _host_free(psutil.virtual_memory()) // _local_world_size()
     except Exception:
         return 0
 
