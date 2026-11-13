@@ -1,0 +1,18 @@
+{
+ "id": "gif-off-ctx1024",
+ "status": "error",
+ "cfg": {
+  "id": "gif-off-ctx1024",
+  "offload": 0,
+  "ctx": 1024,
+  "steps": 5
+ },
+ "peak_gpu_mib": 97250,
+ "rss": 2.3,
+ "median_step_s": null,
+ "elapsed_s": 226.77419018745422,
+ "error": "CUDA out of memory. Tried to allocate 93.77 GiB (from the job's done event; VM was reclaimed before the run JSON was pulled)",
+ "samples": [],
+ "metrics": {},
+ "offload": null
+}
