@@ -221,6 +221,8 @@ def run(c):
 
 P = {"steps": 10}
 PLANS = {
+    # The fix branch itself (studio/online-tok-host-ram), no env overrides: must train, and long enough to record the grid.
+    "g": [dict(id = "fix-c32-ctx1024", offload = 32, ctx = 1024, steps = 25)],
     # Forks off (online tokenization 0, UNSLOTH_DATASET_NUM_PROC=1). Count 32 sits at ~95 GB VRAM, so the heavier variants go up a Count.
     "a": [dict(id = "nt-c32-ctx1024", offload = 32, ctx = 1024), dict(id = "nt-auto-ctx1024", offload = "auto", ctx = 1024, steps = 3),
           dict(id = "nt-c36-ctx1024", offload = 36, ctx = 1024), dict(id = "nt-c40-ctx1024", offload = 40, ctx = 1024),

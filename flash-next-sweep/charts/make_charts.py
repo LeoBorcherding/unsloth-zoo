@@ -64,14 +64,15 @@ fig.text(0.04, 1 - 1.22 / 6.4, 'Count 32, ctx 1024  ·  host RAM in use on the V
 ax = fig.add_axes([0.08, 0.14, 0.88, 0.6]); ax.set_facecolor(BG)
 for s in ax.spines.values(): s.set_visible(False)
 ax.tick_params(colors = MUTED, length = 0); ax.grid(color = TRACK, lw = 1.2); ax.set_axisbelow(True)
-series = [('c32-ctx1024', 'online tokenization workers fork', PINK), ('nt-c32-ctx1024-mapfork', 'dataset.map pool forks', '#c9a24a'),
-          ('nt-c32-ctx1024', 'no fork (both off)', GREEN)]
+series = [('c32-ctx1024', 'dataset.map pool forks (defaults)', PINK), ('nt-c32-ctx1024-mapfork', 'dataset.map pool forks (rerun)', '#c9a24a'),
+          ('nt-c32-ctx1024', 'num_proc 1 by env', '#7d9ad6'), ('fix-c32-ctx1024', 'fix branch, no env', GREEN)]
 for k, name, c in series:
     if k not in R: continue
     sm = R[k]['own']
     t0 = next((s[0] for s in sm if s[1] == 'training'), None)
     if t0 is None: continue
     keep = [s for s in sm if -60 <= s[0] - t0 <= 120 and s[1] != 'error']
+    keep = keep if R[k]['status'] == 'error' else [s for s in keep if s[0] - t0 <= 100]
     xs = [s[0] - t0 for s in keep]; ys = [s[3] for s in keep]
     ax.plot(xs, ys, lw = 5, color = c, solid_capstyle = 'round')
     killed = R[k]['status'] == 'error'
@@ -80,9 +81,9 @@ for k, name, c in series:
         dy = {'c32-ctx1024': 6, 'nt-c32-ctx1024-mapfork': -9}.get(k, 0)
         ax.text(xs[-1] + 4, ys[-1] + dy, f'killed at {ys[-1]:.0f} GiB: ' + name, color = c, fontsize = 10.5, weight = 'bold', va = 'center')
     else:
-        ax.text(xs[-1] + 3, ys[-1] - 4, name + ', trains', color = c, fontsize = 10.5, weight = 'bold', va = 'center')
+        ax.text(xs[-1] + 3, ys[-1] + (4 if 'fix' in k else -4), name + ', trains', color = c, fontsize = 10.5, weight = 'bold', va = 'center')
 ax.axhline(177, color = MUTED, lw = 2, ls = (0, (4, 3))); ax.text(-58, 178.5, 'VM limit 177 GiB', color = MUTED, fontsize = 10, weight = 'bold')
-ax.set_xlim(-60, 160); ax.set_ylim(120, 182); ax.set_xlabel('seconds from the training phase', color = MUTED); ax.set_ylabel('host RAM in use, GiB', color = MUTED)
+ax.set_xlim(-60, 175); ax.set_ylim(120, 182); ax.set_xlabel('seconds from the training phase', color = MUTED); ax.set_ylabel('host RAM in use, GiB', color = MUTED)
 fig.text(0.04, 0.025, FOOT[:190] + '…', fontsize = 7.5, color = FAINT)
 fig.savefig(os.path.join(H, '02-fork-bug.png'), dpi = 200); fig.savefig(os.path.join(H, '02-fork-bug.svg')); plt.close(fig)
 
@@ -92,13 +93,13 @@ order = lambda k: (0 if R[k]['status'] == 'completed' else 1, str(R[k]['cfg']['o
 for k, d in sorted(R.items(), key = lambda kv: order(kv[0])):
     c = d['cfg']; e = (d.get('error') or '')
     st = 'trains' if d['status'] == 'completed' else 'refused' if 'needs' in e and 'host RAM' in e else 'VRAM OOM' if 'CUDA out of memory' in e else 'host kill' if 'exitcode=-9' in e else d['status']
-    fork = '' if k.startswith('nt-') and not k.endswith('mapfork') else (' (map fork)' if k.endswith('mapfork') else ' (online tok fork)')
+    fork = '' if k.startswith('nt-') and not k.endswith('mapfork') else ' (map fork)'
     desc = f"Count {c['offload']}" + (f", r{c['r']}" if c.get('r') else '') + (', MLP toggle off (ignored)' if c.get('mlp') is False else '') + (f", ctx {c['ctx']}" if c.get('ctx', 1024) != 1024 else '') + (f", batch {c['bs']}" if c.get('bs') else '') + (', 4-bit asked (ran 16-bit)' if c.get('load_in_4bit') else '') + fork
     rows.append((desc, st, d))
 H3 = 1.8 + 0.42 * len(rows) + 0.5
 fig = plt.figure(figsize = (10, H3))
 fig.text(0.04, 1 - 0.42 / H3, 'Every Flash-Next run in this sweep', fontsize = 21, weight = 'bold', va = 'center')
-fig.text(0.04, 1 - 0.88 / H3, 'Forks off: Count 32 to 36 train. Count 40 and Auto are refused for host RAM; rank 64 never fits VRAM.', fontsize = 12.5, color = GREEN, va = 'center')
+fig.text(0.04, 1 - 0.88 / H3, 'Tokenizing in process: Count 32 to 36 train. Count 40 and Auto are refused for host RAM; rank 64 never fits VRAM.', fontsize = 12.5, color = GREEN, va = 'center')
 ax = fig.add_axes([0.04, 0.4 / H3, 0.92, 1 - 1.5 / H3]); ax.axis('off'); ax.set_xlim(0, 10); ax.set_ylim(len(rows), -1.0)
 col = {'trains': GREEN, 'refused': BASE, 'VRAM OOM': PINK, 'host kill': '#c9a24a'}
 ax.text(0, -0.4, 'run', color = MUTED, fontsize = 9.5, weight = 'bold'); ax.text(4.6, -0.4, 'result', color = MUTED, fontsize = 9.5, weight = 'bold')
@@ -122,15 +123,15 @@ fig.text(0.04, 1 - 0.88 / 5.8, 'Moving layers to host RAM changes speed, not the
 ax = fig.add_axes([0.08, 0.15, 0.86, 0.6]); ax.set_facecolor(BG)
 for s in ax.spines.values(): s.set_visible(False)
 ax.tick_params(colors = MUTED, length = 0); ax.grid(color = TRACK, lw = 1.2)
-pal = [BASE, tc.STEPS[1], GREEN, PINK, '#c9a24a', '#7d9ad6']
-done = [(k, d) for k, d in R.items() if d['status'] == 'completed']
+pal = [BASE, tc.STEPS[1], GREEN, PINK, '#c9a24a', '#7d9ad6', '#b58ad6', '#d6d06b']
+done = [(k, d) for k, d in R.items() if d['status'] == 'completed' and not k.startswith('fix') and d['cfg'].get('ctx', 1024) == 1024 and not d['cfg'].get('bs')]
 for (k, d), c in zip(sorted(done), pal):
     m = d['metrics']; ax.plot(m['step_history'], m['loss_history'], lw = 4.5, color = c, solid_capstyle = 'round', marker = 'o', ms = 6)
     m['_label'] = [r for r in rows if r[2] is d][0][0]
 for (k, d), c in zip(sorted(done), pal):
     pass
 ax.legend([d['metrics']['_label'] for k, d in sorted(done)], frameon = False, labelcolor = INK, fontsize = 10.5, loc = 'upper right')
-fig.text(0.04, 0.03, 'Per-batch loss (one 1,024-token batch per step, seed 3407): it moves with the batch, not a trend. Same 2.78B trainable parameters in every run.', fontsize = 8, color = FAINT)
+fig.text(0.04, 0.03, 'Same data and batches (ctx 1024, batch 1, seed 3407). Per-batch loss: it moves with the batch, not a trend. Same 2.78B trainable parameters in every run.', fontsize = 8, color = FAINT)
 ax.set_xlabel('step', color = MUTED); ax.set_ylabel('loss', color = MUTED)
 fig.savefig(os.path.join(H, '04-loss.png'), dpi = 200); fig.savefig(os.path.join(H, '04-loss.svg')); plt.close(fig)
 
