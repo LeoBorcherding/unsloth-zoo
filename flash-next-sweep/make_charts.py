@@ -24,6 +24,7 @@ ZOO = '989ac3f4'
 FOOT = (f'Colab G4: RTX PRO 6000 Blackwell 96 GB, 177 GiB host RAM, Linux. Unsloth Studio on unslothai/unsloth main 211f0ee22, zoo stack {ZOO} '
         '(main + zoo#1619 + zoo#2269 + save-size fix). Qwen3.8-Flash-Next-FP8, LoRA r16 all linear, 8-bit paged AdamW, FineTome-100k rows 0-400, '
         'packed, 10 steps, batch 1. Run through the Unsloth Studio training API, 2026-11-12. VRAM = torch peak allocated; host = peak host RAM in use.')
+QFMT = lambda v: '?' if v == 0 else tc._fmt(v)
 BG, TRACK, INK, MUTED, FAINT, GREEN, PINK, BASE = tc.BG, tc.TRACK, tc.INK, tc.MUTED, tc.FAINT, tc.GREEN, tc.PINK, tc.BASE
 
 
@@ -48,14 +49,14 @@ hero_on = [(k, l, kd) for k, l, kd in (('nt-c32-ctx1024', 'Block Swap, Count 32'
 tc.thick_chart(
     panels = [{'title': 'VRAM to train', 'unit': 'GiB', 'groups': [('Qwen3.8-Flash-Next, LoRA r16', [(off_lab, OFF_EST, 'rival')] +
                                                                     [(l, round(vram(k), 1), kd) for k, l, kd in hero_on])]},
-              {'title': '96 GB cards needed', 'unit': 'GPUs', 'groups': [('RTX PRO 6000 Blackwell', [('Block Swap off', 4, 'rival'),
+              {'title': '96 GB cards needed', 'unit': 'GPUs', 'groups': [('RTX PRO 6000 Blackwell', [('Block Swap off (at least)', 4, 'rival'),
                                                                                                  ('Block Swap on', 1, 'new')])]},
-              {'title': 'The price: training time', 'unit': 'hours / 1,000 steps', 'groups': [('ctx 1024, batch 1', [(f"{l.replace('Block Swap, ', '')}, {R[k]['median_step_s']:.2f} s/step", round(R[k]['median_step_s'] * 1000 / 3600, 1), kd) for k, l, kd in hero_on])]}],
+              {'title': 'The price: training time', 'unit': 'hours / 1,000 steps', 'groups': [('ctx 1024, batch 1', [('Block Swap off, multi-GPU', 0.0, '#3a3a3a', 'not run yet')] + [(f"{l.replace('Block Swap, ', '')}, {R[k]['median_step_s']:.2f} s/step", round(R[k]['median_step_s'] * 1000 / 3600, 1), kd) for k, l, kd in hero_on])]}],
     title = 'A 180B MoE on one GPU instead of four',
     subtitle = 'Block Swap keeps 32 to 36 of 48 layers in host RAM and streams them in. The cost is step time: more layers swapped, slower steps.',
     meta = ['Qwen3.8-Flash-Next-FP8 (180B, 48 layers, 512 experts)', 'Unsloth Studio', 'Colab G4'],
     footnote = 'Off: VRAM Unsloth Studio estimates for this model with no Block Swap (training log, required_gb=372.632 against usable_gb=94.91 per card). No step time for off: it cannot run on one card, and Colab offers no 4-GPU VM. Run with Block Swap off on this G4, it fails while loading: CUDA out of memory, tried to allocate 93.77 GiB. ' + FOOT,
-    out = os.path.join(H, '00-hero'), ncols = 3, width = 14.0)
+    out = os.path.join(H, '00-hero'), ncols = 3, width = 14.0, fmt = QFMT)
 
 # 1. Count ladder
 counts = [k for k in ('nt-c32-ctx1024', 'nt-c36-ctx1024', 'nt-c40-ctx1024') if ok(k)]
@@ -234,5 +235,29 @@ for i, rank in enumerate((16, 64)):
 fig.text(0.04, 0.085, '* not run at rank 64: the guard counts layer bytes, which rank does not change.  ** only ran with the dataset.map fork, which killed it for host RAM.', fontsize = 7.5, color = FAINT, wrap = True)
 fig.text(0.04, 0.035, 'Colab G4, RTX PRO 6000 96 GB, 177 GiB host RAM. Unsloth Studio, zoo stack ' + ZOO + ', Qwen3.8-Flash-Next-FP8, ctx 1024, batch 1.', fontsize = 7.5, color = FAINT)
 fig.savefig(os.path.join(H, '09-what-fits.png'), dpi = 200, facecolor = BG); fig.savefig(os.path.join(H, '09-what-fits.svg'), facecolor = BG); plt.close(fig)
+
+# 10. Efficiency: GPU-hours and wall-clock per 1M tokens. Block Swap off is a placeholder until the multi-GPU run lands
+# (drop its run JSON in as runs/aws-off-ctx1024.json with cfg.gpus set).
+PEND = '#3a3a3a'
+effs = [(k, l, kd) for k, l, kd in (('nt-c32-ctx1024', 'Count 32, 1 GPU', 'new'), ('nt-c36-ctx1024', 'Count 36, 1 GPU', 1), ('nt-c36-bs2', 'Count 36 batch 2, 1 GPU', 2)) if ok(k)]
+aws = R.get('aws-off-ctx1024')
+def eff_rows(per_gpu):
+    rows = [(l, round(1e6 / toks(k) / 3600, 2), kd) for k, l, kd in effs]
+    if aws and aws['status'] == 'completed':
+        g = aws['cfg'].get('gpus', 8); h = 1e6 / toks('aws-off-ctx1024') / 3600
+        rows.insert(0, (f'Block Swap off, {g} GPUs', round(h * (g if per_gpu else 1), 2), 'rival'))
+    else:
+        rows.insert(0, ('Block Swap off, multi-GPU', 0.0, PEND, 'not run yet, see HANDOFF.md'))
+    return rows
+tc.thick_chart(
+    panels = [{'title': 'GPU-hours per 1M tokens', 'unit': 'lower is better', 'groups': [('ctx 1024', eff_rows(True))]},
+              {'title': 'Wall-clock hours per 1M tokens', 'unit': 'lower is better', 'groups': [('ctx 1024', eff_rows(False))]}],
+    title = 'Is one GPU with Block Swap cheaper per token?',
+    subtitle = ('Block Swap off on 8 GPUs is waiting on a run. To beat batch 2 per GPU-hour it needs over 1,808 tokens/s.' if not aws else
+                'Block Swap off measured on a multi-GPU box vs Block Swap on one card.'),
+    meta = ['Qwen3.8-Flash-Next-FP8', 'LoRA r16', 'Unsloth Studio'],
+    footnote = ('Block Swap off: placeholder until someone runs it on a box with ~373 GiB of VRAM (8 x 96 GB or 8 x H100); recipe in flash-next-sweep/HANDOFF.md. '
+                'GPU-hours = GPUs x wall-clock. ' + FOOT),
+    out = os.path.join(H, '10-efficiency'), ncols = 2, fmt = QFMT)
 
 print('charts:', sorted(f for f in os.listdir(H) if f.endswith('.png')))
