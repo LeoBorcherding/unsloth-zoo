@@ -260,4 +260,20 @@ tc.thick_chart(
                 'GPU-hours = GPUs x wall-clock. ' + FOOT),
     out = os.path.join(H, '10-efficiency'), ncols = 2, fmt = QFMT)
 
+# 11. Best settings: tokens/s and VRAM for each measured setting, best first
+bs = [(k, l) for k, l in (('nt-c36-bs2', 'Count 36, ctx 1024, batch 2'), ('nt-c32-ctx1024', 'Count 32, ctx 1024, batch 1'),
+                          ('nt-c36-ctx1024', 'Count 36, ctx 1024, batch 1'), ('nt-c36-ctx4096', 'Count 36, ctx 4096, batch 1')) if ok(k)]
+bk = ['new', 2, 'base', 'base']
+UNMEASURED = [('Count 32, ctx 1024, batch 2', 'should fit, ~83 GiB'), ('Count 36, ctx 1024, batch 4', 'should fit, ~77 GiB'),
+              ('Count 28, ctx 1024, batch 1', 'may not fit VRAM'), ('Block Swap off, multi-GPU', '~8 GPUs, see HANDOFF.md')]
+tc.thick_chart(
+    panels = [{'title': 'Throughput', 'unit': 'tokens / s, higher is better', 'groups': [('measured', [(l, round(toks(k)), bk[i]) for i, (k, l) in enumerate(bs)]), ('not measured yet', [(l, 0.0, '#3a3a3a', n) for l, n in UNMEASURED])]},
+              {'title': 'Peak VRAM', 'unit': 'GiB of 95', 'groups': [('measured', [(l, round(vram(k), 1), bk[i]) for i, (k, l) in enumerate(bs)]), ('not measured yet', [(l, 0.0, '#3a3a3a', n) for l, n in UNMEASURED])]}],
+    title = 'The best settings on one 96 GB GPU',
+    subtitle = 'Count 36 with batch 2 is fastest: batch 2 takes the same step time, so it doubles tokens/s.',
+    meta = ['Qwen3.8-Flash-Next-FP8', 'LoRA r16', 'Unsloth Studio', 'Colab G4'],
+    footnote = 'Lower Count is faster but needs more VRAM; Count 40+ is refused for host RAM. Context changes tokens/s little (113 vs 104 at Count 36), so set it for your data. '
+               'Count 32 batch 2 should fit (~83 GiB) and may be faster still; not run yet. ' + FOOT.replace('batch 1. ', ''),
+    out = os.path.join(H, '11-best-settings'), ncols = 2, fmt = QFMT)
+
 print('charts:', sorted(f for f in os.listdir(H) if f.endswith('.png')))
