@@ -53,7 +53,7 @@ tc.thick_chart(
     title = 'A 180B MoE on one GPU instead of four',
     subtitle = 'Block Swap keeps 32 to 36 of 48 layers in host RAM and streams them in as training reaches them.',
     meta = ['Qwen3.8-Flash-Next-FP8 (180B, 48 layers, 512 experts)', 'Unsloth Studio', 'Colab G4'],
-    footnote = 'Off: VRAM Unsloth Studio estimates for this model with no Block Swap (training log, required_gb=372.632 against usable_gb=94.91 per card). ' + FOOT,
+    footnote = 'Off: VRAM Unsloth Studio estimates for this model with no Block Swap (training log, required_gb=372.632 against usable_gb=94.91 per card). Run with Block Swap off on this G4, it fails while loading: CUDA out of memory, tried to allocate 93.77 GiB. ' + FOOT,
     out = os.path.join(H, '00-hero'), ncols = 2)
 
 # 1. Count ladder
@@ -107,10 +107,11 @@ fig.savefig(os.path.join(H, '02-fork-bug.png'), dpi = 200); fig.savefig(os.path.
 rows = []
 order = lambda k: (0 if R[k]['status'] == 'completed' else 1, str(R[k]['cfg']['offload']), k)
 for k, d in sorted(R.items(), key = lambda kv: order(kv[0])):
+    if k.startswith('gif-') and k != 'gif-off-ctx1024': continue  # GIF reruns repeat sweep configs
     c = d['cfg']; e = (d.get('error') or '')
     st = 'trains' if d['status'] == 'completed' else 'refused' if 'needs' in e and 'host RAM' in e else 'VRAM OOM' if 'CUDA out of memory' in e else 'host kill' if 'exitcode=-9' in e else d['status']
-    fork = '' if k.startswith('nt-') and not k.endswith('mapfork') else ' (map fork)'
-    desc = f"Count {c['offload']}" + (f", r{c['r']}" if c.get('r') else '') + (', MLP toggle off (ignored)' if c.get('mlp') is False else '') + (f", ctx {c['ctx']}" if c.get('ctx', 1024) != 1024 else '') + (f", batch {c['bs']}" if c.get('bs') else '') + (', 4-bit asked (ran 16-bit)' if c.get('load_in_4bit') else '') + fork
+    fork = ' (fix branch)' if k.startswith('fix') else '' if k.startswith(('nt-', 'gif-')) and not k.endswith('mapfork') else ' (map fork)'
+    desc = 'Block Swap off' if c['offload'] == 0 else f"Count {c['offload']}" + (f", r{c['r']}" if c.get('r') else '') + (', MLP toggle off (ignored)' if c.get('mlp') is False else '') + (f", ctx {c['ctx']}" if c.get('ctx', 1024) != 1024 else '') + (f", batch {c['bs']}" if c.get('bs') else '') + (', 4-bit asked (ran 16-bit)' if c.get('load_in_4bit') else '') + fork
     rows.append((desc, st, d))
 H3 = 1.8 + 0.42 * len(rows) + 0.5
 fig = plt.figure(figsize = (10, H3))
@@ -127,7 +128,7 @@ for i, (desc, st, d) in enumerate(rows):
     ax.text(5.35, y, st, ha = 'center', va = 'center', fontsize = 10.5, weight = 'bold', color = BG if st == 'trains' else INK)
     o = d.get('offload') or {}
     v = o.get('vram_peak_bytes', 0) / GIB if o else d['peak_gpu_mib'] / 1024
-    ax.text(6.4, y, f'{v:.1f}', va = 'center', fontsize = 11, color = MUTED); ax.text(7.7, y, f"{d['peak_host_used_gib']:.0f}", va = 'center', fontsize = 11, color = MUTED)
+    ax.text(6.4, y, f'{v:.1f}', va = 'center', fontsize = 11, color = MUTED); ax.text(7.7, y, f"{d['peak_host_used_gib']:.0f}" if d.get('peak_host_used_gib') else '-', va = 'center', fontsize = 11, color = MUTED)
     ax.text(8.9, y, f"{d['median_step_s']:.2f}" if d['median_step_s'] else '-', va = 'center', fontsize = 11, color = MUTED)
 fig.text(0.04, 0.012, 'VRAM: torch peak allocated where the run got far enough to report it, else nvidia-smi peak. Host: peak host RAM in use on the VM. ' + FOOT[:120] + '…', fontsize = 7.5, color = FAINT)
 fig.savefig(os.path.join(H, '03-every-run.png'), dpi = 200); fig.savefig(os.path.join(H, '03-every-run.svg')); plt.close(fig)
@@ -140,7 +141,7 @@ ax = fig.add_axes([0.08, 0.15, 0.86, 0.6]); ax.set_facecolor(BG)
 for s in ax.spines.values(): s.set_visible(False)
 ax.tick_params(colors = MUTED, length = 0); ax.grid(color = TRACK, lw = 1.2)
 pal = [BASE, tc.STEPS[1], GREEN, PINK, '#c9a24a', '#7d9ad6', '#b58ad6', '#d6d06b']
-done = [(k, d) for k, d in R.items() if d['status'] == 'completed' and not k.startswith('fix') and d['cfg'].get('ctx', 1024) == 1024 and not d['cfg'].get('bs')]
+done = [(k, d) for k, d in R.items() if d['status'] == 'completed' and not k.startswith(('fix', 'gif-')) and d['cfg'].get('ctx', 1024) == 1024 and not d['cfg'].get('bs')]
 for (k, d), c in zip(sorted(done), pal):
     m = d['metrics']; ax.plot(m['step_history'], m['loss_history'], lw = 4.5, color = c, solid_capstyle = 'round', marker = 'o', ms = 6)
     m['_label'] = [r for r in rows if r[2] is d][0][0]
