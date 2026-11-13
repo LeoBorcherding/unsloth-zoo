@@ -153,22 +153,24 @@ fig.text(0.04, 0.03, 'Same data and batches (ctx 1024, batch 1, seed 3407). Per-
 ax.set_xlabel('step', color = MUTED); ax.set_ylabel('loss', color = MUTED)
 fig.savefig(os.path.join(H, '04-loss.png'), dpi = 200); fig.savefig(os.path.join(H, '04-loss.svg')); plt.close(fig)
 
-# 5. Where the time goes in one run, and the guard's refusal vs a kill
-k = 'nt-c32-ctx1024'
-if ok(k):
-    sm = R[k]['own']; spans = []
-    for p in ('loading_model', 'configuring', 'training', 'finalizing'):
-        ts = [x[0] for x in sm if x[1] == p]
-        if ts: spans.append((p, ts[-1] - ts[0] + 3))
+# 5. Where the time goes: load, wait for step 1, the steps, save (Count 32 vs Count 36), and the guard refusal vs a kill
+def split(k):
+    sm = R[k]['own']; tr = [x for x in sm if x[1] == 'training']
+    t0, ts = sm[0][0], tr[0][0]; first = next(x[0] for x in tr if (x[5] or 0) >= 1); last = tr[-1][0]
+    return [('load model + set up LoRA', round((ts - t0) / 60, 1), 'base'), ('wait for step 1', round((first - ts) / 60, 1), 'rival'),
+            (f"{R[k]['cfg'].get('steps', 10)} training steps", round((last - first) / 60, 1), 'new'), ('total', round(R[k]['elapsed_s'] / 60, 1), 2)]
+tk = [(k, l) for k, l in (('nt-c32-ctx1024', 'Count 32 (6.05 s/step)'), ('nt-c36-ctx1024', 'Count 36 (9.07 s/step)')) if ok(k)]
+if tk:
     tc.thick_chart(
-        panels = [{'title': 'Where one run spends its time', 'unit': 'minutes', 'groups': [('Count 32, checkpoint already on disk', [
-            ({'loading_model': 'load 173 GB + install swap', 'configuring': 'configure LoRA', 'training': 'train 10 steps', 'finalizing': 'save adapter'}[p], round(s / 60, 1), i if i < 3 else 'new') for i, (p, s) in enumerate(spans)])]},
+        panels = [{'title': 'One 10-step run, start to finish', 'unit': 'minutes', 'groups': [(l, split(k)) for k, l in tk]},
                   {'title': 'Too big for host RAM', 'unit': 'minutes', 'groups': [('How long until you find out', [
-                      ('Count 32 with a fork: loads, then killed', round(R['c32-ctx1024']['elapsed_s'] / 60, 1), 'rival', 'exit -9'),
-                      ('Auto: refused by the guard', max(0.1, round(R['nt-auto-ctx1024']['elapsed_s'] / 60, 1)) if 'nt-auto-ctx1024' in R else 0.1, 'new', 'says how many layers fit')])]}],
-        title = 'Waiting on a 180B model', subtitle = 'Loading is most of a run; zoo#1619 refuses an impossible plan before the load, with a reason.',
-        meta = ['Unsloth Studio', 'Colab G4'], footnote = FOOT + ' The refusal names the layer count that fits; the kill only says exitcode -9.',
+                      ('fork kill (before the fix)', round(R['c32-ctx1024']['elapsed_s'] / 60, 1), 'rival', 'exit -9'),
+                      ('guard refusal (zoo#1619)', max(0.1, round(R['nt-auto-ctx1024']['elapsed_s'] / 60, 1)) if 'nt-auto-ctx1024' in R else 0.1, 'new', 'says what fits')])]}],
+        title = 'Where the time goes in a run', subtitle = 'Loading takes 13 min. Count 32 then waits ~9.5 min before step 1; Count 36 starts in under a minute.',
+        meta = ['Unsloth Studio', 'Colab G4', 'checkpoint already on disk'],
+        footnote = 'The ~9.5 min wait before step 1 at Count 32 repeated in all four Count 32 runs (9.3 to 9.8 min); Count 36 waited 0.6 to 0.9 min. Cause not confirmed. ' + FOOT,
         out = os.path.join(H, '05-time'), ncols = 2)
+
 # 6. Speed: what a batch or a longer context costs at Count 36
 sp = [(k, l, kind) for k, l, kind in (('nt-c36-ctx1024', 'ctx 1024, batch 1', 'base'), ('nt-c36-bs2', 'ctx 1024, batch 2', 'new'), ('nt-c36-ctx4096', 'ctx 4096, batch 1', 1)) if ok(k)]
 if sp:
