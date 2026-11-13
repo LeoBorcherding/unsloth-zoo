@@ -85,6 +85,7 @@ them one after another (about 1 of 8 busy at a time). That guess is what this ru
   commit as LeoBorcherding, push, bump the raw SHA in the body).
 
 **Open:**
+- **Placeholders for Block Swap off are in now** ("not run yet"): chart 10-efficiency, the hero's time panel, an off row in the body's table, and the TL;DR. To fill them, save the run as `runs/aws-off-ctx1024.json` (same shape as the other runs, `status`, `median_step_s`, `cfg` with `ctx`, `bs` and `gpus`). Chart 10 picks it up on its own; the hero's time row and the body table are manual edits.
 - **Efficiency chart** waits on the run above. Once it lands, add a thick chart: GPU-hours per 1M
   tokens, dollars per 1M tokens, wall-clock for 1,000 steps, off vs Count 32 vs Count 36 batch 2.
   Then add an off row to the table and a line to the TL;DR.
