@@ -49,12 +49,13 @@ tc.thick_chart(
     panels = [{'title': 'VRAM to train', 'unit': 'GiB', 'groups': [('Qwen3.8-Flash-Next, LoRA r16', [(off_lab, OFF_EST, 'rival')] +
                                                                     [(l, round(vram(k), 1), kd) for k, l, kd in hero_on])]},
               {'title': '96 GB cards needed', 'unit': 'GPUs', 'groups': [('RTX PRO 6000 Blackwell', [('Block Swap off', 4, 'rival'),
-                                                                                                 ('Block Swap on', 1, 'new')])]}],
+                                                                                                 ('Block Swap on', 1, 'new')])]},
+              {'title': 'The price: training time', 'unit': 'hours / 1,000 steps', 'groups': [('ctx 1024, batch 1', [(f"{l.replace('Block Swap, ', '')}, {R[k]['median_step_s']:.2f} s/step", round(R[k]['median_step_s'] * 1000 / 3600, 1), kd) for k, l, kd in hero_on])]}],
     title = 'A 180B MoE on one GPU instead of four',
-    subtitle = 'Block Swap keeps 32 to 36 of 48 layers in host RAM and streams them in as training reaches them.',
+    subtitle = 'Block Swap keeps 32 to 36 of 48 layers in host RAM and streams them in. The cost is step time: more layers swapped, slower steps.',
     meta = ['Qwen3.8-Flash-Next-FP8 (180B, 48 layers, 512 experts)', 'Unsloth Studio', 'Colab G4'],
-    footnote = 'Off: VRAM Unsloth Studio estimates for this model with no Block Swap (training log, required_gb=372.632 against usable_gb=94.91 per card). Run with Block Swap off on this G4, it fails while loading: CUDA out of memory, tried to allocate 93.77 GiB. ' + FOOT,
-    out = os.path.join(H, '00-hero'), ncols = 2)
+    footnote = 'Off: VRAM Unsloth Studio estimates for this model with no Block Swap (training log, required_gb=372.632 against usable_gb=94.91 per card). No step time for off: it cannot run on one card, and Colab offers no 4-GPU VM. Run with Block Swap off on this G4, it fails while loading: CUDA out of memory, tried to allocate 93.77 GiB. ' + FOOT,
+    out = os.path.join(H, '00-hero'), ncols = 3, width = 14.0)
 
 # 1. Count ladder
 counts = [k for k in ('nt-c32-ctx1024', 'nt-c36-ctx1024', 'nt-c40-ctx1024') if ok(k)]
