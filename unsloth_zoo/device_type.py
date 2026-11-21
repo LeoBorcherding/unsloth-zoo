@@ -179,22 +179,56 @@ def _detect_amd_rocm_runtime():
     return False
 pass
 
+_ROCM_WHL_NEXT_URL = "https://stable.repo.amd.com/rocm/whl-next/"
+# AMD's supported Radeon set for ROCm 10.1; torchvision/torchaudio do not pin torch, so pin all three.
+_ROCM10_TORCH_SET = ("2.14.0+rocm10.1.0", "0.29.0a0+rocm10.1.0", "2.11.0.3+rocm10.1.0")
+
+def _rocm10_installation_lines(detected_major_minor):
+    # pytorch.org has no rocm10.x leaf: ROCm 10 torch is AMD's multi-arch index, GPU picked by a device extra.
+    try:
+        gfx = _detect_gfx_arch()
+    except Exception:
+        gfx = None
+    extra = f"device-{gfx or 'gfxXXXX'}"
+    torch_v, vision_v, audio_v = _ROCM10_TORCH_SET
+    lines = [
+        "PyTorch for ROCm 10 comes from AMD's whl-next index (pytorch.org has no ROCm 10 wheels). Try:",
+        f'uv pip install "torch[{extra}]=={torch_v}" "torchvision[{extra}]=={vision_v}" '
+        f'"torchaudio=={audio_v}" --index-url {_ROCM_WHL_NEXT_URL} --upgrade --force-reinstall',
+    ]
+    if gfx is None:
+        lines.append("Replace gfxXXXX with your GPU's arch (rocminfo | grep gfx), e.g. gfx1201.")
+    if detected_major_minor != "10.1":
+        lines.append(
+            f"That is AMD's supported set for ROCm 10.1 (the wheels carry their own ROCm 10.1 libraries); "
+            f"ROCm {detected_major_minor} has no set Unsloth supports yet."
+        )
+    lines.append(
+        "bitsandbytes has no ROCm 10 build yet, so load_in_4bit (QLoRA) will not load on these wheels: "
+        "use load_in_4bit = False, or ROCm 7.2 wheels for 4-bit."
+    )
+    return lines
+pass
+
 @functools.cache
 def _amd_installation_hint():
     if not _detect_amd_rocm_runtime():
         return None
-    available_indices = _available_pytorch_rocm_indices()
     detected_major_minor = _detect_rocm_major_minor()
+    lines = [
+        "Unsloth detected signs of an AMD ROCm GPU, but your current PyTorch build has no usable HIP accelerator.",
+        "This usually means torch/torchvision/torchaudio were installed from default PyPI wheels instead of ROCm wheels.",
+    ]
+    if detected_major_minor is not None and detected_major_minor.split(".")[0] == "10":
+        lines.append(f"Detected ROCm version hint: {detected_major_minor}")
+        return "\n".join(lines + _rocm10_installation_lines(detected_major_minor))
+    available_indices = _available_pytorch_rocm_indices()
     chosen_index = _nearest_rocm_index(detected_major_minor, available_indices)
     if chosen_index is None:
         chosen_index = available_indices[0] if len(available_indices) else "rocm7.0"
     index_url = f"{_PYTORCH_WHL_BASE_URL}/{chosen_index}/"
     index_is_valid = _pytorch_rocm_index_exists(chosen_index)
 
-    lines = [
-        "Unsloth detected signs of an AMD ROCm GPU, but your current PyTorch build has no usable HIP accelerator.",
-        "This usually means torch/torchvision/torchaudio were installed from default PyPI wheels instead of ROCm wheels.",
-    ]
     if detected_major_minor is not None:
         lines.append(f"Detected ROCm version hint: {detected_major_minor}")
     else:
