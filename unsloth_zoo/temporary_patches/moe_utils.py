@@ -1327,12 +1327,14 @@ SELECTIVE_DEQUANT_STATS = {"plans": 0, "dequant_calls": 0, "experts_dequantized"
 
 
 class _SelectiveDequantPlan:
-    __slots__ = ("num_experts", "num_rows", "chunks")
+    __slots__ = ("num_experts", "num_rows", "chunks", "host_offsets", "splits")
 
-    def __init__(self, num_experts, num_rows, chunks):
+    def __init__(self, num_experts, num_rows, chunks, host_offsets = None):
         self.num_experts = num_experts
         self.num_rows = num_rows
         self.chunks = chunks   # [(expert slice or int64 ids, row_lo, row_hi, offsets relative to row_lo)]
+        self.host_offsets = host_offsets   # each chunk's offsets as a list when the plan read them on the host
+        self.splits = None   # {experts per piece: pieces}, shared by the forward, its replay and dX
 
 
 def _selective_dequant_chunk_experts() -> int:
@@ -1657,6 +1659,7 @@ def _selective_dequant_plan(sources, num_tokens_per_expert, num_rows, experts_mo
         total += c
         ends.append(total)
     chunks = []
+    host_offsets = []
     for i in range(0, len(experts), chunk):
         ids = experts[i : i + chunk]
         row_lo = ends[ids[0]] - counts[ids[0]]
@@ -1664,16 +1667,17 @@ def _selective_dequant_plan(sources, num_tokens_per_expert, num_rows, experts_mo
         if row_hi == row_lo:
             continue   # chunked without selective: no token routed to any of these experts
         contiguous = ids[-1] - ids[0] + 1 == len(ids)
+        host_offsets.append([ends[e] - row_lo for e in ids])
         chunks.append((
             slice(ids[0], ids[-1] + 1) if contiguous else torch.tensor(ids, dtype = torch.int64, device = device),
             row_lo,
             row_hi,
-            torch.tensor([ends[e] - row_lo for e in ids], dtype = torch.int32, device = device),
+            torch.tensor(host_offsets[-1], dtype = torch.int32, device = device),
         ))
     if not chunks:
         return None
     SELECTIVE_DEQUANT_STATS["plans"] += 1
-    return _SelectiveDequantPlan(E, num_rows, chunks)
+    return _SelectiveDequantPlan(E, num_rows, chunks, host_offsets)
 
 
 def _capped_dequant_plan(sources, num_tokens_per_expert, num_rows):
@@ -1740,13 +1744,15 @@ _SELECTIVE_CHUNK_FIT = {}
 _SELECTIVE_CHUNK_RETRY_CALLS = 1024
 
 
-def _split_selective_chunk(chunk, size):
-    """`chunk` as pieces of at most `size` experts (one host read of its offsets), or None for a single expert."""
+def _split_selective_chunk(chunk, size, ends = None):
+    """`chunk` as (piece, host offsets) pairs of at most `size` experts, or None for a single expert. `ends` are the
+    chunk's offsets on the host; without them the offsets are read back once."""
     experts, row_lo, row_hi, offsets = chunk
     n = int(offsets.numel())
     if n <= 1:
         return None
-    ends = offsets.tolist()
+    if ends is None:
+        ends = offsets.tolist()
     pieces = []
     for i in range(0, n, size):
         j = min(i + size, n)
@@ -1754,7 +1760,8 @@ def _split_selective_chunk(chunk, size):
         if ends[j - 1] == lo:
             continue   # no token routed to these experts
         ids = slice(experts.start + i, experts.start + j) if isinstance(experts, slice) else experts[i : j]
-        pieces.append((ids, row_lo + lo, row_lo + ends[j - 1], offsets[i : j] - lo))
+        piece = (ids, row_lo + lo, row_lo + ends[j - 1], offsets[i : j] - lo)
+        pieces.append((piece, [e - lo for e in ends[i : j]]))
     return pieces
 
 
@@ -1772,7 +1779,7 @@ def _selective_chunk_mm(inputs, weight_provider, chunk, plan, transpose):
 
 
 def _note_selective_chunk_fit(key, pieces):
-    size = max(int(p[3].numel()) for p in pieces)
+    size = max(len(ends) for _, ends in pieces)
     fit = _SELECTIVE_CHUNK_FIT.get(key)
     if fit is None or size < fit[0]:
         _SELECTIVE_CHUNK_FIT[key] = [size, _SELECTIVE_CHUNK_RETRY_CALLS]
@@ -1790,16 +1797,26 @@ def _selective_grouped_mm(inputs, weight_provider, plan, transpose):
         if fit[1] <= 0:
             _SELECTIVE_CHUNK_FIT.pop(key, None)
             fit = None
-    pending = list(plan.chunks)
+    host = plan.host_offsets or [None] * len(plan.chunks)
+    pending = list(zip(plan.chunks, host))
     if fit is not None:
-        pending = [p for c in pending for p in (_split_selective_chunk(c, fit[0]) if c[3].numel() > fit[0] else [c])]
+        if plan.splits is None:
+            plan.splits = {}
+        pending = plan.splits.get(fit[0])
+        if pending is None:
+            pending = [
+                p for c, ends in zip(plan.chunks, host)
+                for p in ((_split_selective_chunk(c, fit[0], ends) or [(c, ends)]) if c[3].numel() > fit[0] else [(c, ends)])
+            ]
+            plan.splits[fit[0]] = pending
+        pending = list(pending)
     out = None
     while pending:
-        chunk = pending.pop(0)
+        chunk, ends = pending.pop(0)
         try:
             part = _selective_chunk_mm(inputs, weight_provider, chunk, plan, transpose)
         except torch.OutOfMemoryError:
-            pieces = _split_selective_chunk(chunk, -(-int(chunk[3].numel()) // 2))
+            pieces = _split_selective_chunk(chunk, -(-int(chunk[3].numel()) // 2), ends)
             if pieces is None:
                 raise
         else:
