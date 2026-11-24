@@ -552,12 +552,19 @@ def test_recompute_chunk_that_runs_out_of_memory_is_halved(monkeypatch):
     fit = mu._SELECTIVE_CHUNK_FIT[(hidden.device.type, hidden.device.index)]
     assert fit[0] == 2
 
-    # The next call starts at 2 experts per chunk with no new OOM, until the retry count runs out.
+    # The next call starts at 2 experts per chunk with no new OOM, until the retry count runs out. Its pieces come
+    # from the plan's host offsets (no device read back), split once per plan.
     seen.clear()
     splits = mu.SELECTIVE_DEQUANT_STATS["oom_splits"]
+    calls = []
+    real_split = mu._split_selective_chunk
+    monkeypatch.setattr(mu, "_split_selective_chunk", lambda c, size, ends = None: (
+        calls.append(ends is not None), real_split(c, size, ends))[1])
     _run(experts, hidden, top_k_index, top_k_weights, lora, monkeypatch)
+    monkeypatch.setattr(mu, "_split_selective_chunk", real_split)
     assert max(n for _, n in seen) == 2
     assert mu.SELECTIVE_DEQUANT_STATS["oom_splits"] == splits
+    assert calls and all(calls)
     fit[1] = 1
     seen.clear()
     monkeypatch.setattr(mu, "forward_native_grouped_mm", real_forward)
