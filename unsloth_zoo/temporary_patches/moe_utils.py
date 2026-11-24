@@ -1323,7 +1323,7 @@ def _nf4_fused_base_mm(inputs, offsets, source, proj_type, hidden_dim, model_typ
 
 
 # UNSLOTH_MOE_SELECTIVE_DEQUANT: auto = num_rows experts (sync-free) if rows <= 7/8 E; 1 = exact routed set (one host sync); 0 = full stack.
-SELECTIVE_DEQUANT_STATS = {"plans": 0, "dequant_calls": 0, "experts_dequantized": 0, "experts_total": 0}
+SELECTIVE_DEQUANT_STATS = {"plans": 0, "dequant_calls": 0, "experts_dequantized": 0, "experts_total": 0, "oom_splits": 0}
 
 
 class _SelectiveDequantPlan:
@@ -1735,27 +1735,84 @@ def _transposed_for_slice(weight, inputs, plan):
     return weight if _slice_reads_views(inputs, weight, plan) else weight.contiguous()
 
 
-def _selective_grouped_mm(inputs, weight_provider, plan, transpose):
-    if len(plan.chunks) == 1:
-        experts, _, _, offsets = plan.chunks[0]
-        weight = weight_provider(experts)
-        if transpose:
-            weight = _transposed_for_slice(weight, inputs, plan)
+# Per device: [experts per chunk that last fit after an OOM, calls left before the plan's own chunks are tried again].
+_SELECTIVE_CHUNK_FIT = {}
+_SELECTIVE_CHUNK_RETRY_CALLS = 1024
+
+
+def _split_selective_chunk(chunk, size):
+    """`chunk` as pieces of at most `size` experts (one host read of its offsets), or None for a single expert."""
+    experts, row_lo, row_hi, offsets = chunk
+    n = int(offsets.numel())
+    if n <= 1:
+        return None
+    ends = offsets.tolist()
+    pieces = []
+    for i in range(0, n, size):
+        j = min(i + size, n)
+        lo = ends[i - 1] if i else 0
+        if ends[j - 1] == lo:
+            continue   # no token routed to these experts
+        ids = slice(experts.start + i, experts.start + j) if isinstance(experts, slice) else experts[i : j]
+        pieces.append((ids, row_lo + lo, row_lo + ends[j - 1], offsets[i : j] - lo))
+    return pieces
+
+
+def _selective_chunk_mm(inputs, weight_provider, chunk, plan, transpose):
+    experts, row_lo, row_hi, offsets = chunk
+    weight = weight_provider(experts)
+    if transpose:
+        weight = _transposed_for_slice(weight, inputs, plan)
+    if row_lo == 0 and row_hi == inputs.shape[0]:
         return _grouped_mm_slice(inputs, weight, offsets, plan)
+    rows = inputs[row_lo : row_hi]
+    if rows.data_ptr() % 16:
+        rows = rows.clone()   # grouped GEMMs want 16-byte aligned operands
+    return _grouped_mm_slice(rows, weight, offsets, plan)
+
+
+def _note_selective_chunk_fit(key, pieces):
+    size = max(int(p[3].numel()) for p in pieces)
+    fit = _SELECTIVE_CHUNK_FIT.get(key)
+    if fit is None or size < fit[0]:
+        _SELECTIVE_CHUNK_FIT[key] = [size, _SELECTIVE_CHUNK_RETRY_CALLS]
+    SELECTIVE_DEQUANT_STATS["oom_splits"] += 1
+
+
+def _selective_grouped_mm(inputs, weight_provider, plan, transpose):
+    """Planned chunks in order. A chunk whose dequantized scratch runs out of memory (a checkpoint replay keeps its
+    first pass's chunking, with less free memory in backward) is halved and retried, down to one expert, and that
+    size is kept for the device's later calls. Pieces give the chunk's values bit for bit."""
+    key = (inputs.device.type, inputs.device.index)
+    fit = _SELECTIVE_CHUNK_FIT.get(key)
+    if fit is not None:
+        fit[1] -= 1
+        if fit[1] <= 0:
+            _SELECTIVE_CHUNK_FIT.pop(key, None)
+            fit = None
+    pending = list(plan.chunks)
+    if fit is not None:
+        pending = [p for c in pending for p in (_split_selective_chunk(c, fit[0]) if c[3].numel() > fit[0] else [c])]
     out = None
-    for experts, row_lo, row_hi, offsets in plan.chunks:
-        weight = weight_provider(experts)
-        if transpose:
-            weight = _transposed_for_slice(weight, inputs, plan)
-        rows = inputs[row_lo : row_hi]
-        if rows.data_ptr() % 16:
-            rows = rows.clone()   # grouped GEMMs want 16-byte aligned operands
-        part = _grouped_mm_slice(rows, weight, offsets, plan)
-        del weight
-        if out is None:
-            out = inputs.new_empty((inputs.shape[0], part.shape[-1]))
-        out[row_lo : row_hi] = part
-        del part
+    while pending:
+        chunk = pending.pop(0)
+        try:
+            part = _selective_chunk_mm(inputs, weight_provider, chunk, plan, transpose)
+        except torch.OutOfMemoryError:
+            pieces = _split_selective_chunk(chunk, -(-int(chunk[3].numel()) // 2))
+            if pieces is None:
+                raise
+        else:
+            if out is None and not pending and chunk[1] == 0 and chunk[2] == inputs.shape[0]:
+                return part
+            if out is None:
+                out = inputs.new_empty((inputs.shape[0], part.shape[-1]))
+            out[chunk[1] : chunk[2]] = part
+            del part
+            continue
+        # After the except block, so the failed chunk's scratch is released before the retry.
+        _note_selective_chunk_fit(key, pieces)
+        pending[:0] = pieces
     return out
 
 

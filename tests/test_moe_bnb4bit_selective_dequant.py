@@ -504,3 +504,76 @@ def test_scratch_cap_chunks_only_the_routed_experts(monkeypatch):
     stats = mu.SELECTIVE_DEQUANT_STATS
     assert stats["experts_dequantized"] == 4 * 6        # gate_up + down, forward + backward, 6 routed each
     assert stats["dequant_calls"] == 4 * 2              # chunks of 4 + 2
+
+
+def _oom_above(monkeypatch, limit, seen, backward_only = True):
+    """Dequantizing more than `limit` experts at once raises OOM (in backward only, by default) and `seen` records
+    how many each read decoded: the Colab L4 Mini run at 2048 tokens fit its 55-expert chunks in the forward, then
+    ran out of memory gathering the same chunk in the checkpoint recompute."""
+    real = mu._dequantize_bnb4bit_experts_once
+
+    def fake(param, experts, target_dtype = None):
+        n = len(range(*experts.indices(E))) if isinstance(experts, slice) else int(experts.numel())
+        backward = torch._C._current_graph_task_id() != -1
+        if n > limit and (backward or not backward_only):
+            raise torch.OutOfMemoryError("simulated: not enough free memory for this chunk")
+        seen.append((backward, n))
+        return real(param, experts, target_dtype)
+
+    monkeypatch.setattr(mu, "_dequantize_bnb4bit_experts_once", fake)
+    monkeypatch.setattr(mu, "_SELECTIVE_CHUNK_FIT", {}, raising = False)
+
+
+def test_recompute_chunk_that_runs_out_of_memory_is_halved(monkeypatch):
+    """Checkpointed experts with every expert routed and the stack capped to 5-expert chunks: the forward fits, the
+    recompute and dX cannot hold more than 2 experts. The chunks halve (5 -> 3 -> 2) instead of failing, the result
+    is the unchunked one bit for bit, and later calls on the device start at the size that fit."""
+    from torch.utils.checkpoint import checkpoint
+
+    monkeypatch.delenv("UNSLOTH_MOE_DEQUANT_MAX_MB", raising = False)
+    experts = _Experts(True)
+    hidden, top_k_index, top_k_weights, lora = _routed_all(64, monkeypatch)
+    base_out, base_grads = _run(experts, hidden, top_k_index, top_k_weights, lora, monkeypatch)
+
+    monkeypatch.setenv("UNSLOTH_MOE_DEQUANT_MAX_MB", str(5 * 2 * I * H * 2 / 2**20))
+    seen = []
+    _oom_above(monkeypatch, 2, seen)
+    real_forward = mu.forward_native_grouped_mm
+    monkeypatch.setattr(mu, "forward_native_grouped_mm", lambda self, h, idx, w: checkpoint(
+        real_forward, self, h, idx, w, use_reentrant = False,
+    ))
+    out, grads = _run(experts, hidden, top_k_index, top_k_weights, lora, monkeypatch)
+    assert torch.equal(out, base_out)
+    for got, want in zip(grads, base_grads):
+        assert torch.equal(got, want)
+    assert max(n for backward, n in seen if not backward) == 5
+    assert max(n for backward, n in seen if backward) == 2
+    assert mu.SELECTIVE_DEQUANT_STATS["oom_splits"] >= 1
+    fit = mu._SELECTIVE_CHUNK_FIT[(hidden.device.type, hidden.device.index)]
+    assert fit[0] == 2
+
+    # The next call starts at 2 experts per chunk with no new OOM, until the retry count runs out.
+    seen.clear()
+    splits = mu.SELECTIVE_DEQUANT_STATS["oom_splits"]
+    _run(experts, hidden, top_k_index, top_k_weights, lora, monkeypatch)
+    assert max(n for _, n in seen) == 2
+    assert mu.SELECTIVE_DEQUANT_STATS["oom_splits"] == splits
+    fit[1] = 1
+    seen.clear()
+    monkeypatch.setattr(mu, "forward_native_grouped_mm", real_forward)
+    with torch.no_grad():
+        mu.forward_native_grouped_mm(experts, hidden, top_k_index, top_k_weights)
+    assert max(n for _, n in seen) == 5
+    assert (hidden.device.type, hidden.device.index) not in mu._SELECTIVE_CHUNK_FIT
+
+
+def test_one_expert_that_does_not_fit_still_raises(monkeypatch):
+    monkeypatch.delenv("UNSLOTH_MOE_DEQUANT_MAX_MB", raising = False)
+    monkeypatch.setenv("UNSLOTH_MOE_DEQUANT_CHUNK_EXPERTS", "4")
+    experts = _Experts(False)
+    hidden, top_k_index, top_k_weights, _ = _routed_all(64, monkeypatch)
+    seen = []
+    _oom_above(monkeypatch, 0, seen, backward_only = False)
+    with pytest.raises(torch.OutOfMemoryError), torch.no_grad():
+        mu.forward_native_grouped_mm(experts, hidden, top_k_index, top_k_weights)
+    assert seen == []
