@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-11-13T13:38:46.316531</dc:date>
+    <dc:date>2026-11-25T17:24:38.124366</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -40,7 +40,7 @@ Q 161.136 233.64 161.136 230.04
 L 161.136 214.92 
 Q 161.136 211.32 164.736 211.32 
 z
-" clip-path="url(#pb2c7745baf)" style="fill: #262626"/>
+" clip-path="url(#p792478876c)" style="fill: #262626"/>
    </g>
    <g id="patch_3">
     <path d="M 164.736 211.32 
@@ -53,7 +53,7 @@ Q 161.136 233.64 161.136 230.04
 L 161.136 214.92 
 Q 161.136 211.32 164.736 211.32 
 z
-" clip-path="url(#pb2c7745baf)" style="fill: #e48fb0"/>
+" clip-path="url(#p792478876c)" style="fill: #e48fb0"/>
    </g>
    <g id="patch_4">
     <path d="M 164.736 240.12 
@@ -66,7 +66,7 @@ Q 161.136 262.44 161.136 258.84
 L 161.136 243.72 
 Q 161.136 240.12 164.736 240.12 
 z
-" clip-path="url(#pb2c7745baf)" style="fill: #262626"/>
+" clip-path="url(#p792478876c)" style="fill: #262626"/>
    </g>
    <g id="patch_5">
     <path d="M 164.736 240.12 
@@ -79,7 +79,7 @@ Q 161.136 262.44 161.136 258.84
 L 161.136 243.72 
 Q 161.136 240.12 164.736 240.12 
 z
-" clip-path="url(#pb2c7745baf)" style="fill: #e48fb0"/>
+" clip-path="url(#p792478876c)" style="fill: #e48fb0"/>
    </g>
    <g id="patch_6">
     <path d="M 164.736 268.92 
@@ -92,7 +92,7 @@ Q 161.136 291.24 161.136 287.64
 L 161.136 272.52 
 Q 161.136 268.92 164.736 268.92 
 z
-" clip-path="url(#pb2c7745baf)" style="fill: #262626"/>
+" clip-path="url(#p792478876c)" style="fill: #262626"/>
    </g>
    <g id="patch_7">
     <path d="M 164.736 268.92 
@@ -105,7 +105,7 @@ Q 161.136 291.24 161.136 287.64
 L 161.136 272.52 
 Q 161.136 268.92 164.736 268.92 
 z
-" clip-path="url(#pb2c7745baf)" style="fill: #17b98a"/>
+" clip-path="url(#p792478876c)" style="fill: #17b98a"/>
    </g>
    <g id="text_1">
     <!-- Peak host RAM -->
@@ -1354,7 +1354,7 @@ Q 508.536 233.64 508.536 230.04
 L 508.536 214.92 
 Q 508.536 211.32 512.136 211.32 
 z
-" clip-path="url(#pf861c651ce)" style="fill: #262626"/>
+" clip-path="url(#pec10a4ddaf)" style="fill: #262626"/>
    </g>
    <g id="patch_9">
     <path d="M 512.136 211.32 
@@ -1367,7 +1367,7 @@ Q 508.536 233.64 508.536 230.04
 L 508.536 214.92 
 Q 508.536 211.32 512.136 211.32 
 z
-" clip-path="url(#pf861c651ce)" style="fill: #e48fb0"/>
+" clip-path="url(#pec10a4ddaf)" style="fill: #e48fb0"/>
    </g>
    <g id="patch_10">
     <path d="M 512.136 240.12 
@@ -1380,7 +1380,7 @@ Q 508.536 262.44 508.536 258.84
 L 508.536 243.72 
 Q 508.536 240.12 512.136 240.12 
 z
-" clip-path="url(#pf861c651ce)" style="fill: #262626"/>
+" clip-path="url(#pec10a4ddaf)" style="fill: #262626"/>
    </g>
    <g id="patch_11">
     <path d="M 512.136 240.12 
@@ -1393,7 +1393,7 @@ Q 508.536 262.44 508.536 258.84
 L 508.536 243.72 
 Q 508.536 240.12 512.136 240.12 
 z
-" clip-path="url(#pf861c651ce)" style="fill: #e48fb0"/>
+" clip-path="url(#pec10a4ddaf)" style="fill: #e48fb0"/>
    </g>
    <g id="patch_12">
     <path d="M 512.136 268.92 
@@ -1406,7 +1406,7 @@ Q 508.536 291.24 508.536 287.64
 L 508.536 272.52 
 Q 508.536 268.92 512.136 268.92 
 z
-" clip-path="url(#pf861c651ce)" style="fill: #262626"/>
+" clip-path="url(#pec10a4ddaf)" style="fill: #262626"/>
    </g>
    <g id="patch_13">
     <path d="M 512.136 268.92 
@@ -1419,7 +1419,7 @@ Q 508.536 291.24 508.536 287.64
 L 508.536 272.52 
 Q 508.536 268.92 512.136 268.92 
 z
-" clip-path="url(#pf861c651ce)" style="fill: #17b98a"/>
+" clip-path="url(#pec10a4ddaf)" style="fill: #17b98a"/>
    </g>
    <g id="text_13">
     <!-- Training steps finished -->
@@ -2332,7 +2332,7 @@ z
    </g>
   </g>
   <g id="text_25">
-   <!-- Nov 12 2026. main 211f0ee22, this PR e3e8fd3be. Both main runs exit with code -9 (OOM killer). The PR run had no env overrides; it ran 25 steps at 6.05 -->
+   <!-- Nov 12 2026. main 211f0ee22, this PR e3e8fd3be. Both main runs exit with code -9 (OOM killer). The PR run had no env overrides; it ran 25 steps at 6.9 -->
    <g style="fill: #7a7a7a" transform="translate(28.8 318.215625) scale(0.08 -0.08)">
     <defs>
      <path id="HelveticaNeue-76" d="M 1901 0 
@@ -2516,8 +2516,7 @@ z
     <use xlink:href="#HelveticaNeue-20" transform="translate(6605.798584 0)"/>
     <use xlink:href="#HelveticaNeue-36" transform="translate(6633.598572 0)"/>
     <use xlink:href="#HelveticaNeue-2e" transform="translate(6689.198563 0)"/>
-    <use xlink:href="#HelveticaNeue-30" transform="translate(6716.99855 0)"/>
-    <use xlink:href="#HelveticaNeue-35" transform="translate(6772.598541 0)"/>
+    <use xlink:href="#HelveticaNeue-39" transform="translate(6716.99855 0)"/>
    </g>
   </g>
   <g id="text_26">
@@ -2543,10 +2542,10 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="pb2c7745baf">
+  <clipPath id="p792478876c">
    <rect x="28.8" y="126" width="315" height="168.48"/>
   </clipPath>
-  <clipPath id="pf861c651ce">
+  <clipPath id="pec10a4ddaf">
    <rect x="376.2" y="126" width="315" height="168.48"/>
   </clipPath>
  </defs>

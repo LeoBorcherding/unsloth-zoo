@@ -55,7 +55,7 @@ tc.thick_chart(
     subtitle='Tokenizing in process keeps host RAM 15 GiB lower, and the run trains.',
     meta=['Qwen3.8-Flash-Next-FP8 (180B MoE)', 'LoRA r16', 'Colab G4, RTX PRO 6000 96 GB'],
     footnote='Nov 12 2026. main 211f0ee22, this PR e3e8fd3be. Both main runs exit with code -9 (OOM killer). '
-             'The PR run had no env overrides; it ran 25 steps at 6.05 s/step.',
+             'The PR run had no env overrides; it ran 25 steps at 6.9 s/step.',
     out='charts/pr-17701-outcome', ncols=2)
 
 # 2499: disk-space estimate for one merge
