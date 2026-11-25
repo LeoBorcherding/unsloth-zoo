@@ -1,0 +1,5681 @@
+{
+ "id": "q-c24-ctx4096",
+ "cfg": {
+  "steps": 10,
+  "id": "q-c24-ctx4096",
+  "offload": 24,
+  "ctx": 4096,
+  "load_in_4bit": true
+ },
+ "start_http": 200,
+ "start_resp": {
+  "job_id": "job_20261119_203154_73988910",
+  "status": "queued",
+  "message": "Training job queued and starting in subprocess",
+  "error": null,
+  "error_code": null
+ },
+ "status": "completed",
+ "error": null,
+ "message": "Training completed! Model saved to /root/.unsloth/studio/outputs/unsloth_Qwen3.8-Flash-Next-FP8_1795121044",
+ "warnings": [],
+ "phases_at_s": {
+  "loading_model": 3,
+  "training": 16,
+  "configuring": 716,
+  "finalizing": 963,
+  "completed": 1006
+ },
+ "elapsed_s": 1006,
+ "peak_gpu_mib": 86164,
+ "peak_host_used_gib": 63.8,
+ "peak_proc_rss_gib": 135.0,
+ "host_total_gib": 176.9,
+ "median_step_s": 18.12,
+ "steps_seen": 10,
+ "offload": {
+  "active": true,
+  "total_layers": 48,
+  "swapped": [
+   1,
+   3,
+   5,
+   7,
+   9,
+   11,
+   13,
+   15,
+   17,
+   19,
+   21,
+   23,
+   25,
+   27,
+   29,
+   31,
+   33,
+   35,
+   37,
+   39,
+   41,
+   43,
+   45,
+   47
+  ],
+  "state": {
+   "1": "gpu",
+   "3": "gpu",
+   "5": "host",
+   "7": "host",
+   "9": "host",
+   "11": "host",
+   "13": "host",
+   "15": "host",
+   "17": "host",
+   "19": "host",
+   "21": "host",
+   "23": "host",
+   "25": "host",
+   "27": "host",
+   "29": "host",
+   "31": "host",
+   "33": "host",
+   "35": "host",
+   "37": "host",
+   "39": "host",
+   "41": "host",
+   "43": "host",
+   "45": "host",
+   "47": "host"
+  },
+  "current": 1,
+  "prefetch_depth": 2,
+  "auto_depth": false,
+  "depth_settled": true,
+  "host_bytes": 33824434176,
+  "pinned_bytes": 33824434176,
+  "pool_bytes": 9918494720,
+  "timing": true,
+  "copies": 0.0,
+  "copy_ms": 0.0,
+  "copy_bytes": 0.0,
+  "stall_ms": 0.0,
+  "compute_ms": 0.0,
+  "layers": 0.0,
+  "vram_allocated_bytes": 64863563776,
+  "vram_peak_bytes": 80791918592,
+  "vram_total_bytes": 101974081536,
+  "vram_fraction": 1.0,
+  "vram_devices": [
+   {
+    "index": 0,
+    "gpu_id": 0,
+    "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "allocated_bytes": 64863563776,
+    "peak_bytes": 80791918592,
+    "total_bytes": 101974081536,
+    "fraction": 1.0
+   }
+  ],
+  "layer_device": {
+   "1": 0,
+   "3": 0,
+   "5": 0,
+   "7": 0,
+   "9": 0,
+   "11": 0,
+   "13": 0,
+   "15": 0,
+   "17": 0,
+   "19": 0,
+   "21": 0,
+   "23": 0,
+   "25": 0,
+   "27": 0,
+   "29": 0,
+   "31": 0,
+   "33": 0,
+   "35": 0,
+   "37": 0,
+   "39": 0,
+   "41": 0,
+   "43": 0,
+   "45": 0,
+   "47": 0,
+   "0": 0,
+   "2": 0,
+   "4": 0,
+   "6": 0,
+   "8": 0,
+   "10": 0,
+   "12": 0,
+   "14": 0,
+   "16": 0,
+   "18": 0,
+   "20": 0,
+   "22": 0,
+   "24": 0,
+   "26": 0,
+   "28": 0,
+   "30": 0,
+   "32": 0,
+   "34": 0,
+   "36": 0,
+   "38": 0,
+   "40": 0,
+   "42": 0,
+   "44": 0,
+   "46": 0
+  }
+ },
+ "samples": [
+  [
+   3.5,
+   "loading_model",
+   799,
+   5.5,
+   2.1,
+   null,
+   {
+    "shmem_gib": 0.0,
+    "top": [
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   6.5,
+   "loading_model",
+   799,
+   5.6,
+   2.1,
+   null
+  ],
+  [
+   9.5,
+   "loading_model",
+   1496,
+   6.4,
+   2.1,
+   null
+  ],
+  [
+   12.5,
+   "loading_model",
+   1496,
+   6.6,
+   2.1,
+   null,
+   {
+    "shmem_gib": 0.0,
+    "top": [
+     [
+      2.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   15.5,
+   "training",
+   1496,
+   7.0,
+   2.3,
+   null
+  ],
+  [
+   18.6,
+   "training",
+   1496,
+   7.6,
+   2.3,
+   null
+  ],
+  [
+   21.6,
+   "training",
+   1496,
+   8.0,
+   2.3,
+   null,
+   {
+    "shmem_gib": 0.0,
+    "top": [
+     [
+      2.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      1.9,
+      47797,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      1.9,
+      47799,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ]
+    ]
+   }
+  ],
+  [
+   24.6,
+   "training",
+   1496,
+   8.5,
+   2.3,
+   null
+  ],
+  [
+   27.6,
+   "training",
+   1496,
+   9.0,
+   2.3,
+   null
+  ],
+  [
+   30.6,
+   "loading_model",
+   1496,
+   6.8,
+   2.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   33.7,
+   "loading_model",
+   1496,
+   6.8,
+   2.2,
+   null
+  ],
+  [
+   36.7,
+   "loading_model",
+   1496,
+   6.8,
+   2.3,
+   null
+  ],
+  [
+   39.7,
+   "loading_model",
+   1496,
+   6.8,
+   2.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   42.7,
+   "loading_model",
+   1496,
+   6.9,
+   2.3,
+   null
+  ],
+  [
+   45.7,
+   "loading_model",
+   2716,
+   6.9,
+   2.6,
+   null
+  ],
+  [
+   48.8,
+   "loading_model",
+   2716,
+   6.9,
+   3.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      3.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   51.8,
+   "loading_model",
+   3916,
+   6.9,
+   3.9,
+   null
+  ],
+  [
+   54.8,
+   "loading_model",
+   3916,
+   6.9,
+   4.6,
+   null
+  ],
+  [
+   57.8,
+   "loading_model",
+   4456,
+   6.9,
+   5.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      5.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   60.8,
+   "loading_model",
+   6476,
+   6.9,
+   5.8,
+   null
+  ],
+  [
+   63.8,
+   "loading_model",
+   6476,
+   6.9,
+   6.3,
+   null
+  ],
+  [
+   66.9,
+   "loading_model",
+   6476,
+   6.9,
+   7.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      7.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   69.9,
+   "loading_model",
+   9278,
+   6.9,
+   7.8,
+   null
+  ],
+  [
+   72.9,
+   "loading_model",
+   9278,
+   6.9,
+   8.3,
+   null
+  ],
+  [
+   75.9,
+   "loading_model",
+   9278,
+   6.9,
+   8.7,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      8.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   78.9,
+   "loading_model",
+   9278,
+   6.9,
+   9.4,
+   null
+  ],
+  [
+   82.0,
+   "loading_model",
+   10678,
+   8.3,
+   11.4,
+   null
+  ],
+  [
+   85.0,
+   "loading_model",
+   10678,
+   8.3,
+   12.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      12.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   88.0,
+   "loading_model",
+   10678,
+   8.3,
+   12.5,
+   null
+  ],
+  [
+   91.0,
+   "loading_model",
+   10678,
+   8.3,
+   13.0,
+   null
+  ],
+  [
+   94.0,
+   "loading_model",
+   10718,
+   8.3,
+   13.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      13.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   97.0,
+   "loading_model",
+   10718,
+   8.3,
+   14.5,
+   null
+  ],
+  [
+   100.1,
+   "loading_model",
+   10718,
+   8.3,
+   15.0,
+   null
+  ],
+  [
+   103.1,
+   "loading_model",
+   10718,
+   8.3,
+   15.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      15.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   106.1,
+   "loading_model",
+   11980,
+   9.6,
+   17.6,
+   null
+  ],
+  [
+   109.1,
+   "loading_model",
+   11980,
+   9.6,
+   18.2,
+   null
+  ],
+  [
+   112.1,
+   "loading_model",
+   11980,
+   9.6,
+   18.7,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      18.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   115.1,
+   "loading_model",
+   11980,
+   9.6,
+   19.1,
+   null
+  ],
+  [
+   118.2,
+   "loading_model",
+   12140,
+   9.6,
+   19.9,
+   null
+  ],
+  [
+   121.2,
+   "loading_model",
+   12140,
+   9.6,
+   20.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      20.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   124.2,
+   "loading_model",
+   12142,
+   9.6,
+   21.1,
+   null
+  ],
+  [
+   127.2,
+   "loading_model",
+   12142,
+   9.6,
+   21.6,
+   null
+  ],
+  [
+   130.2,
+   "loading_model",
+   13522,
+   10.3,
+   23.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      23.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   133.3,
+   "loading_model",
+   13522,
+   10.9,
+   24.3,
+   null
+  ],
+  [
+   136.3,
+   "loading_model",
+   13522,
+   10.9,
+   24.8,
+   null
+  ],
+  [
+   139.3,
+   "loading_model",
+   13522,
+   11.0,
+   25.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      25.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   142.3,
+   "loading_model",
+   13522,
+   11.0,
+   26.0,
+   null
+  ],
+  [
+   145.3,
+   "loading_model",
+   13562,
+   11.0,
+   26.7,
+   null
+  ],
+  [
+   148.3,
+   "loading_model",
+   13562,
+   10.9,
+   27.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      27.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   151.4,
+   "loading_model",
+   13562,
+   11.0,
+   27.7,
+   null
+  ],
+  [
+   154.4,
+   "loading_model",
+   14842,
+   11.0,
+   28.6,
+   null
+  ],
+  [
+   157.4,
+   "loading_model",
+   14844,
+   12.3,
+   30.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      30.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   160.4,
+   "loading_model",
+   14844,
+   12.3,
+   31.0,
+   null
+  ],
+  [
+   163.4,
+   "loading_model",
+   14844,
+   12.3,
+   31.5,
+   null
+  ],
+  [
+   166.4,
+   "loading_model",
+   14844,
+   12.3,
+   32.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      32.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   169.5,
+   "loading_model",
+   14984,
+   12.2,
+   32.9,
+   null
+  ],
+  [
+   172.5,
+   "loading_model",
+   14986,
+   12.2,
+   33.4,
+   null
+  ],
+  [
+   175.5,
+   "loading_model",
+   14986,
+   12.2,
+   33.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      33.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   178.5,
+   "loading_model",
+   14986,
+   12.2,
+   34.4,
+   null
+  ],
+  [
+   181.5,
+   "loading_model",
+   16366,
+   13.5,
+   36.4,
+   null
+  ],
+  [
+   184.5,
+   "loading_model",
+   16366,
+   13.5,
+   37.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      37.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   187.6,
+   "loading_model",
+   16366,
+   13.5,
+   37.6,
+   null
+  ],
+  [
+   190.6,
+   "loading_model",
+   16366,
+   13.6,
+   38.0,
+   null
+  ],
+  [
+   193.6,
+   "loading_model",
+   16406,
+   13.6,
+   38.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      38.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   196.6,
+   "loading_model",
+   16406,
+   13.6,
+   39.5,
+   null
+  ],
+  [
+   199.6,
+   "loading_model",
+   16406,
+   13.5,
+   40.0,
+   null
+  ],
+  [
+   202.7,
+   "loading_model",
+   16406,
+   13.6,
+   40.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      40.4,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   205.7,
+   "loading_model",
+   17686,
+   13.5,
+   41.1,
+   null
+  ],
+  [
+   208.7,
+   "loading_model",
+   17688,
+   14.8,
+   42.9,
+   null
+  ],
+  [
+   211.7,
+   "loading_model",
+   17688,
+   14.8,
+   43.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      43.4,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   214.7,
+   "loading_model",
+   17688,
+   14.9,
+   43.8,
+   null
+  ],
+  [
+   217.7,
+   "loading_model",
+   17688,
+   14.9,
+   44.1,
+   null
+  ],
+  [
+   220.8,
+   "loading_model",
+   17688,
+   14.8,
+   44.7,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      44.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   223.8,
+   "loading_model",
+   17828,
+   14.9,
+   45.3,
+   null
+  ],
+  [
+   226.8,
+   "loading_model",
+   17828,
+   14.8,
+   45.8,
+   null
+  ],
+  [
+   229.8,
+   "loading_model",
+   17828,
+   14.8,
+   46.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      46.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   232.8,
+   "loading_model",
+   17828,
+   14.9,
+   46.7,
+   null
+  ],
+  [
+   235.9,
+   "loading_model",
+   17830,
+   14.9,
+   47.5,
+   null
+  ],
+  [
+   238.9,
+   "loading_model",
+   19230,
+   16.2,
+   49.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      49.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   241.9,
+   "loading_model",
+   19230,
+   16.2,
+   49.9,
+   null
+  ],
+  [
+   244.9,
+   "loading_model",
+   19230,
+   16.2,
+   50.3,
+   null
+  ],
+  [
+   247.9,
+   "loading_model",
+   19230,
+   16.2,
+   50.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      50.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   250.9,
+   "loading_model",
+   19270,
+   16.2,
+   51.6,
+   null
+  ],
+  [
+   254.0,
+   "loading_model",
+   19270,
+   16.2,
+   52.2,
+   null
+  ],
+  [
+   257.0,
+   "loading_model",
+   19270,
+   16.2,
+   52.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      52.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   260.0,
+   "loading_model",
+   19270,
+   16.2,
+   53.1,
+   null
+  ],
+  [
+   263.0,
+   "loading_model",
+   20530,
+   16.5,
+   54.1,
+   null
+  ],
+  [
+   266.0,
+   "loading_model",
+   20532,
+   17.5,
+   55.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      55.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   269.1,
+   "loading_model",
+   20532,
+   17.5,
+   56.1,
+   null
+  ],
+  [
+   272.1,
+   "loading_model",
+   20532,
+   17.5,
+   57.0,
+   null
+  ],
+  [
+   275.1,
+   "loading_model",
+   20692,
+   17.5,
+   57.7,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      57.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   278.1,
+   "loading_model",
+   20692,
+   17.5,
+   58.2,
+   null
+  ],
+  [
+   281.1,
+   "loading_model",
+   20692,
+   17.5,
+   58.6,
+   null
+  ],
+  [
+   284.1,
+   "loading_model",
+   20692,
+   17.5,
+   59.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      59.0,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   287.2,
+   "loading_model",
+   20692,
+   17.6,
+   59.4,
+   null
+  ],
+  [
+   290.2,
+   "loading_model",
+   22074,
+   17.6,
+   60.1,
+   null
+  ],
+  [
+   293.2,
+   "loading_model",
+   22074,
+   18.8,
+   61.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      61.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   296.2,
+   "loading_model",
+   22074,
+   18.8,
+   62.4,
+   null
+  ],
+  [
+   299.2,
+   "loading_model",
+   22074,
+   18.8,
+   62.8,
+   null
+  ],
+  [
+   302.2,
+   "loading_model",
+   22074,
+   18.9,
+   63.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      63.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   305.3,
+   "loading_model",
+   22114,
+   18.9,
+   64.0,
+   null
+  ],
+  [
+   308.3,
+   "loading_model",
+   22114,
+   18.9,
+   64.6,
+   null
+  ],
+  [
+   311.3,
+   "loading_model",
+   22114,
+   18.9,
+   65.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      65.0,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   314.3,
+   "loading_model",
+   22114,
+   18.9,
+   65.4,
+   null
+  ],
+  [
+   317.3,
+   "loading_model",
+   22114,
+   18.9,
+   66.2,
+   null
+  ],
+  [
+   320.4,
+   "loading_model",
+   23394,
+   20.2,
+   68.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      68.0,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   323.4,
+   "loading_model",
+   23396,
+   20.2,
+   68.6,
+   null
+  ],
+  [
+   326.4,
+   "loading_model",
+   23396,
+   20.2,
+   69.0,
+   null
+  ],
+  [
+   329.4,
+   "loading_model",
+   23396,
+   20.2,
+   69.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      69.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   332.4,
+   "loading_model",
+   23396,
+   20.2,
+   69.9,
+   null
+  ],
+  [
+   335.4,
+   "loading_model",
+   23536,
+   20.2,
+   70.5,
+   null
+  ],
+  [
+   338.5,
+   "loading_model",
+   23536,
+   20.2,
+   71.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      71.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   341.5,
+   "loading_model",
+   23536,
+   20.2,
+   71.5,
+   null
+  ],
+  [
+   344.5,
+   "loading_model",
+   23536,
+   20.2,
+   72.0,
+   null
+  ],
+  [
+   347.5,
+   "loading_model",
+   24938,
+   21.5,
+   74.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      74.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   350.5,
+   "loading_model",
+   24938,
+   21.5,
+   74.7,
+   null
+  ],
+  [
+   353.6,
+   "loading_model",
+   24938,
+   21.5,
+   75.2,
+   null
+  ],
+  [
+   356.6,
+   "loading_model",
+   24938,
+   21.5,
+   75.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      75.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   359.6,
+   "loading_model",
+   24938,
+   21.5,
+   76.4,
+   null
+  ],
+  [
+   362.6,
+   "loading_model",
+   24958,
+   21.5,
+   77.1,
+   null
+  ],
+  [
+   365.6,
+   "loading_model",
+   24958,
+   21.5,
+   77.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      77.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   368.6,
+   "loading_model",
+   24958,
+   21.5,
+   78.0,
+   null
+  ],
+  [
+   371.7,
+   "loading_model",
+   24958,
+   21.5,
+   78.7,
+   null
+  ],
+  [
+   374.7,
+   "loading_model",
+   26238,
+   22.8,
+   80.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      80.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   377.7,
+   "loading_model",
+   26238,
+   22.8,
+   81.1,
+   null
+  ],
+  [
+   380.7,
+   "loading_model",
+   26240,
+   22.9,
+   81.5,
+   null
+  ],
+  [
+   383.7,
+   "loading_model",
+   26240,
+   22.9,
+   82.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      82.0,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   386.8,
+   "loading_model",
+   26400,
+   22.9,
+   82.8,
+   null
+  ],
+  [
+   389.8,
+   "loading_model",
+   26400,
+   22.9,
+   83.4,
+   null
+  ],
+  [
+   392.8,
+   "loading_model",
+   26400,
+   22.9,
+   83.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      83.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   395.8,
+   "loading_model",
+   26400,
+   22.9,
+   84.4,
+   null
+  ],
+  [
+   398.8,
+   "loading_model",
+   26400,
+   22.8,
+   85.2,
+   null
+  ],
+  [
+   401.8,
+   "loading_model",
+   27780,
+   24.2,
+   87.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      87.0,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   404.9,
+   "loading_model",
+   27782,
+   24.2,
+   87.6,
+   null
+  ],
+  [
+   407.9,
+   "loading_model",
+   27782,
+   24.2,
+   88.0,
+   null
+  ],
+  [
+   410.9,
+   "loading_model",
+   27782,
+   24.2,
+   88.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      88.4,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   413.9,
+   "loading_model",
+   27822,
+   24.2,
+   89.1,
+   null
+  ],
+  [
+   416.9,
+   "loading_model",
+   27822,
+   24.2,
+   89.7,
+   null
+  ],
+  [
+   419.9,
+   "loading_model",
+   27822,
+   24.2,
+   90.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      90.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   423.0,
+   "loading_model",
+   27822,
+   24.2,
+   90.6,
+   null
+  ],
+  [
+   426.0,
+   "loading_model",
+   29102,
+   24.2,
+   91.4,
+   null
+  ],
+  [
+   429.0,
+   "loading_model",
+   29102,
+   25.5,
+   93.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      93.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   432.0,
+   "loading_model",
+   29102,
+   25.5,
+   93.9,
+   null
+  ],
+  [
+   435.0,
+   "loading_model",
+   29102,
+   25.5,
+   94.3,
+   null
+  ],
+  [
+   438.1,
+   "loading_model",
+   29104,
+   25.5,
+   94.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      94.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   441.1,
+   "loading_model",
+   29244,
+   25.5,
+   95.5,
+   null
+  ],
+  [
+   444.1,
+   "loading_model",
+   29244,
+   25.5,
+   96.1,
+   null
+  ],
+  [
+   447.1,
+   "loading_model",
+   29244,
+   25.5,
+   96.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      96.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   450.1,
+   "loading_model",
+   29244,
+   25.5,
+   97.0,
+   null
+  ],
+  [
+   453.2,
+   "loading_model",
+   30624,
+   26.3,
+   98.6,
+   null
+  ],
+  [
+   456.2,
+   "loading_model",
+   30624,
+   26.8,
+   99.7,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      99.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   459.2,
+   "loading_model",
+   30624,
+   26.8,
+   100.2,
+   null
+  ],
+  [
+   462.2,
+   "loading_model",
+   30624,
+   26.8,
+   100.6,
+   null
+  ],
+  [
+   465.2,
+   "loading_model",
+   30626,
+   26.8,
+   101.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      101.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   468.2,
+   "loading_model",
+   30666,
+   26.8,
+   102.0,
+   null
+  ],
+  [
+   471.3,
+   "loading_model",
+   30666,
+   26.8,
+   102.5,
+   null
+  ],
+  [
+   474.3,
+   "loading_model",
+   30666,
+   26.8,
+   103.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      103.0,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   477.3,
+   "loading_model",
+   30666,
+   26.8,
+   103.6,
+   null
+  ],
+  [
+   480.3,
+   "loading_model",
+   31946,
+   28.1,
+   105.5,
+   null
+  ],
+  [
+   483.3,
+   "loading_model",
+   31946,
+   28.1,
+   106.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      106.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   486.4,
+   "loading_model",
+   31946,
+   28.1,
+   106.6,
+   null
+  ],
+  [
+   489.4,
+   "loading_model",
+   31946,
+   28.1,
+   107.0,
+   null
+  ],
+  [
+   492.4,
+   "loading_model",
+   32088,
+   28.1,
+   107.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      107.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   495.4,
+   "loading_model",
+   32088,
+   28.2,
+   108.4,
+   null
+  ],
+  [
+   498.4,
+   "loading_model",
+   32088,
+   28.2,
+   108.9,
+   null
+  ],
+  [
+   501.4,
+   "loading_model",
+   32088,
+   28.2,
+   109.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      109.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   504.5,
+   "loading_model",
+   32088,
+   28.2,
+   109.8,
+   null
+  ],
+  [
+   507.5,
+   "loading_model",
+   33488,
+   29.5,
+   111.8,
+   null
+  ],
+  [
+   510.5,
+   "loading_model",
+   33488,
+   29.5,
+   112.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      112.4,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   513.5,
+   "loading_model",
+   33488,
+   29.5,
+   112.9,
+   null
+  ],
+  [
+   516.5,
+   "loading_model",
+   33488,
+   29.5,
+   113.3,
+   null
+  ],
+  [
+   519.6,
+   "loading_model",
+   33488,
+   29.4,
+   114.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      114.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   522.6,
+   "loading_model",
+   33530,
+   29.4,
+   114.7,
+   null
+  ],
+  [
+   525.6,
+   "loading_model",
+   33530,
+   29.4,
+   115.2,
+   null
+  ],
+  [
+   528.6,
+   "loading_model",
+   33530,
+   29.5,
+   115.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      115.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   531.6,
+   "loading_model",
+   33530,
+   29.5,
+   116.3,
+   null
+  ],
+  [
+   534.6,
+   "loading_model",
+   34790,
+   30.8,
+   118.2,
+   null
+  ],
+  [
+   537.7,
+   "loading_model",
+   34790,
+   30.8,
+   118.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      118.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   540.7,
+   "loading_model",
+   34790,
+   30.8,
+   119.2,
+   null
+  ],
+  [
+   543.7,
+   "loading_model",
+   34790,
+   30.8,
+   119.7,
+   null
+  ],
+  [
+   546.7,
+   "loading_model",
+   34952,
+   30.8,
+   120.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      120.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   549.7,
+   "loading_model",
+   34952,
+   30.8,
+   121.1,
+   null
+  ],
+  [
+   552.8,
+   "loading_model",
+   34952,
+   30.8,
+   121.6,
+   null
+  ],
+  [
+   555.8,
+   "loading_model",
+   34952,
+   30.8,
+   121.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      121.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   558.8,
+   "loading_model",
+   34952,
+   30.8,
+   122.6,
+   null
+  ],
+  [
+   561.8,
+   "loading_model",
+   36332,
+   32.1,
+   124.5,
+   null
+  ],
+  [
+   564.8,
+   "loading_model",
+   36332,
+   32.1,
+   125.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      125.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   567.9,
+   "loading_model",
+   36332,
+   32.1,
+   125.5,
+   null
+  ],
+  [
+   570.9,
+   "loading_model",
+   36332,
+   32.1,
+   125.9,
+   null
+  ],
+  [
+   573.9,
+   "loading_model",
+   36374,
+   32.1,
+   126.7,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      126.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   576.9,
+   "loading_model",
+   36374,
+   32.1,
+   127.3,
+   null
+  ],
+  [
+   579.9,
+   "loading_model",
+   36374,
+   32.1,
+   127.8,
+   null
+  ],
+  [
+   582.9,
+   "loading_model",
+   36374,
+   32.1,
+   128.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      128.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   586.0,
+   "loading_model",
+   36374,
+   32.1,
+   128.9,
+   null
+  ],
+  [
+   589.0,
+   "loading_model",
+   37654,
+   33.4,
+   130.7,
+   null
+  ],
+  [
+   592.0,
+   "loading_model",
+   37654,
+   33.4,
+   131.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      131.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   595.0,
+   "loading_model",
+   37654,
+   33.4,
+   131.7,
+   null
+  ],
+  [
+   598.0,
+   "loading_model",
+   37654,
+   33.4,
+   132.1,
+   null
+  ],
+  [
+   601.1,
+   "loading_model",
+   37654,
+   33.4,
+   132.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      132.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   604.1,
+   "loading_model",
+   37796,
+   33.4,
+   133.4,
+   null
+  ],
+  [
+   607.1,
+   "loading_model",
+   37796,
+   33.4,
+   134.0,
+   null
+  ],
+  [
+   610.1,
+   "loading_model",
+   37796,
+   33.4,
+   134.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      134.4,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.1,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   613.1,
+   "loading_model",
+   37796,
+   33.4,
+   134.4,
+   null
+  ],
+  [
+   616.2,
+   "loading_model",
+   39176,
+   34.8,
+   135.0,
+   null
+  ],
+  [
+   619.2,
+   "loading_model",
+   39176,
+   34.8,
+   134.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      134.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   622.2,
+   "loading_model",
+   39176,
+   34.8,
+   134.6,
+   null
+  ],
+  [
+   625.2,
+   "loading_model",
+   39176,
+   34.8,
+   134.2,
+   null
+  ],
+  [
+   628.2,
+   "loading_model",
+   39176,
+   34.8,
+   134.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      134.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   631.2,
+   "loading_model",
+   39216,
+   34.8,
+   134.0,
+   null
+  ],
+  [
+   634.3,
+   "loading_model",
+   39218,
+   34.8,
+   133.4,
+   null
+  ],
+  [
+   637.3,
+   "loading_model",
+   39218,
+   34.8,
+   133.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      133.0,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   640.3,
+   "loading_model",
+   39218,
+   34.8,
+   133.0,
+   null
+  ],
+  [
+   643.3,
+   "loading_model",
+   40498,
+   36.1,
+   133.4,
+   null
+  ],
+  [
+   646.3,
+   "loading_model",
+   40498,
+   36.1,
+   133.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      133.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   649.4,
+   "loading_model",
+   40498,
+   36.1,
+   133.0,
+   null
+  ],
+  [
+   652.4,
+   "loading_model",
+   40498,
+   36.1,
+   132.6,
+   null
+  ],
+  [
+   655.4,
+   "loading_model",
+   40498,
+   36.1,
+   132.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      132.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   658.4,
+   "loading_model",
+   40640,
+   36.1,
+   132.5,
+   null
+  ],
+  [
+   661.4,
+   "loading_model",
+   40640,
+   36.1,
+   132.4,
+   null
+  ],
+  [
+   664.4,
+   "loading_model",
+   40640,
+   36.1,
+   132.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      132.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   667.5,
+   "loading_model",
+   40640,
+   36.1,
+   131.7,
+   null
+  ],
+  [
+   670.5,
+   "loading_model",
+   42040,
+   36.1,
+   131.8,
+   null
+  ],
+  [
+   673.5,
+   "loading_model",
+   42040,
+   37.4,
+   131.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      131.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   676.5,
+   "loading_model",
+   42040,
+   37.4,
+   131.4,
+   null
+  ],
+  [
+   679.5,
+   "loading_model",
+   42040,
+   37.4,
+   131.0,
+   null
+  ],
+  [
+   682.6,
+   "loading_model",
+   42040,
+   37.4,
+   130.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      130.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   685.6,
+   "loading_model",
+   42080,
+   37.4,
+   131.0,
+   null
+  ],
+  [
+   688.6,
+   "loading_model",
+   42080,
+   37.4,
+   130.6,
+   null
+  ],
+  [
+   691.6,
+   "loading_model",
+   42082,
+   37.4,
+   130.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      130.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   694.6,
+   "loading_model",
+   42082,
+   37.4,
+   130.3,
+   null
+  ],
+  [
+   697.6,
+   "loading_model",
+   42082,
+   37.4,
+   130.2,
+   null
+  ],
+  [
+   700.7,
+   "loading_model",
+   43342,
+   38.7,
+   130.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      130.4,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   703.7,
+   "loading_model",
+   43342,
+   38.7,
+   102.8,
+   null
+  ],
+  [
+   706.7,
+   "loading_model",
+   43342,
+   38.5,
+   33.8,
+   null
+  ],
+  [
+   709.7,
+   "loading_model",
+   39004,
+   38.5,
+   33.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      33.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   712.7,
+   "loading_model",
+   39074,
+   40.1,
+   35.0,
+   null
+  ],
+  [
+   715.8,
+   "configuring",
+   48622,
+   39.4,
+   33.9,
+   null
+  ],
+  [
+   718.8,
+   "configuring",
+   50002,
+   39.4,
+   33.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      33.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   721.8,
+   "configuring",
+   51382,
+   39.4,
+   33.8,
+   null
+  ],
+  [
+   724.8,
+   "configuring",
+   52702,
+   39.5,
+   33.9,
+   null
+  ],
+  [
+   727.8,
+   "configuring",
+   59248,
+   39.3,
+   33.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      33.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ],
+     [
+      0.1,
+      2017,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   730.9,
+   "training",
+   58058,
+   40.4,
+   35.3,
+   null
+  ],
+  [
+   733.9,
+   "training",
+   59322,
+   41.1,
+   35.7,
+   null
+  ],
+  [
+   736.9,
+   "training",
+   59322,
+   41.3,
+   35.7,
+   null,
+   {
+    "shmem_gib": 0.2,
+    "top": [
+     [
+      35.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51410,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   739.9,
+   "training",
+   59322,
+   41.4,
+   35.7,
+   null
+  ],
+  [
+   742.9,
+   "training",
+   62462,
+   41.7,
+   36.0,
+   null
+  ],
+  [
+   746.0,
+   "training",
+   62462,
+   41.7,
+   36.0,
+   null,
+   {
+    "shmem_gib": 0.3,
+    "top": [
+     [
+      36.0,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51420,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   749.0,
+   "training",
+   62462,
+   41.7,
+   36.1,
+   null
+  ],
+  [
+   752.0,
+   "training",
+   62462,
+   41.8,
+   36.1,
+   null
+  ],
+  [
+   755.0,
+   "training",
+   62462,
+   41.8,
+   36.1,
+   null,
+   {
+    "shmem_gib": 0.3,
+    "top": [
+     [
+      36.1,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51420,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   758.0,
+   "training",
+   62462,
+   41.8,
+   36.1,
+   null
+  ],
+  [
+   761.1,
+   "training",
+   62462,
+   41.8,
+   36.2,
+   null
+  ],
+  [
+   764.1,
+   "training",
+   62462,
+   41.8,
+   36.2,
+   null,
+   {
+    "shmem_gib": 0.3,
+    "top": [
+     [
+      36.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51420,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   767.1,
+   "training",
+   64384,
+   42.0,
+   36.4,
+   null
+  ],
+  [
+   770.1,
+   "training",
+   64384,
+   42.1,
+   36.5,
+   null
+  ],
+  [
+   773.1,
+   "training",
+   67020,
+   45.0,
+   38.6,
+   null,
+   {
+    "shmem_gib": 2.5,
+    "top": [
+     [
+      38.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   776.2,
+   "training",
+   67900,
+   46.1,
+   40.0,
+   null
+  ],
+  [
+   779.2,
+   "training",
+   80790,
+   46.3,
+   40.2,
+   null
+  ],
+  [
+   782.2,
+   "training",
+   86140,
+   46.4,
+   40.3,
+   1,
+   {
+    "shmem_gib": 3.9,
+    "top": [
+     [
+      40.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   785.2,
+   "training",
+   86142,
+   46.6,
+   40.5,
+   1
+  ],
+  [
+   788.3,
+   "training",
+   86142,
+   46.6,
+   40.5,
+   1
+  ],
+  [
+   791.3,
+   "training",
+   86142,
+   46.6,
+   40.5,
+   1,
+   {
+    "shmem_gib": 4.0,
+    "top": [
+     [
+      40.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   794.3,
+   "training",
+   86142,
+   46.6,
+   40.5,
+   1
+  ],
+  [
+   797.3,
+   "training",
+   86142,
+   46.6,
+   40.6,
+   1
+  ],
+  [
+   800.3,
+   "training",
+   86142,
+   46.6,
+   40.6,
+   1,
+   {
+    "shmem_gib": 4.0,
+    "top": [
+     [
+      40.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   803.4,
+   "training",
+   86142,
+   46.6,
+   40.6,
+   1
+  ],
+  [
+   806.4,
+   "training",
+   86142,
+   46.7,
+   40.7,
+   1
+  ],
+  [
+   809.4,
+   "training",
+   86142,
+   46.8,
+   40.8,
+   1,
+   {
+    "shmem_gib": 4.2,
+    "top": [
+     [
+      40.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   812.4,
+   "training",
+   86142,
+   46.8,
+   40.8,
+   1
+  ],
+  [
+   815.4,
+   "training",
+   86150,
+   50.3,
+   44.3,
+   1
+  ],
+  [
+   818.5,
+   "training",
+   86158,
+   50.4,
+   44.4,
+   2,
+   {
+    "shmem_gib": 7.8,
+    "top": [
+     [
+      44.4,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   821.5,
+   "training",
+   86158,
+   50.5,
+   44.5,
+   2
+  ],
+  [
+   824.5,
+   "training",
+   86158,
+   50.5,
+   44.5,
+   2
+  ],
+  [
+   827.5,
+   "training",
+   86158,
+   50.5,
+   44.5,
+   2,
+   {
+    "shmem_gib": 7.8,
+    "top": [
+     [
+      44.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   830.5,
+   "training",
+   86158,
+   50.5,
+   44.5,
+   2
+  ],
+  [
+   833.6,
+   "training",
+   86158,
+   50.5,
+   44.6,
+   2
+  ],
+  [
+   836.6,
+   "training",
+   86164,
+   54.1,
+   48.2,
+   2,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   839.6,
+   "training",
+   86164,
+   54.1,
+   48.2,
+   3
+  ],
+  [
+   842.6,
+   "training",
+   86164,
+   54.4,
+   48.2,
+   3
+  ],
+  [
+   845.6,
+   "training",
+   86164,
+   54.4,
+   48.2,
+   3,
+   {
+    "shmem_gib": 11.4,
+    "top": [
+     [
+      48.2,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   848.7,
+   "training",
+   86164,
+   54.4,
+   48.2,
+   3
+  ],
+  [
+   851.7,
+   "training",
+   86164,
+   54.4,
+   48.3,
+   3
+  ],
+  [
+   854.7,
+   "training",
+   86164,
+   54.4,
+   48.3,
+   4,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   857.7,
+   "training",
+   86164,
+   54.4,
+   48.3,
+   4
+  ],
+  [
+   860.8,
+   "training",
+   86164,
+   54.4,
+   48.3,
+   4
+  ],
+  [
+   863.8,
+   "training",
+   86164,
+   54.4,
+   48.3,
+   4,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   866.8,
+   "training",
+   86164,
+   54.4,
+   48.3,
+   5
+  ],
+  [
+   869.8,
+   "training",
+   86164,
+   54.4,
+   48.4,
+   5
+  ],
+  [
+   872.8,
+   "training",
+   86164,
+   54.4,
+   48.4,
+   5,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.4,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   875.9,
+   "training",
+   86164,
+   54.1,
+   48.4,
+   5
+  ],
+  [
+   878.9,
+   "training",
+   86164,
+   54.1,
+   48.4,
+   5
+  ],
+  [
+   881.9,
+   "training",
+   86164,
+   54.1,
+   48.4,
+   5,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.4,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      51424,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   884.9,
+   "training",
+   86164,
+   54.1,
+   48.5,
+   6
+  ],
+  [
+   887.9,
+   "training",
+   86164,
+   53.4,
+   48.5,
+   6
+  ],
+  [
+   891.0,
+   "training",
+   86164,
+   53.5,
+   48.5,
+   6,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   894.0,
+   "training",
+   86164,
+   53.5,
+   48.5,
+   6
+  ],
+  [
+   897.0,
+   "training",
+   86164,
+   53.5,
+   48.5,
+   6
+  ],
+  [
+   900.0,
+   "training",
+   86164,
+   53.5,
+   48.6,
+   6,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   903.0,
+   "training",
+   86164,
+   53.5,
+   48.6,
+   7
+  ],
+  [
+   906.1,
+   "training",
+   86164,
+   53.5,
+   48.6,
+   7
+  ],
+  [
+   909.1,
+   "training",
+   86164,
+   53.5,
+   48.6,
+   7,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.6,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   912.1,
+   "training",
+   86164,
+   53.5,
+   48.6,
+   7
+  ],
+  [
+   915.1,
+   "training",
+   86164,
+   53.5,
+   48.7,
+   7
+  ],
+  [
+   918.1,
+   "training",
+   86164,
+   53.5,
+   48.7,
+   7,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   921.2,
+   "training",
+   86164,
+   53.5,
+   48.7,
+   7
+  ],
+  [
+   924.2,
+   "training",
+   86164,
+   53.5,
+   48.7,
+   7
+  ],
+  [
+   927.2,
+   "training",
+   86164,
+   53.5,
+   48.7,
+   8,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.7,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   930.2,
+   "training",
+   86164,
+   53.5,
+   48.8,
+   8
+  ],
+  [
+   933.2,
+   "training",
+   86164,
+   53.5,
+   48.8,
+   8
+  ],
+  [
+   936.3,
+   "training",
+   86164,
+   53.5,
+   48.8,
+   8,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   939.3,
+   "training",
+   86164,
+   53.5,
+   48.8,
+   8
+  ],
+  [
+   942.3,
+   "training",
+   86164,
+   53.5,
+   48.8,
+   8
+  ],
+  [
+   945.3,
+   "training",
+   86164,
+   53.5,
+   48.8,
+   9,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.8,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   948.3,
+   "training",
+   86164,
+   53.5,
+   48.9,
+   9
+  ],
+  [
+   951.4,
+   "training",
+   86164,
+   53.5,
+   48.9,
+   9
+  ],
+  [
+   954.4,
+   "training",
+   86164,
+   53.5,
+   48.9,
+   9,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      48.9,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   957.4,
+   "training",
+   86164,
+   53.5,
+   48.9,
+   9
+  ],
+  [
+   960.4,
+   "training",
+   86164,
+   53.5,
+   49.0,
+   9
+  ],
+  [
+   963.4,
+   "finalizing",
+   86164,
+   53.5,
+   49.0,
+   10,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      49.0,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   966.4,
+   "finalizing",
+   86164,
+   63.8,
+   59.3,
+   10
+  ],
+  [
+   969.5,
+   "finalizing",
+   86164,
+   63.8,
+   59.3,
+   10
+  ],
+  [
+   972.5,
+   "finalizing",
+   86164,
+   63.8,
+   59.3,
+   10,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      59.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   975.5,
+   "finalizing",
+   86164,
+   63.8,
+   59.3,
+   10
+  ],
+  [
+   978.5,
+   "finalizing",
+   86164,
+   63.8,
+   59.3,
+   10
+  ],
+  [
+   981.5,
+   "finalizing",
+   86164,
+   63.8,
+   59.3,
+   10,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      59.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   984.6,
+   "finalizing",
+   86164,
+   63.8,
+   59.3,
+   10
+  ],
+  [
+   987.6,
+   "finalizing",
+   86164,
+   63.8,
+   59.3,
+   10
+  ],
+  [
+   990.6,
+   "finalizing",
+   86164,
+   63.8,
+   59.3,
+   10,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      59.3,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   993.6,
+   "finalizing",
+   86164,
+   54.0,
+   49.5,
+   10
+  ],
+  [
+   996.6,
+   "finalizing",
+   86164,
+   54.0,
+   49.5,
+   10
+  ],
+  [
+   999.6,
+   "finalizing",
+   86164,
+   54.0,
+   49.5,
+   10,
+   {
+    "shmem_gib": 11.3,
+    "top": [
+     [
+      49.5,
+      47660,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.0,
+      2088,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      51384,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      221,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   1002.7,
+   "finalizing",
+   86164,
+   54.1,
+   49.7,
+   10
+  ],
+  [
+   1005.7,
+   "completed",
+   86164,
+   53.9,
+   49.8,
+   10
+  ]
+ ],
+ "metrics": {
+  "job_id": "job_20261119_203154_73988910",
+  "loss_history": [
+   1.726954698562622,
+   1.8066142797470093,
+   0.7728089094161987,
+   0.661890983581543,
+   0.5293765664100647,
+   0.6659053564071655,
+   0.5542537569999695,
+   0.7921411991119385,
+   0.5599811673164368,
+   0.7258945107460022
+  ],
+  "lr_history": [
+   0.0,
+   0.0002,
+   0.00017777777777777779,
+   0.00015555555555555556,
+   0.00013333333333333334,
+   0.00011111111111111112,
+   8.888888888888889e-05,
+   6.666666666666667e-05,
+   4.4444444444444447e-05,
+   2.2222222222222223e-05
+  ],
+  "step_history": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "grad_norm_history": [
+   4.264842510223389,
+   3.707418918609619,
+   0.5401272773742676,
+   0.3361884653568268,
+   0.9001030921936035,
+   0.4224518835544586,
+   0.2697566747665405,
+   0.29181259870529175,
+   0.25126543641090393,
+   0.2903585433959961,
+   0.2903585433959961
+  ],
+  "grad_norm_step_history": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   10
+  ],
+  "current_loss": 0.7258945107460022,
+  "current_lr": 2.2222222222222223e-05,
+  "current_step": 10
+ },
+ "log_hits": "\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.8}\n{\"timestamp\": \"2026-11-19T20:47:06.785426Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.85}\n{\"timestamp\": \"2026-11-19T20:47:09.803609Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.85}\n{\"timestamp\": \"2026-11-19T20:47:12.821839Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.78}\n{\"timestamp\": \"2026-11-19T20:47:15.840972Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.84}\n{\"timestamp\": \"2026-11-19T20:47:18.866492Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.82}\n{\"timestamp\": \"2026-11-19T20:47:21.885000Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.81}\n{\"timestamp\": \"2026-11-19T20:47:24.903695Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.7}\n{\"timestamp\": \"2026-11-19T20:47:27.922081Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.79}\n{\"timestamp\": \"2026-11-19T20:47:30.939824Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.7}\n{\"timestamp\": \"2026-11-19T20:47:33.958681Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.72}\n{\"timestamp\": \"2026-11-19T20:47:36.980324Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.75}\n{\"timestamp\": \"2026-11-19T20:47:39.998594Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.72}\n{\"timestamp\": \"2026-11-19T20:47:43.016890Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.69}\n{\"timestamp\": \"2026-11-19T20:47:46.035283Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.74}\n{\"timestamp\": \"2026-11-19T20:47:49.053601Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.81}\n{\"timestamp\": \"2026-11-19T20:47:52.073251Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.73}\n{\"timestamp\": \"2026-11-19T20:47:55.091096Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.73}\n{\"timestamp\": \"2026-11-19T20:47:58.109763Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.81}\n{\"timestamp\": \"2026-11-19T20:48:01.130990Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.92}\n{\"timestamp\": \"2026-11-19T20:48:04.149250Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.77}\n{\"timestamp\": \"2026-11-19T20:48:07.167532Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.72}\n{\"timestamp\": \"2026-11-19T20:48:10.187564Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.97}\n{\"timestamp\": \"2026-11-19T20:48:13.205822Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.68}\n{\"timestamp\": \"2026-11-19T20:48:16.224176Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.8}\n{\"timestamp\": \"2026-11-19T20:48:19.243264Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.82}\n{\"timestamp\": \"2026-11-19T20:48:22.261553Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.79}\n{\"timestamp\": \"2026-11-19T20:48:25.279755Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.84}\n{\"timestamp\": \"2026-11-19T20:48:28.298920Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.68}\n{\"timestamp\": \"2026-11-19T20:48:31.316119Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.67}\n{\"timestamp\": \"2026-11-19T20:48:34.333278Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.61}\n{\"timestamp\": \"2026-11-19T20:48:37.352791Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.89}\n{\"timestamp\": \"2026-11-19T20:48:40.371377Z\", \"level\": \"info\", \"event\": \"request_completed\", \"method\": \"GET\", \"path\": \"/api/train/offload\", \"status_code\": 200, \"process_time_ms\": 0.66}\n"
+}

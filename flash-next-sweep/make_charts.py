@@ -16,15 +16,29 @@ def own_samples(d):
     return sm[i:]
 
 
-for f in glob.glob(os.path.join(H, '../../pulled/*/runs/*.json')):
+def step_mean(d):
+    # Steps are seen by a 3 s status poll, so per-step gaps (and their median) snap to multiples of ~3 s.
+    # The mean over steps 3..last divides that error by the number of intervals.
+    st = {}
+    for x in d.get('samples') or []:
+        if len(x) > 5 and x[5] is not None and x[5] not in st: st[x[5]] = x[0]
+    k = sorted(st)
+    return round((st[k[-1]] - st[k[2]]) / (k[-1] - k[2]), 2) if len(k) >= 4 else None
+
+
+for f in glob.glob(os.path.join(H, '../../pulled/*/runs/*.json')) + glob.glob(os.path.join(H, '../../../fnq/pulled/*.json')):
     n = os.path.basename(f)[:-5].replace('-onlinetok', '')
-    d = json.load(open(f)); d['own'] = own_samples(d); R[n] = d
+    if n.endswith('-stopped'): continue
+    if '/fnq/' in f: n = 'fnq-' + n
+    d = json.load(open(f)); d['own'] = own_samples(d)
+    d['median_step_s_polled'] = d.get('median_step_s'); d['median_step_s'] = step_mean(d) or d.get('median_step_s')
+    R[n] = d
 GIB = 2**30
 ZOO = '989ac3f4'
 FOOT = (f'Colab G4: RTX PRO 6000 Blackwell 96 GB, 177 GiB host RAM, Linux. Unsloth Studio on unslothai/unsloth main 211f0ee22, zoo stack {ZOO} '
         '(main + zoo#1619 + zoo#2269 + save-size fix). Qwen3.8-Flash-Next-FP8, LoRA r16 all linear, 8-bit paged AdamW, FineTome-100k rows 0-400, '
         'packed, 10 steps, batch 1. Run through the Unsloth Studio training API, 2026-11-12. VRAM = torch peak allocated; host = peak host RAM in use.')
-QFMT = lambda v: '?' if v == 0 else tc._fmt(v)
+QFMT = lambda v: '?' if v == 0 else '0' if v < 0.01 else tc._fmt(v)
 BG, TRACK, INK, MUTED, FAINT, GREEN, PINK, BASE = tc.BG, tc.TRACK, tc.INK, tc.MUTED, tc.FAINT, tc.GREEN, tc.PINK, tc.BASE
 
 
@@ -72,7 +86,7 @@ tc.thick_chart(
     title = 'A 180B MoE trains on one 96 GB card in Unsloth Studio',
     subtitle = 'Every 4 more layers in host RAM trade VRAM for host RAM and speed.',
     meta = ['Qwen3.8-Flash-Next-FP8 (180B, 48 layers)', 'Block Swap Count = layers kept in host RAM', 'Unsloth Studio training API'],
-    footnote = FOOT + ' Count 32 ran 6.05 s/step here vs 6.87 in the October bench script on the same card.', out = os.path.join(H, '01-count-ladder'))
+    footnote = FOOT + ' Step time is the mean over steps 3 to 10; Count 32 at 6.9 s/step matches the October bench script (6.87) on the same card.', out = os.path.join(H, '01-count-ladder'))
 
 # 2. The fork bug: host RAM vs time, aligned at the training phase
 fig = plt.figure(figsize = (10, 6.4))
@@ -109,7 +123,7 @@ fig.savefig(os.path.join(H, '02-fork-bug.png'), dpi = 200); fig.savefig(os.path.
 rows = []
 order = lambda k: (0 if R[k]['status'] == 'completed' else 1, str(R[k]['cfg']['offload']), k)
 for k, d in sorted(R.items(), key = lambda kv: order(kv[0])):
-    if k.startswith('gif-') and k != 'gif-off-ctx1024': continue  # GIF reruns repeat sweep configs
+    if k.startswith('fnq-') or (k.startswith('gif-') and k != 'gif-off-ctx1024'): continue  # GIF reruns repeat sweep configs; QLoRA has chart 12
     c = d['cfg']; e = (d.get('error') or '')
     st = 'trains' if d['status'] == 'completed' else 'refused' if 'needs' in e and 'host RAM' in e else 'VRAM OOM' if 'CUDA out of memory' in e else 'host kill' if 'exitcode=-9' in e else d['status']
     fork = ' (fix branch)' if k.startswith('fix') else '' if k.startswith(('nt-', 'gif-')) and not k.endswith('mapfork') else ' (map fork)'
@@ -143,7 +157,7 @@ ax = fig.add_axes([0.08, 0.15, 0.86, 0.6]); ax.set_facecolor(BG)
 for s in ax.spines.values(): s.set_visible(False)
 ax.tick_params(colors = MUTED, length = 0); ax.grid(color = TRACK, lw = 1.2)
 pal = [BASE, tc.STEPS[1], GREEN, PINK, '#c9a24a', '#7d9ad6', '#b58ad6', '#d6d06b']
-done = [(k, d) for k, d in R.items() if d['status'] == 'completed' and not k.startswith(('fix', 'gif-')) and d['cfg'].get('ctx', 1024) == 1024 and not d['cfg'].get('bs')]
+done = [(k, d) for k, d in R.items() if d['status'] == 'completed' and not k.startswith(('fix', 'gif-', 'fnq-')) and d['cfg'].get('ctx', 1024) == 1024 and not d['cfg'].get('bs')]
 for (k, d), c in zip(sorted(done), pal):
     m = d['metrics']; ax.plot(m['step_history'], m['loss_history'], lw = 4.5, color = c, solid_capstyle = 'round', marker = 'o', ms = 6)
     m['_label'] = [r for r in rows if r[2] is d][0][0]
@@ -160,7 +174,7 @@ def split(k):
     t0, ts = sm[0][0], tr[0][0]; first = next(x[0] for x in tr if (x[5] or 0) >= 1); last = tr[-1][0]
     return [('load model + set up LoRA', round((ts - t0) / 60, 1), 'base'), ('wait for step 1', round((first - ts) / 60, 1), 'rival'),
             (f"{R[k]['cfg'].get('steps', 10)} training steps", round((last - first) / 60, 1), 'new'), ('total', round(R[k]['elapsed_s'] / 60, 1), 2)]
-tk = [(k, l) for k, l in (('nt-c32-ctx1024', 'Count 32 (6.05 s/step)'), ('nt-c36-ctx1024', 'Count 36 (9.07 s/step)')) if ok(k)]
+tk = [(k, f"{l} ({R[k]['median_step_s']:.1f} s/step)") for k, l in (('nt-c32-ctx1024', 'Count 32'), ('nt-c36-ctx1024', 'Count 36')) if ok(k)]
 if tk:
     tc.thick_chart(
         panels = [{'title': 'One 10-step run, start to finish', 'unit': 'minutes', 'groups': [(l, split(k)) for k, l in tk]},
@@ -178,7 +192,7 @@ if sp:
     tc.thick_chart(
         panels = [{'title': 'Throughput', 'unit': 'tokens / s', 'groups': [('Count 36', [(l, round(toks(k)), kind, f"{R[k]['median_step_s']:.1f} s/step") for k, l, kind in sp])]},
                   {'title': 'Peak VRAM', 'unit': 'GiB', 'groups': [('Count 36', [(l, round(vram(k), 1), kind) for k, l, kind in sp])]}],
-        title = 'Batch 2 doubles throughput for free', subtitle = 'The step waits on layer copies, so a second sequence rides along at the same step time.',
+        title = 'Batch 2 nearly doubles throughput', subtitle = 'The step waits on layer copies, so a second sequence rides along for about 5% more step time.',
         meta = ['Qwen3.8-Flash-Next-FP8', 'Block Swap Count 36', 'Unsloth Studio'], footnote = FOOT.replace('batch 1. ', ''),
         out = os.path.join(H, '06-speed'), ncols = 2)
 
@@ -253,7 +267,7 @@ tc.thick_chart(
     panels = [{'title': 'GPU-hours per 1M tokens', 'unit': 'lower is better', 'groups': [('ctx 1024', eff_rows(True))]},
               {'title': 'Wall-clock hours per 1M tokens', 'unit': 'lower is better', 'groups': [('ctx 1024', eff_rows(False))]}],
     title = 'Is one GPU with Block Swap cheaper per token?',
-    subtitle = ('Block Swap off on 8 GPUs is waiting on a run. To beat batch 2 per GPU-hour it needs over 1,808 tokens/s.' if not aws else
+    subtitle = (f'Block Swap off on 8 GPUs is waiting on a run. To beat batch 2 per GPU-hour it needs over {8 * round(toks("nt-c36-bs2")):,} tokens/s.' if not aws else
                 'Block Swap off measured on a multi-GPU box vs Block Swap on one card.'),
     meta = ['Qwen3.8-Flash-Next-FP8', 'LoRA r16', 'Unsloth Studio'],
     footnote = ('Block Swap off: placeholder until someone runs it on a box with ~373 GiB of VRAM (8 x 96 GB or 8 x H100); recipe in flash-next-sweep/HANDOFF.md. '
@@ -262,10 +276,12 @@ tc.thick_chart(
 
 # 11. Best settings per context length: measured rows, then untested candidates
 P = '#3a3a3a'
-CTXG = [('ctx 1024', [('nt-c36-bs2', 'Count 36, batch 2', 'new'), ('nt-c32-ctx1024', 'Count 32, batch 1', 2), ('nt-c36-ctx1024', 'Count 36, batch 1', 'base')],
-                     [('Count 32, batch 2', 'should fit, ~83 GiB'), ('Count 36, batch 4', 'should fit, ~77 GiB'), ('Count 28, batch 1', 'may not fit VRAM')]),
-        ('ctx 4096', [('nt-c36-ctx4096', 'Count 36, batch 1', 'new')],
-                     [('Count 32, batch 1', 'should fit, ~85 GiB'), ('Count 36, batch 2', 'should fit, ~80 GiB')]),
+CTXG = [('ctx 1024, LoRA 16-bit', [('nt-c36-bs2', 'Count 36, batch 2', 'new'), ('nt-c32-ctx1024', 'Count 32, batch 1', 2), ('nt-c36-ctx1024', 'Count 36, batch 1', 'base')],
+                     [('Count 32, batch 2', 'should fit, ~83 GiB')]),
+        ('ctx 1024, QLoRA 4-bit', [('fnq-q-c16-bs2', 'Count 16, batch 2', 'new'), ('fnq-q-c40', 'Count 40, batch 1', 2), ('fnq-q-c16', 'Count 16, batch 1', 'base')],
+                     [('Count 40, batch 4', 'should fit, ~55 GiB')]),
+        ('ctx 4096', [('fnq-q-c16-ctx4096', 'QLoRA Count 16', 'new'), ('fnq-q-c24-ctx4096', 'QLoRA Count 24', 2), ('nt-c36-ctx4096', 'LoRA Count 36', 'base')],
+                     [('QLoRA Count 40', 'should fit, ~56 GiB')]),
         ('either context', [], [('Block Swap off, ~8 GPUs', 'untested, see HANDOFF.md')])]
 def best_groups(val):
     return [(g, [(l, val(k), kd) for k, l, kd in meas if ok(k)] + [(l if l.startswith('Block') else l + ' (untested)', 0.0, P, n) for l, n in todo]) for g, meas, todo in CTXG]
@@ -273,9 +289,44 @@ tc.thick_chart(
     panels = [{'title': 'Throughput', 'unit': 'tokens / s, higher is better', 'groups': best_groups(lambda k: round(toks(k)))},
               {'title': 'Peak VRAM', 'unit': 'GiB of 95', 'groups': best_groups(lambda k: round(vram(k), 1))}],
     title = 'The best settings on one 96 GB GPU',
-    subtitle = 'Pick context for your data. At 1024, Count 36 batch 2 is fastest; 4096 trains at nearly the same tokens/s.',
-    meta = ['Qwen3.8-Flash-Next-FP8', 'LoRA r16', 'Unsloth Studio', 'Colab G4'],
-    footnote = 'Lower Count is faster but needs more VRAM; Count 40+ is refused for host RAM. Untested VRAM figures are estimates from the measured runs. ' + FOOT.replace('batch 1. ', ''),
+    subtitle = 'At ctx 1024, LoRA Count 36 batch 2 is fastest. At 4096, QLoRA Count 16. QLoRA Count 40 needs 49 GiB.',
+    meta = ['Qwen3.8-Flash-Next-FP8', 'r16', 'Unsloth Studio', 'Colab G4'],
+    footnote = 'QLoRA needs a one-line patch today (4-bit is off for this model in Unsloth Studio). For LoRA, lower Count is faster but needs more VRAM; Count 40+ is refused for host RAM. Untested VRAM figures are estimates from the measured runs. ' + FOOT.replace('batch 1. ', ''),
     out = os.path.join(H, '11-best-settings'), ncols = 2, fmt = QFMT)
+
+# 12. LoRA vs QLoRA by Count: VRAM, host RAM, step time
+LQ = [('off', None, 'fnq-q-off'), ('8', None, 'fnq-q-c8'), ('16', None, 'fnq-q-c16'), ('24', None, 'fnq-q-c24'), ('32', 'nt-c32-ctx1024', 'fnq-q-c32'),
+      ('36', 'nt-c36-ctx1024', None), ('40', None, 'fnq-q-c40')]
+def lq(val, kinds = ('base', 'new')):
+    out = []
+    for cnt, l, q in LQ:
+        rows = []
+        for k, lab, kd in ((l, 'LoRA', kinds[0]), (q, 'QLoRA', kinds[1])):
+            if k and ok(k):
+                v = val(k); note = None
+                if k == 'fnq-q-off': note = 'loss suspect'
+                elif k == 'fnq-q-c24' and val is STEP: note = 'outlier'
+                rows.append((lab, v, kd, note) if note else (lab, v, kd))
+            elif cnt == 'off' and lab == 'LoRA': rows.append((lab, 0.0, PINK, 'OOM at load'))
+            elif cnt == '40' and lab == 'LoRA': rows.append((lab, 0.0, PINK, 'refused: host RAM'))
+            elif cnt in ('8', '16', '24') and lab == 'LoRA': rows.append((lab, 0.0, P, 'too big for VRAM'))
+            elif cnt == '36' and lab == 'QLoRA': rows.append((lab, 0.0, P, 'not run'))
+        out.append(('Block Swap off' if cnt == 'off' else f'Count {cnt}', rows))
+    return out
+def host(k):
+    o = R[k].get('offload') or {}
+    return round(o.get('host_bytes', 0) / GIB, 1) or 0.001
+STEP = lambda k: R[k]['median_step_s']
+tc.thick_chart(
+    panels = [{'title': 'Peak VRAM', 'unit': 'GiB of 95', 'groups': lq(lambda k: round(vram(k), 1))},
+              {'title': 'Host RAM for swapped layers', 'unit': 'GiB of 177', 'groups': lq(host)},
+              {'title': 'Step time', 'unit': 's / step, lower is better', 'groups': lq(STEP)}],
+    title = 'LoRA vs QLoRA under Block Swap',
+    subtitle = 'QLoRA runs from Count 8 to 40, and Count 40 needs only 49 GiB. Its step time holds near 7.3 s across Counts.',
+    meta = ['Qwen3.8-Flash-Next-FP8', 'r16 all linear', 'ctx 1024, batch 1', 'Colab G4'],
+    footnote = ('QLoRA ran on a measurement branch that lets 4-bit load (Unsloth Studio forces this model to 16-bit today), zoo main fed7910e, 2026-11-19. '
+                'QLoRA with Block Swap off trains but its step-1 loss is 2.65 vs 1.37 to 1.42 everywhere else, so treat that row as speed and VRAM only. '
+                'Count 24 ran 4.8 s/step, an unexplained outlier. Step time = mean over steps 3 to 10. ') + FOOT,
+    out = os.path.join(H, '12-lora-vs-qlora'), ncols = 3, width = 15.0, fmt = QFMT)
 
 print('charts:', sorted(f for f in os.listdir(H) if f.endswith('.png')))
