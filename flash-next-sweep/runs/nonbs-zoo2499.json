@@ -1,0 +1,154 @@
+{
+ "models": {
+  "Qwen/Qwen3-0.6B": {
+   "tensors": 311,
+   "views": 0,
+   "est_main": 1503264768,
+   "est_pr": 1503264768,
+   "written": 1192135096,
+   "shards_main": 6,
+   "shards_pr": 6,
+   "targets": [
+    "down_proj",
+    "gate_proj",
+    "k_proj",
+    "o_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+   ],
+   "s": 2
+  },
+  "Qwen/Qwen2.5-0.5B-Instruct": {
+   "tensors": 291,
+   "views": 0,
+   "est_main": 1260334848,
+   "est_pr": 1260334848,
+   "written": 988097824,
+   "shards_main": 5,
+   "shards_pr": 5,
+   "targets": [
+    "down_proj",
+    "gate_proj",
+    "k_proj",
+    "o_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+   ],
+   "s": 2
+  },
+  "Qwen/Qwen3.5-0.8B": {
+   "tensors": 321,
+   "views": 0,
+   "est_main": 2013345408,
+   "est_pr": 2013345408,
+   "written": 1504827608,
+   "shards_main": 6,
+   "shards_pr": 6,
+   "targets": [
+    "down_proj",
+    "gate_proj",
+    "in_proj_a",
+    "in_proj_b",
+    "in_proj_qkv",
+    "in_proj_z",
+    "k_proj",
+    "o_proj",
+    "out_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+   ],
+   "s": 4
+  },
+  "HuggingFaceTB/SmolVLM-256M-Instruct": {
+   "tensors": 470,
+   "views": 0,
+   "est_main": 456199296,
+   "est_pr": 456199296,
+   "written": 456255264,
+   "shards_main": 3,
+   "shards_pr": 3,
+   "targets": [
+    "down_proj",
+    "fc1",
+    "fc2",
+    "gate_proj",
+    "k_proj",
+    "o_proj",
+    "out_proj",
+    "proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+   ],
+   "s": 29
+  },
+  "answerdotai/ModernBERT-base": {
+   "tensors": 134,
+   "views": 0,
+   "est_main": 298028544,
+   "est_pr": 298028544,
+   "written": 298041696,
+   "shards_main": 2,
+   "shards_pr": 2,
+   "targets": [
+    "Wi",
+    "Wo",
+    "Wqkv"
+   ],
+   "s": 1
+  },
+  "distilbert-base-uncased": {
+   "tensors": 100,
+   "views": 0,
+   "est_main": 132725760,
+   "est_pr": 132725760,
+   "written": 132736832,
+   "shards_main": 1,
+   "shards_pr": 1,
+   "targets": [
+    "k_lin",
+    "lin1",
+    "lin2",
+    "out_lin",
+    "q_lin",
+    "v_lin"
+   ],
+   "s": 0
+  }
+ },
+ "synthetic": {
+  "own storage (normal weight)": {
+   "main": 2097152,
+   "pr": 2097152,
+   "written": 2097232
+  },
+  "tied embedding (same tensor twice)": {
+   "main": 16777216,
+   "pr": 16777216,
+   "written": 8388688
+  },
+  "fused qkv split into 3 views": {
+   "main": 18874368,
+   "pr": 6291456,
+   "written": 6291688
+  },
+  "transposed view": {
+   "main": 4194304,
+   "pr": 4194304,
+   "written": 4194384
+  },
+  "expanded (stride 0) tensor": {
+   "main": 2048,
+   "pr": 2097152,
+   "written": 2097232
+  },
+  "slice of a bigger buffer": {
+   "main": 16777216,
+   "pr": 2097152,
+   "written": 2097232
+  }
+ }
+}

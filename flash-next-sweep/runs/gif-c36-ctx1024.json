@@ -1,0 +1,7392 @@
+{
+ "id": "gif-c36-ctx1024",
+ "cfg": {
+  "steps": 15,
+  "id": "gif-c36-ctx1024",
+  "offload": 36,
+  "ctx": 1024
+ },
+ "start_http": 200,
+ "start_resp": {
+  "job_id": "job_20261113_025436_56172cf0",
+  "status": "queued",
+  "message": "Training job queued and starting in subprocess",
+  "error": null,
+  "error_code": null
+ },
+ "status": "completed",
+ "error": null,
+ "message": "Training completed! Model saved to /root/.unsloth/studio/outputs/unsloth_Qwen3.8-Flash-Next-FP8_1794539287",
+ "warnings": [],
+ "phases_at_s": {
+  "configuring": 4,
+  "loading_model": 7,
+  "training": 19,
+  "finalizing": 991,
+  "completed": 1031
+ },
+ "elapsed_s": 1031,
+ "peak_gpu_mib": 85892,
+ "peak_host_used_gib": 161.3,
+ "peak_proc_rss_gib": 158.0,
+ "host_total_gib": 176.9,
+ "median_step_s": 9.08,
+ "steps_seen": 15,
+ "offload": {
+  "active": true,
+  "total_layers": 48,
+  "swapped": [
+   0,
+   1,
+   3,
+   4,
+   5,
+   7,
+   8,
+   9,
+   11,
+   12,
+   13,
+   15,
+   16,
+   17,
+   19,
+   20,
+   21,
+   23,
+   24,
+   25,
+   27,
+   28,
+   29,
+   31,
+   32,
+   33,
+   35,
+   36,
+   37,
+   39,
+   40,
+   41,
+   43,
+   44,
+   45,
+   47
+  ],
+  "state": {
+   "0": "gpu",
+   "1": "gpu",
+   "3": "host",
+   "4": "host",
+   "5": "host",
+   "7": "host",
+   "8": "host",
+   "9": "host",
+   "11": "host",
+   "12": "host",
+   "13": "host",
+   "15": "host",
+   "16": "host",
+   "17": "host",
+   "19": "host",
+   "20": "host",
+   "21": "host",
+   "23": "host",
+   "24": "host",
+   "25": "host",
+   "27": "host",
+   "28": "host",
+   "29": "host",
+   "31": "host",
+   "32": "host",
+   "33": "host",
+   "35": "host",
+   "36": "host",
+   "37": "host",
+   "39": "host",
+   "40": "host",
+   "41": "host",
+   "43": "host",
+   "44": "host",
+   "45": "host",
+   "47": "host"
+  },
+  "current": 0,
+  "prefetch_depth": 2,
+  "auto_depth": false,
+  "depth_settled": true,
+  "host_bytes": 96102555648,
+  "pinned_bytes": 0,
+  "pool_bytes": 18730833920,
+  "timing": true,
+  "copies": 0.0,
+  "copy_ms": 0.0,
+  "copy_bytes": 0.0,
+  "stall_ms": 0.0,
+  "compute_ms": 0.0,
+  "layers": 0.0,
+  "vram_allocated_bytes": 64320864256,
+  "vram_peak_bytes": 80987931648,
+  "vram_total_bytes": 101974081536,
+  "vram_fraction": 1.0,
+  "vram_devices": [
+   {
+    "index": 0,
+    "gpu_id": 0,
+    "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "allocated_bytes": 64320864256,
+    "peak_bytes": 80987931648,
+    "total_bytes": 101974081536,
+    "fraction": 1.0
+   }
+  ],
+  "layer_device": {
+   "0": 0,
+   "1": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0,
+   "7": 0,
+   "8": 0,
+   "9": 0,
+   "11": 0,
+   "12": 0,
+   "13": 0,
+   "15": 0,
+   "16": 0,
+   "17": 0,
+   "19": 0,
+   "20": 0,
+   "21": 0,
+   "23": 0,
+   "24": 0,
+   "25": 0,
+   "27": 0,
+   "28": 0,
+   "29": 0,
+   "31": 0,
+   "32": 0,
+   "33": 0,
+   "35": 0,
+   "36": 0,
+   "37": 0,
+   "39": 0,
+   "40": 0,
+   "41": 0,
+   "43": 0,
+   "44": 0,
+   "45": 0,
+   "47": 0,
+   "2": 0,
+   "6": 0,
+   "10": 0,
+   "14": 0,
+   "18": 0,
+   "22": 0,
+   "26": 0,
+   "30": 0,
+   "34": 0,
+   "38": 0,
+   "42": 0,
+   "46": 0
+  }
+ },
+ "samples": [
+  [
+   3.6,
+   "configuring",
+   783,
+   5.9,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.6,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      230,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   6.6,
+   "loading_model",
+   783,
+   6.1,
+   2.2,
+   null
+  ],
+  [
+   9.6,
+   "loading_model",
+   783,
+   6.3,
+   2.2,
+   null
+  ],
+  [
+   12.6,
+   "loading_model",
+   1480,
+   7.0,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      1.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      230,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   15.7,
+   "loading_model",
+   1480,
+   7.2,
+   2.2,
+   null
+  ],
+  [
+   18.7,
+   "training",
+   1480,
+   7.6,
+   2.3,
+   null
+  ],
+  [
+   21.7,
+   "training",
+   1480,
+   8.2,
+   2.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      1.9,
+      23179,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      1.9,
+      23180,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ]
+    ]
+   }
+  ],
+  [
+   24.7,
+   "training",
+   1480,
+   8.5,
+   2.3,
+   null
+  ],
+  [
+   27.7,
+   "training",
+   1480,
+   9.0,
+   2.3,
+   null
+  ],
+  [
+   30.8,
+   "training",
+   1480,
+   9.6,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      1.9,
+      23185,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      1.9,
+      23179,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ]
+    ]
+   }
+  ],
+  [
+   33.8,
+   "loading_model",
+   1478,
+   7.2,
+   2.2,
+   null
+  ],
+  [
+   36.8,
+   "loading_model",
+   1480,
+   7.3,
+   2.2,
+   null
+  ],
+  [
+   39.8,
+   "loading_model",
+   1480,
+   7.3,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      230,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   42.8,
+   "loading_model",
+   1480,
+   7.3,
+   2.2,
+   null
+  ],
+  [
+   45.8,
+   "loading_model",
+   1480,
+   7.3,
+   2.2,
+   null
+  ],
+  [
+   48.9,
+   "loading_model",
+   1480,
+   7.3,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      230,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   51.9,
+   "loading_model",
+   1480,
+   7.3,
+   2.2,
+   null
+  ],
+  [
+   54.9,
+   "loading_model",
+   1480,
+   7.3,
+   2.2,
+   null
+  ],
+  [
+   57.9,
+   "loading_model",
+   1480,
+   7.3,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      230,
+      "/usr/bin/python3 /usr/local/bin/jupyter-server --debug --transport=\"ipc\" --ip=17"
+     ]
+    ]
+   }
+  ],
+  [
+   61.0,
+   "loading_model",
+   1480,
+   7.4,
+   2.2,
+   null
+  ],
+  [
+   64.0,
+   "loading_model",
+   1480,
+   7.8,
+   2.2,
+   null
+  ],
+  [
+   67.0,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   70.0,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   73.0,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   76.1,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   79.1,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   82.1,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   85.1,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   88.1,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   91.1,
+   "loading_model",
+   1480,
+   8.0,
+   2.2,
+   null
+  ],
+  [
+   94.2,
+   "loading_model",
+   1480,
+   8.0,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   97.2,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   100.2,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   103.2,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   106.3,
+   "loading_model",
+   1480,
+   8.0,
+   2.2,
+   null
+  ],
+  [
+   109.3,
+   "loading_model",
+   1480,
+   8.0,
+   2.2,
+   null
+  ],
+  [
+   112.3,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   115.3,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   118.3,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   121.4,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   124.4,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   127.4,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   130.4,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   133.4,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   136.5,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   139.5,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   142.5,
+   "loading_model",
+   1480,
+   8.2,
+   2.3,
+   null
+  ],
+  [
+   145.5,
+   "loading_model",
+   1480,
+   8.1,
+   2.2,
+   null
+  ],
+  [
+   148.5,
+   "loading_model",
+   1480,
+   8.1,
+   2.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      2.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   151.5,
+   "loading_model",
+   1480,
+   8.2,
+   2.3,
+   null
+  ],
+  [
+   154.6,
+   "loading_model",
+   2700,
+   8.2,
+   2.7,
+   null
+  ],
+  [
+   157.6,
+   "loading_model",
+   3900,
+   8.2,
+   3.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      3.6,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   160.6,
+   "loading_model",
+   3900,
+   8.2,
+   4.6,
+   null
+  ],
+  [
+   163.6,
+   "loading_model",
+   4640,
+   8.2,
+   5.4,
+   null
+  ],
+  [
+   166.6,
+   "loading_model",
+   5640,
+   8.2,
+   6.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      6.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   169.7,
+   "loading_model",
+   6120,
+   8.3,
+   6.9,
+   null
+  ],
+  [
+   172.7,
+   "loading_model",
+   8840,
+   10.7,
+   10.1,
+   null
+  ],
+  [
+   175.7,
+   "loading_model",
+   8840,
+   10.7,
+   10.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      10.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   178.7,
+   "loading_model",
+   8840,
+   10.8,
+   11.6,
+   null
+  ],
+  [
+   181.7,
+   "loading_model",
+   8840,
+   11.1,
+   13.0,
+   null
+  ],
+  [
+   184.8,
+   "loading_model",
+   8840,
+   12.0,
+   14.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      14.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   187.8,
+   "loading_model",
+   8840,
+   12.6,
+   16.5,
+   null
+  ],
+  [
+   190.8,
+   "loading_model",
+   8840,
+   13.5,
+   18.3,
+   null
+  ],
+  [
+   193.8,
+   "loading_model",
+   8840,
+   14.4,
+   20.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      20.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   196.8,
+   "loading_model",
+   8840,
+   15.4,
+   22.0,
+   null
+  ],
+  [
+   199.9,
+   "loading_model",
+   8840,
+   16.2,
+   23.8,
+   null
+  ],
+  [
+   202.9,
+   "loading_model",
+   8840,
+   17.1,
+   25.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      25.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   205.9,
+   "loading_model",
+   8840,
+   18.0,
+   27.3,
+   null
+  ],
+  [
+   208.9,
+   "loading_model",
+   8840,
+   18.9,
+   29.1,
+   null
+  ],
+  [
+   211.9,
+   "loading_model",
+   8840,
+   19.8,
+   30.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      30.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   214.9,
+   "loading_model",
+   8840,
+   20.7,
+   32.7,
+   null
+  ],
+  [
+   218.0,
+   "loading_model",
+   8840,
+   21.6,
+   34.5,
+   null
+  ],
+  [
+   221.0,
+   "loading_model",
+   8840,
+   22.5,
+   36.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      36.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   224.0,
+   "loading_model",
+   8840,
+   23.4,
+   38.0,
+   null
+  ],
+  [
+   227.0,
+   "loading_model",
+   8840,
+   24.3,
+   39.8,
+   null
+  ],
+  [
+   230.0,
+   "loading_model",
+   8840,
+   25.2,
+   41.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      41.6,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   233.1,
+   "loading_model",
+   8840,
+   26.1,
+   43.4,
+   null
+  ],
+  [
+   236.1,
+   "loading_model",
+   8840,
+   27.0,
+   45.1,
+   null
+  ],
+  [
+   239.1,
+   "loading_model",
+   8840,
+   27.9,
+   46.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      46.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   242.1,
+   "loading_model",
+   8840,
+   28.8,
+   48.7,
+   null
+  ],
+  [
+   245.1,
+   "loading_model",
+   8840,
+   29.6,
+   50.5,
+   null
+  ],
+  [
+   248.2,
+   "loading_model",
+   8840,
+   30.5,
+   52.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      52.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   251.2,
+   "loading_model",
+   8840,
+   31.4,
+   54.0,
+   null
+  ],
+  [
+   254.2,
+   "loading_model",
+   8840,
+   32.3,
+   55.7,
+   null
+  ],
+  [
+   257.2,
+   "loading_model",
+   8840,
+   33.2,
+   57.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      57.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   260.2,
+   "loading_model",
+   8840,
+   34.1,
+   59.3,
+   null
+  ],
+  [
+   263.3,
+   "loading_model",
+   8840,
+   35.0,
+   61.1,
+   null
+  ],
+  [
+   266.3,
+   "loading_model",
+   8840,
+   35.9,
+   62.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      62.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   269.3,
+   "loading_model",
+   8840,
+   36.8,
+   64.7,
+   null
+  ],
+  [
+   272.3,
+   "loading_model",
+   8840,
+   37.7,
+   66.5,
+   null
+  ],
+  [
+   275.3,
+   "loading_model",
+   8840,
+   38.5,
+   68.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      68.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   278.3,
+   "loading_model",
+   8840,
+   39.5,
+   70.0,
+   null
+  ],
+  [
+   281.4,
+   "loading_model",
+   8840,
+   40.3,
+   71.7,
+   null
+  ],
+  [
+   284.4,
+   "loading_model",
+   8840,
+   41.1,
+   73.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      73.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   287.4,
+   "loading_model",
+   8840,
+   42.0,
+   75.0,
+   null
+  ],
+  [
+   290.4,
+   "loading_model",
+   8840,
+   42.8,
+   76.7,
+   null
+  ],
+  [
+   293.4,
+   "loading_model",
+   8840,
+   43.7,
+   78.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      78.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   296.5,
+   "loading_model",
+   8840,
+   44.6,
+   80.2,
+   null
+  ],
+  [
+   299.5,
+   "loading_model",
+   8840,
+   45.4,
+   81.9,
+   null
+  ],
+  [
+   302.5,
+   "loading_model",
+   8840,
+   46.3,
+   83.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      83.6,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.4,
+      12,
+      "/usr/colab/bin/kernel_manager_proxy --listen_port=6000 --target_port=9000 --logt"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   305.5,
+   "loading_model",
+   8840,
+   47.2,
+   85.4,
+   null
+  ],
+  [
+   308.5,
+   "loading_model",
+   8840,
+   47.7,
+   87.1,
+   null
+  ],
+  [
+   311.6,
+   "loading_model",
+   8840,
+   48.6,
+   88.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      88.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   314.6,
+   "loading_model",
+   8840,
+   49.4,
+   90.6,
+   null
+  ],
+  [
+   317.6,
+   "loading_model",
+   8840,
+   50.3,
+   92.4,
+   null
+  ],
+  [
+   320.6,
+   "loading_model",
+   8840,
+   51.2,
+   94.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      94.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   323.6,
+   "loading_model",
+   8840,
+   52.0,
+   95.9,
+   null
+  ],
+  [
+   326.7,
+   "loading_model",
+   8840,
+   52.9,
+   97.6,
+   null
+  ],
+  [
+   329.7,
+   "loading_model",
+   8840,
+   53.8,
+   99.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      99.4,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   332.7,
+   "loading_model",
+   8840,
+   54.6,
+   101.1,
+   null
+  ],
+  [
+   335.7,
+   "loading_model",
+   8840,
+   55.5,
+   102.8,
+   null
+  ],
+  [
+   338.7,
+   "loading_model",
+   8840,
+   56.4,
+   104.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      104.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   341.8,
+   "loading_model",
+   8840,
+   57.2,
+   106.2,
+   null
+  ],
+  [
+   344.8,
+   "loading_model",
+   8840,
+   60.4,
+   110.2,
+   null
+  ],
+  [
+   347.8,
+   "loading_model",
+   8840,
+   60.4,
+   111.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      111.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   350.8,
+   "loading_model",
+   8840,
+   60.5,
+   111.6,
+   null
+  ],
+  [
+   353.8,
+   "loading_model",
+   8840,
+   60.4,
+   112.4,
+   null
+  ],
+  [
+   356.8,
+   "loading_model",
+   8840,
+   60.4,
+   113.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      113.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      1966,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   359.9,
+   "loading_model",
+   8840,
+   60.4,
+   113.9,
+   null
+  ],
+  [
+   362.9,
+   "loading_model",
+   8840,
+   60.4,
+   114.8,
+   null
+  ],
+  [
+   365.9,
+   "loading_model",
+   12082,
+   62.9,
+   118.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      118.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      1966,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   368.9,
+   "loading_model",
+   12082,
+   62.9,
+   118.7,
+   null
+  ],
+  [
+   371.9,
+   "loading_model",
+   12082,
+   62.9,
+   119.3,
+   null
+  ],
+  [
+   375.0,
+   "loading_model",
+   12182,
+   65.4,
+   122.7,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      122.7,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      1966,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ],
+  [
+   378.0,
+   "loading_model",
+   12182,
+   65.4,
+   123.6,
+   null
+  ],
+  [
+   381.0,
+   "loading_model",
+   12182,
+   65.4,
+   124.1,
+   null
+  ],
+  [
+   384.0,
+   "loading_model",
+   12182,
+   66.6,
+   126.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      126.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   387.0,
+   "loading_model",
+   12182,
+   67.9,
+   128.3,
+   null
+  ],
+  [
+   390.1,
+   "loading_model",
+   12182,
+   67.9,
+   129.0,
+   null
+  ],
+  [
+   393.1,
+   "loading_model",
+   12182,
+   67.9,
+   129.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      129.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   396.1,
+   "loading_model",
+   12182,
+   67.9,
+   130.8,
+   null
+  ],
+  [
+   399.1,
+   "loading_model",
+   12182,
+   67.9,
+   131.5,
+   null
+  ],
+  [
+   402.1,
+   "loading_model",
+   15384,
+   67.9,
+   132.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      132.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   405.2,
+   "loading_model",
+   15384,
+   70.4,
+   135.7,
+   null
+  ],
+  [
+   408.2,
+   "loading_model",
+   15384,
+   70.4,
+   136.4,
+   null
+  ],
+  [
+   411.2,
+   "loading_model",
+   15384,
+   70.4,
+   137.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      137.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   414.2,
+   "loading_model",
+   15384,
+   72.9,
+   140.5,
+   null
+  ],
+  [
+   417.2,
+   "loading_model",
+   15384,
+   72.9,
+   141.3,
+   null
+  ],
+  [
+   420.2,
+   "loading_model",
+   15384,
+   72.9,
+   142.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      142.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   423.3,
+   "loading_model",
+   15384,
+   75.4,
+   145.4,
+   null
+  ],
+  [
+   426.3,
+   "loading_model",
+   15384,
+   75.4,
+   145.2,
+   null
+  ],
+  [
+   429.3,
+   "loading_model",
+   15384,
+   75.4,
+   144.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      144.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   432.3,
+   "loading_model",
+   15384,
+   75.4,
+   144.8,
+   null
+  ],
+  [
+   435.3,
+   "loading_model",
+   15384,
+   75.4,
+   144.5,
+   null
+  ],
+  [
+   438.4,
+   "loading_model",
+   15384,
+   75.5,
+   144.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      144.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   441.4,
+   "loading_model",
+   17784,
+   78.0,
+   144.9,
+   null
+  ],
+  [
+   444.4,
+   "loading_model",
+   17784,
+   77.9,
+   144.5,
+   null
+  ],
+  [
+   447.4,
+   "loading_model",
+   17784,
+   77.9,
+   143.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      143.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   450.4,
+   "loading_model",
+   17786,
+   79.2,
+   143.7,
+   null
+  ],
+  [
+   453.5,
+   "loading_model",
+   17786,
+   80.4,
+   143.8,
+   null
+  ],
+  [
+   456.5,
+   "loading_model",
+   17786,
+   80.4,
+   143.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      143.4,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   459.5,
+   "loading_model",
+   17786,
+   80.4,
+   143.2,
+   null
+  ],
+  [
+   462.5,
+   "loading_model",
+   17786,
+   82.9,
+   143.2,
+   null
+  ],
+  [
+   465.5,
+   "loading_model",
+   17786,
+   82.9,
+   142.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      142.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   468.6,
+   "loading_model",
+   17786,
+   82.9,
+   142.4,
+   null
+  ],
+  [
+   471.6,
+   "loading_model",
+   17786,
+   82.9,
+   142.3,
+   null
+  ],
+  [
+   474.6,
+   "loading_model",
+   17786,
+   82.9,
+   141.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      141.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   477.6,
+   "loading_model",
+   17786,
+   82.9,
+   141.2,
+   null
+  ],
+  [
+   480.6,
+   "loading_model",
+   20186,
+   85.4,
+   141.6,
+   null
+  ],
+  [
+   483.7,
+   "loading_model",
+   20186,
+   85.4,
+   141.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      141.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   486.7,
+   "loading_model",
+   20186,
+   85.4,
+   140.8,
+   null
+  ],
+  [
+   489.7,
+   "loading_model",
+   20186,
+   87.0,
+   141.4,
+   null
+  ],
+  [
+   492.7,
+   "loading_model",
+   20186,
+   87.9,
+   141.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      141.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   495.7,
+   "loading_model",
+   20186,
+   87.9,
+   141.0,
+   null
+  ],
+  [
+   498.8,
+   "loading_model",
+   20186,
+   87.9,
+   140.7,
+   null
+  ],
+  [
+   501.8,
+   "loading_model",
+   20186,
+   90.4,
+   140.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      140.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   504.8,
+   "loading_model",
+   20186,
+   90.4,
+   140.2,
+   null
+  ],
+  [
+   507.8,
+   "loading_model",
+   20186,
+   90.4,
+   139.9,
+   null
+  ],
+  [
+   510.8,
+   "loading_model",
+   20186,
+   90.4,
+   139.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      139.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   513.9,
+   "loading_model",
+   20186,
+   90.4,
+   139.4,
+   null
+  ],
+  [
+   516.9,
+   "loading_model",
+   20186,
+   90.4,
+   138.7,
+   null
+  ],
+  [
+   519.9,
+   "loading_model",
+   22588,
+   92.9,
+   139.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      139.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   522.9,
+   "loading_model",
+   22588,
+   92.9,
+   138.7,
+   null
+  ],
+  [
+   525.9,
+   "loading_model",
+   22588,
+   92.9,
+   138.2,
+   null
+  ],
+  [
+   529.0,
+   "loading_model",
+   22588,
+   95.4,
+   138.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      138.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   532.0,
+   "loading_model",
+   22588,
+   95.4,
+   138.0,
+   null
+  ],
+  [
+   535.0,
+   "loading_model",
+   22588,
+   95.4,
+   137.8,
+   null
+  ],
+  [
+   538.0,
+   "loading_model",
+   22588,
+   95.6,
+   138.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      138.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   541.0,
+   "loading_model",
+   22588,
+   97.9,
+   139.8,
+   null
+  ],
+  [
+   544.1,
+   "loading_model",
+   22588,
+   97.9,
+   139.4,
+   null
+  ],
+  [
+   547.1,
+   "loading_model",
+   22588,
+   97.9,
+   139.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      139.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   550.1,
+   "loading_model",
+   22588,
+   97.9,
+   140.1,
+   null
+  ],
+  [
+   553.1,
+   "loading_model",
+   22588,
+   97.9,
+   139.8,
+   null
+  ],
+  [
+   556.1,
+   "loading_model",
+   22588,
+   97.9,
+   140.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      140.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   559.1,
+   "loading_model",
+   24988,
+   100.4,
+   141.7,
+   null
+  ],
+  [
+   562.2,
+   "loading_model",
+   24988,
+   100.4,
+   141.8,
+   null
+  ],
+  [
+   565.2,
+   "loading_model",
+   24988,
+   100.4,
+   141.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      141.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   568.2,
+   "loading_model",
+   24990,
+   102.9,
+   143.6,
+   null
+  ],
+  [
+   571.2,
+   "loading_model",
+   24990,
+   102.9,
+   143.8,
+   null
+  ],
+  [
+   574.2,
+   "loading_model",
+   24990,
+   102.9,
+   143.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      143.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   577.3,
+   "loading_model",
+   24990,
+   105.2,
+   145.1,
+   null
+  ],
+  [
+   580.3,
+   "loading_model",
+   24990,
+   105.4,
+   145.3,
+   null
+  ],
+  [
+   583.3,
+   "loading_model",
+   24990,
+   105.4,
+   145.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      145.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   586.3,
+   "loading_model",
+   24990,
+   105.4,
+   145.7,
+   null
+  ],
+  [
+   589.3,
+   "loading_model",
+   24990,
+   105.4,
+   145.9,
+   null
+  ],
+  [
+   592.4,
+   "loading_model",
+   24990,
+   105.4,
+   146.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      146.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   595.4,
+   "loading_model",
+   27390,
+   105.6,
+   146.2,
+   null
+  ],
+  [
+   598.4,
+   "loading_model",
+   27390,
+   107.9,
+   147.7,
+   null
+  ],
+  [
+   601.4,
+   "loading_model",
+   27390,
+   107.9,
+   147.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      147.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   604.4,
+   "loading_model",
+   27390,
+   107.9,
+   147.8,
+   null
+  ],
+  [
+   607.5,
+   "loading_model",
+   28190,
+   110.4,
+   148.3,
+   null
+  ],
+  [
+   610.5,
+   "loading_model",
+   28190,
+   110.4,
+   148.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      148.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   613.5,
+   "loading_model",
+   28190,
+   110.4,
+   148.1,
+   null
+  ],
+  [
+   616.5,
+   "loading_model",
+   28190,
+   112.9,
+   149.3,
+   null
+  ],
+  [
+   619.5,
+   "loading_model",
+   28190,
+   112.9,
+   149.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      149.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   622.6,
+   "loading_model",
+   28190,
+   112.9,
+   148.5,
+   null
+  ],
+  [
+   625.6,
+   "loading_model",
+   28190,
+   112.9,
+   148.5,
+   null
+  ],
+  [
+   628.6,
+   "loading_model",
+   28190,
+   112.9,
+   148.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      148.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   631.6,
+   "loading_model",
+   28190,
+   112.9,
+   148.1,
+   null
+  ],
+  [
+   634.6,
+   "loading_model",
+   30592,
+   115.4,
+   148.6,
+   null
+  ],
+  [
+   637.7,
+   "loading_model",
+   30592,
+   115.4,
+   148.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      148.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   640.7,
+   "loading_model",
+   30592,
+   115.4,
+   148.5,
+   null
+  ],
+  [
+   643.7,
+   "loading_model",
+   30592,
+   117.9,
+   149.1,
+   null
+  ],
+  [
+   646.7,
+   "loading_model",
+   30592,
+   117.9,
+   149.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      149.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   649.7,
+   "loading_model",
+   30592,
+   117.9,
+   148.8,
+   null
+  ],
+  [
+   652.7,
+   "loading_model",
+   30592,
+   119.2,
+   149.6,
+   null
+  ],
+  [
+   655.8,
+   "loading_model",
+   30592,
+   120.4,
+   150.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      150.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   658.8,
+   "loading_model",
+   30592,
+   120.4,
+   149.1,
+   null
+  ],
+  [
+   661.8,
+   "loading_model",
+   30592,
+   120.4,
+   149.2,
+   null
+  ],
+  [
+   664.8,
+   "loading_model",
+   30592,
+   120.4,
+   149.2,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      149.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   667.8,
+   "loading_model",
+   30592,
+   120.4,
+   148.9,
+   null
+  ],
+  [
+   670.9,
+   "loading_model",
+   32992,
+   120.6,
+   149.0,
+   null
+  ],
+  [
+   673.9,
+   "loading_model",
+   32992,
+   122.9,
+   150.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      150.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   676.9,
+   "loading_model",
+   32992,
+   122.9,
+   149.5,
+   null
+  ],
+  [
+   679.9,
+   "loading_model",
+   32992,
+   122.9,
+   149.7,
+   null
+  ],
+  [
+   682.9,
+   "loading_model",
+   32994,
+   125.4,
+   151.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      151.4,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   686.0,
+   "loading_model",
+   32994,
+   125.4,
+   151.3,
+   null
+  ],
+  [
+   689.0,
+   "loading_model",
+   32994,
+   125.4,
+   151.1,
+   null
+  ],
+  [
+   692.0,
+   "loading_model",
+   32994,
+   127.9,
+   152.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      152.6,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   695.0,
+   "loading_model",
+   32994,
+   127.9,
+   152.1,
+   null
+  ],
+  [
+   698.0,
+   "loading_model",
+   32994,
+   127.9,
+   152.2,
+   null
+  ],
+  [
+   701.1,
+   "loading_model",
+   32994,
+   127.9,
+   152.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      152.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   704.1,
+   "loading_model",
+   32994,
+   127.9,
+   151.7,
+   null
+  ],
+  [
+   707.1,
+   "loading_model",
+   35394,
+   127.9,
+   151.9,
+   null
+  ],
+  [
+   710.1,
+   "loading_model",
+   35394,
+   130.4,
+   153.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      153.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   713.1,
+   "loading_model",
+   35394,
+   130.4,
+   153.3,
+   null
+  ],
+  [
+   716.2,
+   "loading_model",
+   35394,
+   130.4,
+   153.4,
+   null
+  ],
+  [
+   719.2,
+   "loading_model",
+   35394,
+   132.9,
+   154.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      154.4,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   722.2,
+   "loading_model",
+   35394,
+   132.9,
+   154.4,
+   null
+  ],
+  [
+   725.2,
+   "loading_model",
+   35394,
+   132.9,
+   153.4,
+   null
+  ],
+  [
+   728.2,
+   "loading_model",
+   35394,
+   135.4,
+   154.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      154.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   731.3,
+   "loading_model",
+   35394,
+   135.4,
+   154.4,
+   null
+  ],
+  [
+   734.3,
+   "loading_model",
+   35394,
+   135.4,
+   154.1,
+   null
+  ],
+  [
+   737.3,
+   "loading_model",
+   35394,
+   135.4,
+   154.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      154.4,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   740.3,
+   "loading_model",
+   35394,
+   135.4,
+   154.3,
+   null
+  ],
+  [
+   743.3,
+   "loading_model",
+   35394,
+   135.4,
+   154.3,
+   null
+  ],
+  [
+   746.4,
+   "loading_model",
+   37796,
+   137.9,
+   155.4,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      155.4,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   749.4,
+   "loading_model",
+   37796,
+   137.9,
+   155.0,
+   null
+  ],
+  [
+   752.4,
+   "loading_model",
+   37796,
+   137.9,
+   154.9,
+   null
+  ],
+  [
+   755.4,
+   "loading_model",
+   37796,
+   140.3,
+   155.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      155.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   758.4,
+   "loading_model",
+   37796,
+   140.4,
+   155.7,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      155.7,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   761.5,
+   "loading_model",
+   37796,
+   140.4,
+   155.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      155.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   764.5,
+   "loading_model",
+   37796,
+   142.9,
+   157.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      157.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   767.5,
+   "loading_model",
+   37796,
+   142.9,
+   157.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      157.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   770.5,
+   "loading_model",
+   37796,
+   142.9,
+   156.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      156.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   773.6,
+   "loading_model",
+   37796,
+   142.9,
+   157.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      157.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   776.6,
+   "loading_model",
+   37796,
+   142.9,
+   157.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      157.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   779.6,
+   "loading_model",
+   37796,
+   142.9,
+   156.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      156.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   782.6,
+   "loading_model",
+   40196,
+   145.3,
+   158.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      158.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   785.6,
+   "loading_model",
+   35416,
+   145.0,
+   139.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      139.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   788.7,
+   "loading_model",
+   35416,
+   145.1,
+   139.6,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      139.6,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   791.7,
+   "loading_model",
+   35486,
+   147.1,
+   141.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      141.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   794.7,
+   "loading_model",
+   35486,
+   148.9,
+   143.3,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      143.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   797.7,
+   "configuring",
+   53572,
+   148.4,
+   142.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      142.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   800.7,
+   "configuring",
+   54272,
+   148.3,
+   142.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      142.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   803.8,
+   "configuring",
+   54932,
+   148.4,
+   142.9,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      142.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   806.8,
+   "configuring",
+   55612,
+   148.3,
+   142.8,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      142.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   809.8,
+   "configuring",
+   64718,
+   149.1,
+   143.5,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      143.5,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   812.8,
+   "training",
+   63550,
+   149.6,
+   144.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      144.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   815.8,
+   "training",
+   63550,
+   149.6,
+   144.0,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      144.0,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      22882,
+      "/usr/local/lib/python3.13/dist-packages/playwright/driver/node /usr/local/lib/py"
+     ]
+    ]
+   }
+  ],
+  [
+   818.9,
+   "training",
+   63664,
+   150.2,
+   144.1,
+   null,
+   {
+    "shmem_gib": 0.1,
+    "top": [
+     [
+      144.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27623,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   821.9,
+   "training",
+   63666,
+   150.1,
+   144.1,
+   null,
+   {
+    "shmem_gib": 0.2,
+    "top": [
+     [
+      144.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27623,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   824.9,
+   "training",
+   68806,
+   150.2,
+   144.1,
+   null,
+   {
+    "shmem_gib": 0.2,
+    "top": [
+     [
+      144.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27623,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   827.9,
+   "training",
+   68806,
+   150.2,
+   144.1,
+   null,
+   {
+    "shmem_gib": 0.2,
+    "top": [
+     [
+      144.1,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27623,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   831.0,
+   "training",
+   68930,
+   150.2,
+   144.2,
+   null,
+   {
+    "shmem_gib": 0.2,
+    "top": [
+     [
+      144.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27623,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   834.0,
+   "training",
+   68930,
+   150.3,
+   144.2,
+   null,
+   {
+    "shmem_gib": 0.2,
+    "top": [
+     [
+      144.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27623,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   837.0,
+   "training",
+   68932,
+   150.4,
+   144.3,
+   null,
+   {
+    "shmem_gib": 0.3,
+    "top": [
+     [
+      144.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27625,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   840.0,
+   "training",
+   68934,
+   151.3,
+   145.2,
+   null,
+   {
+    "shmem_gib": 1.2,
+    "top": [
+     [
+      145.2,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27625,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   843.1,
+   "training",
+   68844,
+   151.7,
+   145.6,
+   null,
+   {
+    "shmem_gib": 1.6,
+    "top": [
+     [
+      145.6,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27625,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   846.1,
+   "training",
+   73248,
+   151.8,
+   145.7,
+   null,
+   {
+    "shmem_gib": 1.6,
+    "top": [
+     [
+      145.7,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27625,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   849.1,
+   "training",
+   79798,
+   151.9,
+   145.8,
+   null,
+   {
+    "shmem_gib": 1.6,
+    "top": [
+     [
+      145.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27625,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   852.2,
+   "training",
+   85142,
+   152.0,
+   145.8,
+   1,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27625,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   855.2,
+   "training",
+   85142,
+   152.0,
+   145.8,
+   1,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27625,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   858.2,
+   "training",
+   85142,
+   152.1,
+   145.8,
+   1,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27625,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   861.2,
+   "training",
+   85142,
+   152.0,
+   145.8,
+   1,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27625,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   864.3,
+   "training",
+   85142,
+   152.0,
+   145.8,
+   1,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27639,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   867.3,
+   "training",
+   85142,
+   152.0,
+   145.8,
+   1,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.8,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27639,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   870.3,
+   "training",
+   85310,
+   152.0,
+   145.9,
+   1,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27639,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   873.3,
+   "training",
+   85310,
+   152.0,
+   145.9,
+   2,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27639,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   876.4,
+   "training",
+   85310,
+   152.1,
+   145.9,
+   2,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27639,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   879.4,
+   "training",
+   85310,
+   152.1,
+   145.9,
+   2,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27639,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   882.4,
+   "training",
+   85310,
+   152.1,
+   145.9,
+   2,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   885.4,
+   "training",
+   85310,
+   152.1,
+   145.9,
+   2,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   888.5,
+   "training",
+   85310,
+   152.1,
+   145.9,
+   2,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   891.5,
+   "training",
+   85310,
+   152.1,
+   145.9,
+   3,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   894.5,
+   "training",
+   85310,
+   152.4,
+   145.9,
+   3,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   897.5,
+   "training",
+   85890,
+   152.4,
+   145.9,
+   4,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   900.6,
+   "training",
+   85890,
+   152.4,
+   145.9,
+   4,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   903.6,
+   "training",
+   85890,
+   152.4,
+   145.9,
+   4,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   906.6,
+   "training",
+   85890,
+   152.4,
+   145.9,
+   5,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   909.6,
+   "training",
+   85890,
+   152.4,
+   145.9,
+   5,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   912.7,
+   "training",
+   85890,
+   152.4,
+   145.9,
+   5,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   915.7,
+   "training",
+   85892,
+   152.4,
+   145.9,
+   6,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   918.7,
+   "training",
+   85892,
+   152.4,
+   145.9,
+   6,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   921.8,
+   "training",
+   85892,
+   152.4,
+   145.9,
+   6,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   924.8,
+   "training",
+   85892,
+   152.4,
+   145.9,
+   7,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   927.8,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   7,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   930.8,
+   "training",
+   85892,
+   152.1,
+   145.9,
+   7,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   933.9,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   8,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   936.9,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   8,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   939.9,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   9,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   942.9,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   9,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   946.0,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   9,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   949.0,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   10,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   952.0,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   10,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   955.0,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   10,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   958.1,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   11,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   961.1,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   11,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   964.1,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   11,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   967.1,
+   "training",
+   85892,
+   152.2,
+   145.9,
+   12,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.4,
+      27647,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ]
+    ]
+   }
+  ],
+  [
+   970.2,
+   "training",
+   85892,
+   151.8,
+   145.9,
+   12,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   973.2,
+   "training",
+   85892,
+   151.8,
+   145.9,
+   12,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   976.2,
+   "training",
+   85892,
+   151.8,
+   145.9,
+   13,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   979.2,
+   "training",
+   85892,
+   151.8,
+   145.9,
+   13,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   982.3,
+   "training",
+   85892,
+   151.8,
+   145.9,
+   14,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   985.3,
+   "training",
+   85892,
+   151.8,
+   145.9,
+   14,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   988.3,
+   "training",
+   85892,
+   151.8,
+   145.9,
+   14,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   991.3,
+   "finalizing",
+   69002,
+   151.8,
+   145.9,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   994.4,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   997.4,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1000.5,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1003.6,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1006.6,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1009.6,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1012.6,
+   "finalizing",
+   69002,
+   161.3,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1015.7,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1018.7,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1021.7,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1024.7,
+   "finalizing",
+   69002,
+   161.2,
+   155.3,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      155.3,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1027.7,
+   "finalizing",
+   69002,
+   151.8,
+   145.9,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.7,
+      27600,
+      "/usr/bin/python3 /usr/local/lib/python3.13/dist-packages/torch/_inductor/compile"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ]
+    ]
+   }
+  ],
+  [
+   1030.7,
+   "completed",
+   69002,
+   151.6,
+   145.9,
+   15,
+   {
+    "shmem_gib": 1.7,
+    "top": [
+     [
+      145.9,
+      22861,
+      "/usr/bin/python3 -Wignore:::pip._internal.cli.base_command -c from multiprocessi"
+     ],
+     [
+      2.2,
+      2025,
+      "python3 /content/sbx/serve.py"
+     ],
+     [
+      0.2,
+      22942,
+      "/root/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-li"
+     ],
+     [
+      0.2,
+      1966,
+      "/usr/bin/python3 -m colab_kernel_launcher -f /root/.local/share/jupyter/runtime/"
+     ]
+    ]
+   }
+  ]
+ ],
+ "metrics": {
+  "job_id": "job_20261113_025436_56172cf0",
+  "loss_history": [
+   1.417812466621399,
+   1.4373828172683716,
+   0.9062651991844177,
+   0.7424059510231018,
+   0.9746021628379822,
+   0.7633022665977478,
+   0.6960619688034058,
+   0.8374933004379272,
+   0.9173269867897034,
+   1.0067737102508545,
+   0.5297154188156128,
+   0.7822464108467102,
+   1.0280523300170898,
+   0.7033995389938354,
+   0.5038875937461853
+  ],
+  "lr_history": [
+   0.0,
+   0.0002,
+   0.00018571428571428572,
+   0.00017142857142857143,
+   0.00015714285714285716,
+   0.00014285714285714287,
+   0.00012857142857142858,
+   0.00011428571428571428,
+   0.0001,
+   8.571428571428571e-05,
+   7.142857142857143e-05,
+   5.714285714285714e-05,
+   4.2857142857142856e-05,
+   2.857142857142857e-05,
+   1.4285714285714285e-05
+  ],
+  "step_history": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15
+  ],
+  "grad_norm_history": [
+   1.4818274974822998,
+   4.073507308959961,
+   3.7331600189208984,
+   0.3532883822917938,
+   0.9239835143089294,
+   0.5782611966133118,
+   0.4410910904407501,
+   0.6541198492050171,
+   0.5366168022155762,
+   0.5546882748603821,
+   0.5650259256362915,
+   1.023410677909851,
+   0.5805057287216187,
+   0.5805084705352783,
+   0.6233798265457153,
+   0.6233798265457153
+  ],
+  "grad_norm_step_history": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   15
+  ],
+  "current_loss": 0.5038875937461853,
+  "current_lr": 1.4285714285714285e-05,
+  "current_step": 15
+ }
+}
